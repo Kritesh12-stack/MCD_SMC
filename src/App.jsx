@@ -1,0 +1,40 @@
+import { Routes, Route } from 'react-router-dom'
+import { useUser } from './contexts/UserContext'
+
+function Home() {
+  const { user, login, logout } = useUser()
+
+  return (
+    <div className="text-xl bg-blue-500 p-4">
+      <h1>Home Page</h1>
+      {user ? (
+        <div>
+          <p>Welcome, {user.name}!</p>
+          <button onClick={logout} className="bg-red-500 text-white px-4 py-2 mt-2">
+            Logout
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={() => login({ name: 'John Doe' })}
+          className="bg-green-500 text-white px-4 py-2 mt-2"
+        >
+          Login
+        </button>
+      )}
+    </div>
+  )
+}
+
+function About() {
+  return <div className="text-xl bg-green-500">About Page</div>
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/about" element={<About />} />
+    </Routes>
+  )
+}
