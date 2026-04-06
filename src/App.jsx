@@ -3,6 +3,8 @@ import { useUser } from './contexts/UserContext'
 import LoginPage from './pages/LoginPage'
 import SideBar from './components/SideBar'
 import DashboardPage from './pages/DashboardPage'
+import ComplainListPage from './pages/ComplainListPage'
+import RaiseComplaintPage from './pages/RaiseComplaintPage'
 
 function Home() {
   const { user, login, logout } = useUser()
@@ -46,7 +48,8 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/about" element={<About />} />
           <Route path="/dashboard" element={<DashboardPage />} />
-
+          <Route path="/complaints" element={<ComplainListPage />} />
+          <Route path="/complaints/raise" element={<RaiseComplaintPage />} />
         </Routes>
       </div>
     </div>

@@ -1,7 +1,9 @@
-export default function SidebarItem({ title, icon, Icon, isSelected = false , setSelected }) {
+import { useNavigate } from "react-router-dom"
+
+export default function SidebarItem({ title, icon, Icon, isSelected = false , setSelected , path }) {
     const iconClass = isSelected ? 'w-5 h-5 text-[#0075FF]' : 'w-5 h-5 text-gray-500'
     const iconSource = Icon || icon
-
+    const navigate = useNavigate()
     const IconContent = () => {
         if (!iconSource) return null
 
@@ -21,7 +23,10 @@ export default function SidebarItem({ title, icon, Icon, isSelected = false , se
     }
 
     return (
-        <div onClick={()=>setSelected(title)} className="w-full cursor-pointer transition-all duration-75 flex items-center gap-2 px-6 py-4 hover:bg-gray-200">
+        <div onClick={()=>{
+            setSelected(title)
+            navigate(path)
+            }} className="w-full cursor-pointer transition-all duration-75 flex items-center gap-2 px-6 py-4 hover:bg-gray-200">
             <IconContent />
             <div className={`flex-1 text-[12px] font-semibold ${isSelected ? "text-[#0075FF]" : "text-[#425466]"}`}>{title}</div>
         </div>

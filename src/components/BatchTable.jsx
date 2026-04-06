@@ -174,6 +174,11 @@ export default function BatchTable() {
     sla: "0hr left",
   },
 ];
+
+  const raiseTicket = () => {
+    console.log("Raised a ticket");
+  }
+
     return (
         <section className="px-4">
             <section className="w-full p-4 rounded-md border border-[#E8E8E8] shadow">
@@ -181,7 +186,7 @@ export default function BatchTable() {
                     <SearchBar search={searchText} setSearch={setSearchText} />
                     <FilterDropDown primarySelected={false} />
                     {/* <FilterDropDown primarySelected={true} /> */}
-                    <CustomButton title={"Raise a ticket"} type={"filled"} rounded={true} length={"large"} handleSubmit={() => console.log("Clicked")} />
+                    <CustomButton title={"Raise a ticket"} type={"filled"} rounded={true} length={"large"} handleSubmit={raiseTicket} />
                     <CustomButton title={"Export"} type={"unfilled-red"} rounded={false} length={"med"} handleSubmit={() => console.log("Clicked")} />
                 </div>
                 <div>
