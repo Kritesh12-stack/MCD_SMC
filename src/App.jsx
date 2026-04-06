@@ -1,5 +1,8 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { useUser } from './contexts/UserContext'
+import LoginPage from './pages/LoginPage'
+import SideBar from './components/SideBar'
+import DashboardPage from './pages/DashboardPage'
 
 function Home() {
   const { user, login, logout } = useUser()
@@ -31,10 +34,21 @@ function About() {
 }
 
 export default function App() {
+  const location = useLocation();
+  const hideSidebar = location.pathname === "/login";
+
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/about" element={<About />} />
-    </Routes>
+    <div className="min-h-screen">
+      {!hideSidebar && <SideBar />}
+      <div className={!hideSidebar ? "ml-64" : ""}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+
+        </Routes>
+      </div>
+    </div>
   )
 }
