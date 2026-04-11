@@ -1,13 +1,14 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-    baseURL: "http://13.233.116.170:8000/api/v1",
+    baseURL: "/api/v1",
     headers: { "Content-Type": "application/json", accept: "application/json" },
 });
 
 // Attach access token to every request
 axiosInstance.interceptors.request.use((config) => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
+    console.log("[axios] Token:", user?.access ? "present" : "missing");
     if (user?.access) {
         config.headers.Authorization = `Bearer ${user.access}`;
     }
@@ -45,7 +46,7 @@ axiosInstance.interceptors.response.use(
 
             try {
                 const { data } = await axios.post(
-                    "http://13.233.116.170:8000/api/v1/auth/token/refresh/",
+                    "/api/v1/auth/token/refresh/",
                     { refresh: user.refresh }
                 );
 

@@ -1,205 +1,89 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import CustomButton from "../components/CustomButton";
 import CustomTable from "../components/CustomTable";
 import FilterDropDown from "../components/FilterDropDown";
 import PageHeading from "../components/PageHeading";
 import SearchBar from "../components/SearchBar";
-import { useNavigate } from "react-router-dom";
+import { getComplaints } from "../api/complaintsApi";
+
+const STATUS_COLORS = {
+    pending: "bg-yellow-100 text-yellow-700 border-yellow-300",
+    acknowledged: "bg-blue-100 text-blue-700 border-blue-300",
+    justified: "bg-green-100 text-green-700 border-green-300",
+    unjustified: "bg-red-100 text-red-700 border-red-300",
+};
+
 export default function ComplainListPage() {
     const [search, setSearch] = useState("");
-    const navigate = useNavigate()
+    const [complaints, setComplaints] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [filter, setFilter] = useState("Last 7 days");
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        fetchComplaints();
+    }, [search, filter]);
+
+    async function fetchComplaints() {
+        setLoading(true);
+        try {
+            const params = {};
+            if (search) params.search = search;
+            const res = await getComplaints(params);
+            setComplaints(res.data?.data?.results || res.data?.results || []);
+        } catch (err) {
+            console.error("Failed to fetch complaints:", err);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     const columns = [
-        { key: "ticketId", title: "Ticket Id" },
-        { key: "productName", title: "Product Name" },
-        { key: "category", title: "Category" },
-        { key: "quantity", title: "Quantity" },
-        { key: "vendor", title: "Vendor" },
-
+        { key: "ticket_id", title: "Ticket Id" },
+        { key: "product_name", title: "Product Name" },
+        { key: "complaint_category_name", title: "Category" },
+        { key: "quantity", title: "Quantity", render: (v) => v || "-" },
+        { key: "supplier_name", title: "Vendor" },
         {
             key: "status",
             title: "Status",
             render: (value) => (
-                <span
-                    className={`px-3 py-1 text-xs font-medium rounded-md border
-          ${value === "Pending"
-                            ? "bg-yellow-100 text-yellow-700 border-yellow-300"
-                            : "bg-blue-100 text-blue-700 border-blue-300"
-                        }`}
-                >
+                <span className={`px-3 py-1 text-xs font-medium rounded-md border capitalize ${STATUS_COLORS[value?.toLowerCase()] || STATUS_COLORS.pending}`}>
                     {value}
                 </span>
             ),
         },
-
         {
             key: "action",
             title: "Action",
             render: (_, row) => (
-                <button
-                    className="text-blue-600 hover:underline"
-                    onClick={() => {
-                        navigate(`/complaint/${row.ticketId}`)
-                        console.log("View:", row.ticketId)}}
-
-                >
+                <button className="text-blue-600 hover:underline" onClick={() => navigate(`/complaint/${row.id}`)}>
                     View
                 </button>
             ),
         },
-
-        { key: "sla", title: "SLA" },
+        { key: "sla", title: "SLA", render: () => "-" },
     ];
-
-   const data = [
-  {
-    ticketId: "COM-2025-0012",
-    productName: "Milk / Milk Substitutes",
-    category: "Foreign Body - Product Related",
-    quantity: 2,
-    vendor: "Salamonca",
-    status: "Pending",
-    sla: "4hr left",
-  },
-  {
-    ticketId: "COM-2025-0013",
-    productName: "Fish/Seafood",
-    category: "Foreign Body - Product Related",
-    quantity: 67,
-    vendor: "Cooker Docker",
-    status: "Acknowledged",
-    sla: "0hr left",
-  },
-  {
-    ticketId: "COM-2025-0014",
-    productName: "Prepared Salads",
-    category: "Foreign Body - Product Related",
-    quantity: 5,
-    vendor: "Green Farms Ltd",
-    status: "Acknowledged",
-    sla: "1hr left",
-  },
-  {
-    ticketId: "COM-2025-0015",
-    productName: "Grains/Pulses/Flour",
-    category: "Packaging",
-    quantity: 45,
-    vendor: "Salamonca",
-    status: "Acknowledged",
-    sla: "0hr left",
-  },
-  {
-    ticketId: "COM-2025-0016",
-    productName: "Fish/Seafood",
-    category: "Foreign Body - Product Related",
-    quantity: 21,
-    vendor: "Salamonca",
-    status: "Pending",
-    sla: "2hr left",
-  },
-  {
-    ticketId: "COM-2025-0017",
-    productName: "Grains/Pulses/Flour",
-    category: "Quality Integrated",
-    quantity: 56,
-    vendor: "Cooker Docker",
-    status: "Pending",
-    sla: "3hr left",
-  },
-  {
-    ticketId: "COM-2025-0018",
-    productName: "Confectionery",
-    category: "Foreign Body - Non Product Related",
-    quantity: 56,
-    vendor: "Green Farms Ltd",
-    status: "Pending",
-    sla: "4hr left",
-  },
-  {
-    ticketId: "COM-2025-0019",
-    productName: "Milk / Milk Substitutes",
-    category: "Foreign Body - Product Related",
-    quantity: 9,
-    vendor: "Cooker Docker",
-    status: "Pending",
-    sla: "2hr left",
-  },
-  {
-    ticketId: "COM-2025-0020",
-    productName: "Fish/Seafood",
-    category: "Foreign Body - Product Related",
-    quantity: 32,
-    vendor: "Cooker Docker",
-    status: "Pending",
-    sla: "2hr left",
-  },
-  {
-    ticketId: "COM-2025-0021",
-    productName: "Fish/Seafood",
-    category: "Foreign Body - Product Related",
-    quantity: 56,
-    vendor: "Salamonca",
-    status: "Acknowledged",
-    sla: "0hr left",
-  },
-  {
-    ticketId: "COM-2025-0022",
-    productName: "Bakery Items",
-    category: "Packaging",
-    quantity: 12,
-    vendor: "Urban Bakers",
-    status: "Pending",
-    sla: "5hr left",
-  },
-  {
-    ticketId: "COM-2025-0023",
-    productName: "Frozen Foods",
-    category: "Quality Issue",
-    quantity: 18,
-    vendor: "Cold Storage Inc",
-    status: "Acknowledged",
-    sla: "1hr left",
-  },
-  {
-    ticketId: "COM-2025-0024",
-    productName: "Beverages",
-    category: "Foreign Body - Product Related",
-    quantity: 30,
-    vendor: "Fresh Drinks Co",
-    status: "Pending",
-    sla: "6hr left",
-  },
-  {
-    ticketId: "COM-2025-0025",
-    productName: "Snacks",
-    category: "Packaging",
-    quantity: 22,
-    vendor: "Snacky Pvt Ltd",
-    status: "Acknowledged",
-    sla: "0hr left",
-  },
-];
-
-    const raiseTicket = () => {
-        console.log("Raised a ticket");
-        navigate("/complaints/raise")
-    }
 
     return (
         <div>
-            <PageHeading title={"Complaints List"} />
-            <div className="px-4"> 
+            <PageHeading title={"Complaint List"} />
+            <div className="px-4">
                 <div className="flex justify-between items-center mb-4">
                     <SearchBar search={search} setSearch={setSearch} />
                     <div className="flex items-center gap-4">
-                    <FilterDropDown primarySelected={true} />
-                    <CustomButton title={"Export"} type={"unfilled-red"} rounded={false} length={"med"} handleSubmit={() => console.log("Clicked")} />
-                    <CustomButton title={"Raise a ticket"} type={"filled"} rounded={false} length={"large"} handleSubmit={raiseTicket} />
+                        <FilterDropDown primarySelected={true} />
+                        <CustomButton title={"Export"} type={"unfilled-red"} rounded={false} length={"med"} />
+                        <CustomButton title={"Raise a ticket"} type={"filled"} rounded={false} length={"large"} handleSubmit={() => navigate("/complaints/raise")} />
                     </div>
-                    
                 </div>
-                <CustomTable columns={columns} data={data} maxRows={20} />
+                {loading ? (
+                    <div className="text-center py-10 text-gray-500">Loading...</div>
+                ) : (
+                    <CustomTable columns={columns} data={complaints} maxRows={20} />
+                )}
             </div>
         </div>
-    )
+    );
 }

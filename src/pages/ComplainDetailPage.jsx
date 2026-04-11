@@ -1,13 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import PageHeading from "../components/PageHeading";
 import CustomButton from "../components/CustomButton";
 import CustomDropdown from "../components/CustomDropdown";
-
-const images = [
-    "https://placehold.co/84x84",
-    "https://placehold.co/84x84",
-    "https://placehold.co/84x84",
-];
+import { getComplaintById, addComment } from "../api/complaintsApi";
 
 const sendToOptions = [
     { id: 1, name: "Regional QA" },
@@ -15,84 +11,87 @@ const sendToOptions = [
     { id: 3, name: "Vendor/Supplier" },
 ];
 
+const STATUS_COLORS = {
+    pending: "border-yellow-400 text-yellow-500",
+    acknowledged: "border-blue-400 text-blue-500",
+    justified: "border-green-400 text-green-500",
+    unjustified: "border-red-400 text-red-500",
+};
+
 export default function ComplainDetailPage() {
+    const { id } = useParams();
+    const [complaint, setComplaint] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [selected, setSelected] = useState(sendToOptions[0]);
     const [comment, setComment] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+
+    useEffect(() => {
+        async function fetchDetail() {
+            try {
+                const res = await getComplaintById(id);
+                setComplaint(res.data?.data || res.data);
+            } catch (err) {
+                console.error("Failed to fetch complaint:", err);
+            } finally {
+                setLoading(false);
+            }
+        }
+        if (id) fetchDetail();
+    }, [id]);
+
+    async function handleSendComment() {
+        if (!comment.trim()) return;
+        setSubmitting(true);
+        try {
+            await addComment(id, { content: comment, send_to: selected.name });
+            setComment("");
+        } catch (err) {
+            console.error("Failed to add comment:", err);
+        } finally {
+            setSubmitting(false);
+        }
+    }
+
+    if (loading) return <div className="p-10 text-center text-gray-500">Loading...</div>;
+    if (!complaint) return <div className="p-10 text-center text-red-500">Complaint not found</div>;
+
+    const statusClass = STATUS_COLORS[complaint.status?.toLowerCase()] || STATUS_COLORS.pending;
 
     return (
         <section className="px-4 w-full mb-4">
             <PageHeading title={"Details"} />
             <div className="w-full flex justify-between gap-4 pr-4">
-
                 {/* Left Panel */}
                 <div className="w-[65%] border border-[#E8E8E8] rounded-xl p-6 flex flex-col gap-4 bg-white">
-                    {/* Edit */}
                     <div className="flex justify-between items-start">
-                        <div>
-                            <p className="text-lg font-semibold">Details of <span className="font-normal">COM-2025-0012</span></p>
-                        </div>
-                        <button className="flex items-center gap-1 text-sm border border-[#E8E8E8] rounded-md px-3 py-1 cursor-pointer">
-                            ✎ Edit
-                        </button>
+                        <p className="text-lg font-semibold">Details of <span className="font-normal">{complaint.ticket_id}</span></p>
+                        <button className="flex items-center gap-1 text-sm border border-[#E8E8E8] rounded-md px-3 py-1 cursor-pointer">✎ Edit</button>
                     </div>
 
-                    {/* Meta Row */}
                     <div className="flex justify-between items-center text-sm text-[#494949]">
-                        <span className="font-semibold">COM-2025-0012</span>
-                        <span>19 Feb 2025, 5:34 pm</span>
+                        <span className="font-semibold">{complaint.ticket_id}</span>
+                        <span>{new Date(complaint.created_at).toLocaleString()}</span>
                     </div>
 
-                    {/* Status */}
                     <div>
-                        <span className="border border-blue-400 text-blue-500 text-xs px-3 py-1 rounded-full">Justified</span>
+                        <span className={`border text-xs px-3 py-1 rounded-full capitalize ${statusClass}`}>{complaint.status}</span>
                     </div>
 
-                    {/* Grid Details */}
                     <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <p className="text-[#888] font-medium">Date of Complaint</p>
-                            <p className="font-semibold">19 Feb 2025, 5:34 pm</p>
-                        </div>
-                        <div>
-                            <p className="text-[#888] font-medium">SAP Code</p>
-                            <p className="font-semibold">30021457</p>
-                        </div>
-                        <div>
-                            <p className="text-[#888] font-medium">Batch</p>
-                            <p className="font-semibold">12345/12/A12</p>
-                        </div>
-                        <div>
-                            <p className="text-[#888] font-medium">Category</p>
-                            <span className="border border-[#E8E8E8] rounded-md px-2 py-1 text-xs">Foreign Body-PR</span>
-                        </div>
-                        <div>
-                            <p className="text-[#888] font-medium">Volume Affected</p>
-                            <p className="font-semibold">Full Batch</p>
-                        </div>
-                        <div>
-                            <p className="text-[#888] font-medium">Issue</p>
-                            <p className="font-semibold">Food Quality</p>
-                        </div>
-                    </div>
-
-                    {/* Attached Pictures */}
-                    <div>
-                        <p className="text-sm font-medium text-[#494949] mb-2">Attached Pictures</p>
-                        <div className="flex gap-2 border border-dashed border-[#aaa] rounded-lg p-2">
-                            {images.map((src, i) => (
-                                <img key={i} src={src} alt={`attachment-${i}`} className="w-20 h-20 rounded-md object-cover" />
-                            ))}
-                        </div>
+                        <DetailRow label="Date of Complaint" value={new Date(complaint.created_at).toLocaleString()} />
+                        <DetailRow label="SAP Code" value={complaint.wrin || "-"} />
+                        <DetailRow label="Batch" value={complaint.batch_number || "-"} />
+                        <DetailRow label="Category" value={complaint.complaint_category_name} badge />
+                        <DetailRow label="Volume Affected" value={complaint.quantity ? `${complaint.quantity} ${complaint.quantity_unit || ""}` : "-"} />
+                        <DetailRow label="Issue" value={complaint.severity || "-"} />
                     </div>
 
                     {/* Product Info */}
                     <div className="flex gap-3 items-start border-t pt-4">
-                        {/* <img src="https://placehold.co/84x84" alt="product" className="w-20 h-20 rounded-md object-cover" /> */}
                         <div>
-                            <p className="font-semibold text-sm">Food</p>
-                            <p className="text-xs text-[#666] mt-1">
-                                Fish Fillet Patty at McDonald's is a sandwich component made from seasoned fish fillet that is coated, shaped, and cooked to form a uniform patty. It's used in selected McDonald's menu items as a seafood option, typically offered in markets where fish is preferred, culturally suitable, or required for dietary preferences.
-                            </p>
+                            <p className="font-semibold text-sm">{complaint.product_name}</p>
+                            <p className="text-xs text-[#666] mt-1">{complaint.description || "No description provided."}</p>
                         </div>
                     </div>
 
@@ -100,21 +99,11 @@ export default function ComplainDetailPage() {
                     <div className="border-t pt-4 flex flex-col gap-3">
                         <p className="font-semibold text-sm">Add a comment</p>
                         <div className="w-40">
-                            <CustomDropdown
-                                options={sendToOptions}
-                                selected={selected}
-                                setSelected={setSelected}
-                                placeholder="Sent to all"
-                            />
+                            <CustomDropdown options={sendToOptions} selected={selected} setSelected={setSelected} placeholder="Sent to all" />
                         </div>
-                        <textarea
-                            value={comment}
-                            onChange={(e) => setComment(e.target.value)}
-                            placeholder="Write Your Comment"
-                            className="w-full border border-[#E8E8E8] rounded-md p-3 text-sm resize-none h-24 outline-none"
-                        />
+                        <textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Write Your Comment" className="w-full border border-[#E8E8E8] rounded-md p-3 text-sm resize-none h-24 outline-none" />
                         <div className="flex justify-end">
-                            <CustomButton title="Send the comment" type="filled" length="large" />
+                            <CustomButton title={submitting ? "Sending..." : "Send the comment"} type="filled" length="large" handleSubmit={handleSendComment} />
                         </div>
                     </div>
                 </div>
@@ -128,12 +117,24 @@ export default function ComplainDetailPage() {
                             <CustomButton title="Share" type="filled" />
                         </div>
                     </div>
-                    <div className="border border-[#E8E8E8] rounded-md h-fit text-sm text-[#aaa]">
-                    <img src="https://placehold.co/400x500" alt="product" className="w-[400px] h-[500px] rounded-md object-cover" />
+                    <div className="border border-[#E8E8E8] rounded-md h-fit text-sm text-[#aaa] flex items-center justify-center min-h-[400px]">
+                        <span className="text-gray-400">Response sheet preview</span>
                     </div>
                 </div>
-
             </div>
         </section>
+    );
+}
+
+function DetailRow({ label, value, badge }) {
+    return (
+        <div>
+            <p className="text-[#888] font-medium">{label}</p>
+            {badge ? (
+                <span className="border border-[#E8E8E8] rounded-md px-2 py-1 text-xs">{value}</span>
+            ) : (
+                <p className="font-semibold">{value}</p>
+            )}
+        </div>
     );
 }
