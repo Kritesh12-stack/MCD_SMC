@@ -1,55 +1,39 @@
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Navigate, Routes, Route, useLocation } from 'react-router-dom'
 import { useUser } from './contexts/UserContext'
 import LoginPage from './pages/LoginPage'
 import SideBar from './components/SideBar'
 import DashboardPage from './pages/DashboardPage'
 import ComplainListPage from './pages/ComplainListPage'
 import RaiseComplaintPage from './pages/RaiseComplaintPage'
+import ComplainDetailPage from './pages/ComplainDetailPage'
 
-function Home() {
-  const { user, login, logout } = useUser()
-
-  return (
-    <div className="text-xl bg-blue-500 p-4">
-      <h1>Home Page</h1>
-      {user ? (
-        <div>
-          <p>Welcome, {user.name}!</p>
-          <button onClick={logout} className="bg-red-500 text-white px-4 py-2 mt-2">
-            Logout
-          </button>
-        </div>
-      ) : (
-        <button
-          onClick={() => login({ name: 'John Doe' })}
-          className="bg-green-500 text-white px-4 py-2 mt-2"
-        >
-          Login
-        </button>
-      )}
-    </div>
-  )
+function ProtectedRoute({ children }) {
+  const { user } = useUser()
+  return user ? children : <Navigate to="/login" replace />
 }
 
-function About() {
-  return <div className="text-xl bg-green-500">About Page</div>
+function GuestRoute({ children }) {
+  const { user } = useUser()
+  return user ? <Navigate to="/dashboard" replace /> : children
 }
 
 export default function App() {
-  const location = useLocation();
-  const hideSidebar = location.pathname === "/login";
+  const { user } = useUser()
+  const location = useLocation()
+  const isLoginPage = location.pathname === '/login'
 
   return (
     <div className="min-h-screen">
-      {!hideSidebar && <SideBar />}
-      <div className={!hideSidebar ? "ml-64" : ""}>
+      {!isLoginPage && user && <SideBar />}
+      <div className={!isLoginPage && user ? 'ml-64' : ''}>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/complaints" element={<ComplainListPage />} />
-          <Route path="/complaints/raise" element={<RaiseComplaintPage />} />
+          <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
+          <Route path="/" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
+          <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route path="/complaints" element={<ProtectedRoute><ComplainListPage /></ProtectedRoute>} />
+          <Route path="/complaints/raise" element={<ProtectedRoute><RaiseComplaintPage /></ProtectedRoute>} />
+          <Route path="/complaint/:id" element={<ProtectedRoute><ComplainDetailPage /></ProtectedRoute>} />
+          <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
         </Routes>
       </div>
     </div>

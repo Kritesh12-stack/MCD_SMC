@@ -182,16 +182,20 @@ export default function BatchTable() {
     return (
         <section className="px-4">
             <section className="w-full p-4 rounded-md border border-[#E8E8E8] shadow">
-                <div className="flex items-center gap-4 mb-4">
+                <div className="flex items-center justify-between gap-4 mb-4">
+                    <div className="flex gap-4">
                     <SearchBar search={searchText} setSearch={setSearchText} />
                     <FilterDropDown primarySelected={false} />
+                    </div>
+                    
                     {/* <FilterDropDown primarySelected={true} /> */}
                     <CustomButton title={"Raise a ticket"} type={"filled"} rounded={true} length={"large"} handleSubmit={raiseTicket} />
-                    <CustomButton title={"Export"} type={"unfilled-red"} rounded={false} length={"med"} handleSubmit={() => console.log("Clicked")} />
+                    {/* <CustomButton title={"Export"} type={"unfilled-red"} rounded={false} length={"med"} handleSubmit={() => console.log("Clicked")} /> */}
                 </div>
                 <div>
                     <CustomTable columns={columns} data={data} maxRows={10} />
                 </div>
+                
             </section>
         </section>
     )
