@@ -6,6 +6,7 @@ import DashboardPage from './pages/DashboardPage'
 import ComplainListPage from './pages/ComplainListPage'
 import RaiseComplaintPage from './pages/RaiseComplaintPage'
 import ComplainDetailPage from './pages/ComplainDetailPage'
+import SLASettingsPage from './pages/SLASettingsPage'
 
 function ProtectedRoute({ children }) {
   const { user } = useUser()
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="/complaints" element={<ProtectedRoute><ComplainListPage /></ProtectedRoute>} />
           <Route path="/complaints/raise" element={<ProtectedRoute><RaiseComplaintPage /></ProtectedRoute>} />
           <Route path="/complaint/:id" element={<ProtectedRoute><ComplainDetailPage /></ProtectedRoute>} />
+          <Route path="/sla-settings" element={<ProtectedRoute><SLASettingsPage /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
         </Routes>
       </div>
