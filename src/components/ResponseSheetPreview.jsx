@@ -27,7 +27,7 @@ export default function ResponseSheetPreview({ complaint, onExport }) {
         </div>
       </div>
 
-      <div ref={sheetRef} className="border border-[#E8E8E8] rounded-md bg-white text-[10px] leading-tight" style={{ fontFamily: "Arial, sans-serif" }}>
+      <div ref={sheetRef} className="border border-[#E8E8E8] rounded-md bg-white text-[10px] leading-tight overflow-hidden" style={{ fontFamily: "Arial, sans-serif" }}>
         {/* Header */}
         <div className="flex justify-between items-start px-4 pt-3 pb-2 border-b border-[#ccc]">
           <div className="flex items-center gap-2">
@@ -113,10 +113,10 @@ export default function ResponseSheetPreview({ complaint, onExport }) {
 function Row({ l1, v1, l2, v2 }) {
   return (
     <tr>
-      <td className="text-[#888] py-0.5 w-[25%] pr-1">{l1}</td>
-      <td className="font-medium text-[#333] py-0.5 w-[25%]">{v1}</td>
-      <td className="text-[#888] py-0.5 w-[25%] pr-1">{l2}</td>
-      <td className="font-medium text-[#333] py-0.5 w-[25%]">{v2}</td>
+      <td className="text-[#888] py-0.5 w-[25%] pr-1 break-words">{l1}</td>
+      <td className="font-medium text-[#333] py-0.5 w-[25%] break-words">{v1}</td>
+      <td className="text-[#888] py-0.5 w-[25%] pr-1 break-words">{l2}</td>
+      <td className="font-medium text-[#333] py-0.5 w-[25%] break-words">{v2}</td>
     </tr>
   );
 }

@@ -14,6 +14,13 @@ import MultiDonutChart from "../components/MultiDonutChart";
 import HorizontalBarChartCard from "../components/HorizontalBarChartCard";
 import { getDashboardOverview, getDashboardAnalytics, getComplaints } from "../api/complaintsApi";
 
+const DATE_FILTERS = [
+    { id: 7,   name: "Last 7 days" },
+    { id: 30,  name: "Last 1 month" },
+    { id: 90,  name: "Last 3 months" },
+    { id: 180, name: "Last 6 months" },
+];
+
 const lines = [
     { key: "count", color: "#EF4444", label: "Complaints" },
 ];
@@ -23,6 +30,7 @@ export default function DashboardPage() {
     const [analytics, setAnalytics] = useState(null);
     const [complaints, setComplaints] = useState([]);
     const [complaintsLoading, setComplaintsLoading] = useState(true);
+    const [filter, setFilter] = useState(7);
 
     useEffect(() => {
         async function fetchAll() {
@@ -71,7 +79,7 @@ export default function DashboardPage() {
             <div className="flex justify-between items-center px-4 mb-4">
                 <div className="text-[#27272E] text-2xl font-medium">Tickets</div>
                 <div className="flex items-center gap-4">
-                    <FilterDropDown primarySelected={true} />
+                    <FilterDropDown primarySelected={true} dropDownList={DATE_FILTERS} onChange={setFilter} />
                     <CustomButton type="unfilled-red" title={"Export"} />
                 </div>
             </div>
@@ -87,7 +95,7 @@ export default function DashboardPage() {
             <div className="flex justify-between items-center px-4 my-4">
                 <div className="text-[#27272E] text-2xl font-medium">Tickets Overview</div>
                 <div className="flex items-center gap-4">
-                    <FilterDropDown primarySelected={true} />
+                    <FilterDropDown primarySelected={true} dropDownList={DATE_FILTERS} onChange={setFilter} />
                     <CustomButton type="unfilled-red" title={"Export"} />
                 </div>
             </div>

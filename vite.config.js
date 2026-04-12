@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
+  // Avoid node_modules/.vite — Windows often blocks rmdir there (EPERM).
+  cacheDir: '.vite',
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {

@@ -10,13 +10,16 @@ import voluntaryRecall from "../assets/voluntaryRecall.svg"
 import logout from "../assets/logout.svg"
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import logo from "../assets/Logo_mcd.png"
 
 export default function SideBar() {
     const [selected,setSelected] = useState("Dashboard")
     const location = useLocation()
     return (
         <section className="fixed top-0 left-0 h-screen w-64 bg-white shadow-lg overflow-auto flex flex-col items-center pt-11">
-            <div className="w-20 h-24 rounded-md bg-amber-300 mb-4"></div>
+            <div className="w-20 h-24 rounded-md mb-4">
+                <img src={logo} alt="Logo" />
+            </div>
             <SidebarItem path="/dashboard" Icon={DashboardIcon} title={"Dashboard"} setSelected={setSelected} isSelected={selected === "Dashboard"}/>
             <SidebarItem path="/complaints" Icon={CompList} title={"Complaints List"} setSelected={setSelected} isSelected={location.pathname === "/complaints" || location.pathname === "/complaints/raise" || selected === "Complaints List"}/>
             <SidebarItem path="/mock-recall" Icon={mockRecall} title={"Mock Recall"} setSelected={setSelected} isSelected={selected === "Mock Recall"}/>
