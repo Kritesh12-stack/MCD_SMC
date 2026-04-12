@@ -1,6 +1,7 @@
 import { Navigate, Routes, Route, useLocation } from 'react-router-dom'
 import { useUser } from './contexts/UserContext'
 import LoginPage from './pages/LoginPage'
+import WorkspaceSelectionPage from './pages/WorkspaceSelectionPage'
 import SideBar from './components/SideBar'
 import DashboardPage from './pages/DashboardPage'
 import ComplainListPage from './pages/ComplainListPage'
@@ -9,6 +10,7 @@ import ComplainDetailPage from './pages/ComplainDetailPage'
 import SLASettingsPage from './pages/SLASettingsPage'
 import VoluntaryRecallPage from './pages/VoluntaryRecallPage'
 import VoluntaryRecallDetailPage from './pages/VoluntaryRecallDetailPage'
+import VoluntaryRecallFormPage from './pages/VoluntaryRecallFormPage'
 import VendorResponsePage from './pages/VendorResponsePage'
 
 function ProtectedRoute({ children }) {
@@ -32,7 +34,7 @@ export default function App() {
       <div className={!isLoginPage && user ? 'ml-64' : ''}>
         <Routes>
           <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
-          <Route path="/" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
+          <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <WorkspaceSelectionPage />} />
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
           <Route path="/complaints" element={<ProtectedRoute><ComplainListPage /></ProtectedRoute>} />
           <Route path="/complaints/raise" element={<ProtectedRoute><RaiseComplaintPage /></ProtectedRoute>} />
@@ -40,8 +42,9 @@ export default function App() {
           <Route path="/sla-settings" element={<ProtectedRoute><SLASettingsPage /></ProtectedRoute>} />
           <Route path="/complaint/:id/vendor-response" element={<ProtectedRoute><VendorResponsePage /></ProtectedRoute>} />
           <Route path="/voluntary-recall" element={<ProtectedRoute><VoluntaryRecallPage /></ProtectedRoute>} />
+          <Route path="/voluntary-recall/new" element={<ProtectedRoute><VoluntaryRecallFormPage /></ProtectedRoute>} />
           <Route path="/voluntary-recall/:id" element={<ProtectedRoute><VoluntaryRecallDetailPage /></ProtectedRoute>} />
-          <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
+          <Route path="*" element={<Navigate to={user ? '/dashboard' : '/'} replace />} />
         </Routes>
       </div>
     </div>

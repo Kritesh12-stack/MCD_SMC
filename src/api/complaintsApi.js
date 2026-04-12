@@ -12,6 +12,7 @@ export const getFacilities = () => axiosInstance.get("/complaints/facilities/");
 // Complaints CRUD
 export const getComplaints = (params = {}) => axiosInstance.get("/complaints/", { params });
 export const getComplaintById = (id) => axiosInstance.get(`/complaints/${id}/`);
+export const updateComplaint = (id, payload) => axiosInstance.patch(`/complaints/${id}/`, payload);
 export const createComplaint = (payload) => axiosInstance.post("/complaints/", payload);
 export const addComment = (id, payload) => axiosInstance.post(`/complaints/${id}/comments/`, payload);
 export const uploadAttachment = (id, file) => {
@@ -27,6 +28,7 @@ export const getDashboardAnalytics = () => axiosInstance.get("/dashboard/analyti
 export const getDashboardCharts = () => axiosInstance.get("/dashboard/charts/");
 export const getVoluntaryRecalls = (params = {}) => axiosInstance.get("/recalls/voluntary/", { params });
 export const getVoluntaryRecallById = (id) => axiosInstance.get(`/recalls/voluntary/${id}/`);
+export const createVoluntaryRecall = (payload) => axiosInstance.post("/recalls/voluntary/", payload);
 
 export const getSLASettings = () => axiosInstance.get("/sla/settings/");
 export const updateSLASettings = (payload) => axiosInstance.post("/sla/settings/", payload);
