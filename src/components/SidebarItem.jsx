@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom"
 
-export default function SidebarItem({ title, icon, Icon, isSelected = false , setSelected , path }) {
+export default function SidebarItem({ title, icon, Icon, isSelected = false, setSelected, path, badge = 0, onClick }) {
     const iconClass = isSelected ? 'w-5 h-5 text-[#0075FF]' : 'w-5 h-5 text-gray-500'
     const iconSource = Icon || icon
     const navigate = useNavigate()
@@ -22,13 +22,21 @@ export default function SidebarItem({ title, icon, Icon, isSelected = false , se
         return <RenderedIcon className={iconClass} aria-hidden="true" />
     }
 
+    function handleClick() {
+        if (onClick) { onClick(); return; }
+        setSelected(title)
+        navigate(path)
+    }
+
     return (
-        <div onClick={()=>{
-            setSelected(title)
-            navigate(path)
-            }} className="w-full cursor-pointer transition-all duration-75 flex items-center gap-2 px-6 py-4 hover:bg-gray-200">
+        <div onClick={handleClick} className="w-full cursor-pointer transition-all duration-75 flex items-center gap-2 px-6 py-4 hover:bg-gray-200">
             <IconContent />
             <div className={`flex-1 text-[12px] font-semibold ${isSelected ? "text-[#0075FF]" : "text-[#425466]"}`}>{title}</div>
+            {badge > 0 && (
+                <span className="bg-[#F11518] text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {badge > 99 ? "99+" : badge}
+                </span>
+            )}
         </div>
     )
 }

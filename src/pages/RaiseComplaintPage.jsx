@@ -60,7 +60,7 @@ export default function RaiseComplaintPage() {
         const files = Array.from(e.target.files);
         const valid = files.filter(f => f.size <= 500 * 1024);
         setImages(prev => [...prev, ...valid.map(file => ({ file, preview: URL.createObjectURL(file) }))]);
-        e.target.value = "";
+        setTimeout(() => { e.target.value = ""; }, 0);
     }
 
     function removeImage(index) {
@@ -225,7 +225,7 @@ export default function RaiseComplaintPage() {
                         </svg>
                         <p className="text-sm text-[#666]"><span className="text-[#F11518] font-medium">Click to upload</span> or drag & drop</p>
                         <p className="text-xs text-[#999]">JPEG (max. 500kb)</p>
-                        <input type="file" accept="image/jpeg" multiple className="hidden" onChange={handleImages} />
+                        <input type="file" accept="image/jpeg,image/jpg,image/png" multiple className="hidden" onChange={handleImages} />
                     </label>
                     {images.length > 0 && (
                         <div className="flex flex-wrap gap-2 mt-2">

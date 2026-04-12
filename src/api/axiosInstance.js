@@ -8,7 +8,6 @@ const axiosInstance = axios.create({
 // Attach access token to every request
 axiosInstance.interceptors.request.use((config) => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
-    console.log("[axios] Token:", user?.access ? "present" : "missing");
     if (user?.access) {
         config.headers.Authorization = `Bearer ${user.access}`;
     }
@@ -32,6 +31,13 @@ axiosInstance.interceptors.response.use(
         if (error?.response?.status === 401 && !original._retry) {
             original._retry = true;
 
+            const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+            // No refresh token means we're not logged in — don't attempt refresh
+            if (!user.refresh) {
+                return Promise.reject(error);
+            }
+
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
                     failedQueue.push({ resolve, reject });
@@ -42,7 +48,6 @@ axiosInstance.interceptors.response.use(
             }
 
             isRefreshing = true;
-            const user = JSON.parse(localStorage.getItem("user") || "{}");
 
             try {
                 const { data } = await axios.post(
@@ -61,7 +66,9 @@ axiosInstance.interceptors.response.use(
             } catch (refreshError) {
                 processQueue(refreshError, null);
                 localStorage.removeItem("user");
-                window.location.href = "/login";
+                if (window.location.pathname !== "/login") {
+                    window.location.href = "/login";
+                }
                 return Promise.reject(refreshError);
             } finally {
                 isRefreshing = false;

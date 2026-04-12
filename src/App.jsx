@@ -12,6 +12,10 @@ import VoluntaryRecallPage from './pages/VoluntaryRecallPage'
 import VoluntaryRecallDetailPage from './pages/VoluntaryRecallDetailPage'
 import VoluntaryRecallFormPage from './pages/VoluntaryRecallFormPage'
 import VendorResponsePage from './pages/VendorResponsePage'
+import NotificationsPage from './pages/NotificationsPage'
+import MockRecallPage from './pages/MockRecallPage'
+import MockRecallDetailPage from './pages/MockRecallDetailPage'
+import MockRecallFormPage from './pages/MockRecallFormPage'
 
 function ProtectedRoute({ children }) {
   const { user } = useUser()
@@ -44,6 +48,10 @@ export default function App() {
           <Route path="/voluntary-recall" element={<ProtectedRoute><VoluntaryRecallPage /></ProtectedRoute>} />
           <Route path="/voluntary-recall/new" element={<ProtectedRoute><VoluntaryRecallFormPage /></ProtectedRoute>} />
           <Route path="/voluntary-recall/:id" element={<ProtectedRoute><VoluntaryRecallDetailPage /></ProtectedRoute>} />
+          <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+          <Route path="/mock-recall" element={<ProtectedRoute><MockRecallPage /></ProtectedRoute>} />
+          <Route path="/mock-recall/new" element={<ProtectedRoute><MockRecallFormPage /></ProtectedRoute>} />
+          <Route path="/mock-recall/:id" element={<ProtectedRoute><MockRecallDetailPage /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to={user ? '/dashboard' : '/'} replace />} />
         </Routes>
       </div>

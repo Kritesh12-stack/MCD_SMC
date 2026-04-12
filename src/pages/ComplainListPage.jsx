@@ -34,7 +34,7 @@ export default function ComplainListPage() {
     const [complaints, setComplaints] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState(7);
-    const [modal, setModal] = useState(null); // { step: 'details'|'reject'|'success', complaint, rejectionReason, sentTo }
+    const [modal, setModal] = useState(null); // { step: 'details'|'reject'|'success', complaint, rejectionReason, notifiedRoles }
     const [actionLoading, setActionLoading] = useState(false);
     const navigate = useNavigate();
     const { user } = useUser();
@@ -64,7 +64,7 @@ export default function ComplainListPage() {
         try {
             const res = await getComplaintById(row.id);
             const complaint = res.data?.data || res.data;
-            setModal({ step: "details", complaint, rejectionReason: "", sentTo: "Sent to all" });
+            setModal({ step: "details", complaint, rejectionReason: "", notifiedRoles: [] });
         } catch {
             navigate(`/complaint/${row.id}`);
         }
@@ -84,7 +84,7 @@ export default function ComplainListPage() {
     async function handleRejectSubmit() {
         setActionLoading(true);
         try {
-            await rejectComplaint(modal.complaint.id, modal.rejectionReason, modal.sentTo);
+            await rejectComplaint(modal.complaint.id, modal.rejectionReason, modal.notifiedRoles);
             setModal((m) => ({ ...m, step: "success" }));
             fetchComplaints();
         } finally {
@@ -181,15 +181,23 @@ export default function ComplainListPage() {
                         {modal.step === "reject" && (
                             <div className="p-6">
                                 <p className="font-semibold text-sm mb-4">Reason of rejection</p>
-                                <select
-                                    value={modal.sentTo}
-                                    onChange={(e) => setModal((m) => ({ ...m, sentTo: e.target.value }))}
-                                    className="w-full border border-[#E8E8E8] rounded-md p-3 text-sm text-[#666] outline-none mb-3"
-                                >
-                                    <option>Sent to all</option>
-                                    <option>Sent to supplier</option>
-                                    <option>Sent to facility</option>
-                                </select>
+                                <div className="flex flex-wrap gap-3 mb-3">
+                                    {["Admin", "MarketQA", "Vendor", "RegionalQA", "DC"].map(role => (
+                                        <label key={role} className="flex items-center gap-1.5 text-sm cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={modal.notifiedRoles.includes(role)}
+                                                onChange={(e) => setModal(m => ({
+                                                    ...m,
+                                                    notifiedRoles: e.target.checked
+                                                        ? [...m.notifiedRoles, role]
+                                                        : m.notifiedRoles.filter(r => r !== role)
+                                                }))}
+                                            />
+                                            {role}
+                                        </label>
+                                    ))}
+                                </div>
                                 <textarea
                                     value={modal.rejectionReason}
                                     onChange={(e) => setModal((m) => ({ ...m, rejectionReason: e.target.value }))}
