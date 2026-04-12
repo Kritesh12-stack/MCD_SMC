@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PageHeading from "../components/PageHeading";
 import { getVoluntaryRecalls } from "../api/complaintsApi";
+import { useUser } from "../contexts/UserContext";
 
 const STATUS_CONFIG = {
     accepted: { icon: "✔", iconBg: "bg-blue-500", textColor: "text-blue-500", label: "Accepted" },
@@ -20,6 +21,8 @@ export default function VoluntaryRecallPage() {
     const [recalls, setRecalls] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const { user } = useUser();
+    const isVendor = user?.role?.toLowerCase() === "vendor";
 
     useEffect(() => {
         async function fetchRecalls() {
@@ -40,7 +43,17 @@ export default function VoluntaryRecallPage() {
         <div>
             <PageHeading title="Voluntary Recall" />
             <div className="px-4">
-                <p className="text-sm font-semibold text-[#27272E] mb-4">Voluntary Recall Status</p>
+                <div className="flex justify-between items-center mb-4">
+                    <p className="text-sm font-semibold text-[#27272E]">Voluntary Recall Status</p>
+                    {isVendor && (
+                        <button
+                            onClick={() => navigate("/voluntary-recall/new")}
+                            className="bg-[#F11518] text-white px-5 py-2 rounded-md text-sm font-semibold hover:bg-[#d41315] cursor-pointer"
+                        >
+                            Start a Voluntary Recall
+                        </button>
+                    )}
+                </div>
                 {loading ? (
                     <div className="text-center py-10 text-gray-500">Loading...</div>
                 ) : recalls.length === 0 ? (

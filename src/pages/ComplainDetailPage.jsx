@@ -3,7 +3,8 @@ import { useParams } from "react-router-dom";
 import PageHeading from "../components/PageHeading";
 import CustomButton from "../components/CustomButton";
 import CustomDropdown from "../components/CustomDropdown";
-import { getComplaintById, addComment } from "../api/complaintsApi";
+import { getComplaintById, addComment, updateComplaint, getProducts, getSuppliers } from "../api/complaintsApi";
+import ResponseSheetPreview from "../components/ResponseSheetPreview";
 
 const sendToOptions = [
     { id: 1, name: "Regional QA" },
@@ -25,12 +26,22 @@ export default function ComplainDetailPage() {
     const [selected, setSelected] = useState(sendToOptions[0]);
     const [comment, setComment] = useState("");
     const [submitting, setSubmitting] = useState(false);
+    const [stockAction, setStockAction] = useState("");
+    const [products, setProducts] = useState([]);
+    const [suppliers, setSuppliers] = useState([]);
+    const [recovery, setRecovery] = useState({
+        product: "", date: "", product_code_dates: "", mobile: "",
+        supplier: "", supplier_location: "", supplier_contact: "", replenishment_supplier: "",
+        recovery_plan: "", reason: "", media: null, start_time: "", termination_date: "",
+    });
+    const [recoverySubmitting, setRecoverySubmitting] = useState("");
 
     useEffect(() => {
         async function fetchDetail() {
             try {
                 const res = await getComplaintById(id);
                 setComplaint(res.data?.data || res.data);
+                setStockAction(res.data?.data?.stock_action || res.data?.stock_action || "");
             } catch (err) {
                 console.error("Failed to fetch complaint:", err);
             } finally {
@@ -39,6 +50,15 @@ export default function ComplainDetailPage() {
         }
         if (id) fetchDetail();
     }, [id]);
+
+    useEffect(() => {
+        if (stockAction === "Recall" && products.length === 0) {
+            Promise.all([getProducts(), getSuppliers()]).then(([pRes, sRes]) => {
+                setProducts(pRes.data?.data || pRes.data || []);
+                setSuppliers(sRes.data?.data || sRes.data || []);
+            }).catch(console.error);
+        }
+    }, [stockAction]);
 
     async function handleSendComment() {
         if (!comment.trim()) return;
@@ -76,6 +96,21 @@ export default function ComplainDetailPage() {
 
                     <div>
                         <span className={`border text-xs px-3 py-1 rounded-full capitalize ${statusClass}`}>{complaint.status}</span>
+                    </div>
+
+                    {/* Stock Action */}
+                    <div className="flex items-center gap-3">
+                        <label className="text-sm text-[#888] font-medium">Stock Action</label>
+                        <select value={stockAction} onChange={async (e) => {
+                            const val = e.target.value;
+                            setStockAction(val);
+                            try { await updateComplaint(id, { stock_action: val }); } catch (err) { console.error("Failed to update stock action:", err); }
+                        }} className="border border-[#E8E8E8] rounded-md px-3 py-1.5 text-sm text-[#425466] bg-white">
+                            <option value="">Select Action</option>
+                            <option value="Recall">Recall</option>
+                            <option value="Release">Release</option>
+                            <option value="Destroy">Destroy</option>
+                        </select>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 text-sm">
@@ -120,20 +155,84 @@ export default function ComplainDetailPage() {
                             <CustomButton title={submitting ? "Sending..." : "Send the comment"} type="filled" length="large" handleSubmit={handleSendComment} />
                         </div>
                     </div>
+
+                    {/* Recovery Form - shown when Recall is selected */}
+                    {stockAction === "Recall" && (
+                        <div className="border-t pt-4 flex flex-col gap-4">
+                            <p className="font-semibold text-base">Recovery Form</p>
+                            <div className="grid grid-cols-2 gap-4">
+                                <FormField label="Product Name">
+                                    <select value={recovery.product} onChange={e => setRecovery(r => ({ ...r, product: e.target.value }))} className="form-input">
+                                        <option value="">Select Product</option>
+                                        {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                                    </select>
+                                </FormField>
+                                <FormField label="Date">
+                                    <input type="date" value={recovery.date} onChange={e => setRecovery(r => ({ ...r, date: e.target.value }))} className="form-input" />
+                                </FormField>
+                                <FormField label="Product Code Dates">
+                                    <input type="text" value={recovery.product_code_dates} onChange={e => setRecovery(r => ({ ...r, product_code_dates: e.target.value }))} placeholder="Type Code Dates" className="form-input" />
+                                </FormField>
+                                <FormField label="Mobile">
+                                    <input type="text" value={recovery.mobile} onChange={e => setRecovery(r => ({ ...r, mobile: e.target.value }))} placeholder="Enter Batch Number" className="form-input" />
+                                </FormField>
+                                <FormField label="Supplier Name">
+                                    <select value={recovery.supplier} onChange={e => setRecovery(r => ({ ...r, supplier: e.target.value }))} className="form-input">
+                                        <option value="">Select Vendor</option>
+                                        {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                                    </select>
+                                </FormField>
+                                <FormField label="Supplier Production Name & Location">
+                                    <input type="text" value={recovery.supplier_location} onChange={e => setRecovery(r => ({ ...r, supplier_location: e.target.value }))} placeholder="Select name and location" className="form-input" />
+                                </FormField>
+                                <FormField label="Supplier Contact">
+                                    <input type="text" value={recovery.supplier_contact} onChange={e => setRecovery(r => ({ ...r, supplier_contact: e.target.value }))} placeholder="Select supplier contact" className="form-input" />
+                                </FormField>
+                                <FormField label="Supplier of Replinishment Product">
+                                    <select value={recovery.replenishment_supplier} onChange={e => setRecovery(r => ({ ...r, replenishment_supplier: e.target.value }))} className="form-input">
+                                        <option value="">Select supplier contact</option>
+                                        {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                                    </select>
+                                </FormField>
+                                <FormField label="Recovery Plan">
+                                    <select value={recovery.recovery_plan} onChange={e => setRecovery(r => ({ ...r, recovery_plan: e.target.value }))} className="form-input">
+                                        <option value="">Select Recovery</option>
+                                        <option value="Full Recall">Full Recall</option>
+                                        <option value="Partial Recall">Partial Recall</option>
+                                        <option value="Hold & Review">Hold & Review</option>
+                                    </select>
+                                </FormField>
+                                <FormField label="Reason for Recovery">
+                                    <textarea value={recovery.reason} onChange={e => setRecovery(r => ({ ...r, reason: e.target.value }))} placeholder="Write Your Message" rows={3} className="form-input resize-none" />
+                                </FormField>
+                            </div>
+                            <FormField label="Add Media">
+                                <label className="flex flex-col items-center justify-center border border-dashed border-[#E8E8E8] rounded-md py-5 cursor-pointer hover:bg-gray-50">
+                                    <svg width="20" height="20" fill="none" stroke="#9CA3AF" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                    <span className="text-sm text-[#F11518] font-medium mt-1">Click to upload <span className="text-[#888] font-normal">or drag & drop</span></span>
+                                    <span className="text-xs text-[#888]">JPEG (max. 500kb)</span>
+                                    <input type="file" accept="image/jpeg" className="hidden" onChange={e => setRecovery(r => ({ ...r, media: e.target.files[0] }))} />
+                                </label>
+                                {recovery.media && <p className="text-xs text-green-600 mt-1">{recovery.media.name}</p>}
+                            </FormField>
+                            <div className="grid grid-cols-2 gap-4">
+                                <FormField label="Start Time of Recovery">
+                                    <input type="date" value={recovery.start_time} onChange={e => setRecovery(r => ({ ...r, start_time: e.target.value }))} placeholder="Type Date" className="form-input" />
+                                </FormField>
+                                <FormField label="Termination of Recovery Date">
+                                    <input type="date" value={recovery.termination_date} onChange={e => setRecovery(r => ({ ...r, termination_date: e.target.value }))} placeholder="Type or select date" className="form-input" />
+                                </FormField>
+                            </div>
+                            <div className="flex justify-end">
+                                <button onClick={() => { /* TODO: submit recovery */ }} className="bg-[#F11518] text-white px-8 py-2.5 rounded-md text-sm font-semibold cursor-pointer hover:bg-[#d41315]">Submit</button>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Right Panel */}
                 <div className="w-[35%] border border-[#E8E8E8] rounded-xl p-4 bg-white flex flex-col gap-3">
-                    <div className="flex justify-between items-center gap-2">
-                        <p className="font-normal text-xs">Response Sheet Preview</p>
-                        <div className="flex gap-2">
-                            <CustomButton title="Export" type="unfilled-red" />
-                            <CustomButton title="Share" type="filled" />
-                        </div>
-                    </div>
-                    <div className="border border-[#E8E8E8] rounded-md h-fit text-sm text-[#aaa] flex items-center justify-center min-h-[400px]">
-                        <span className="text-gray-400">Response sheet preview</span>
-                    </div>
+                    <ResponseSheetPreview complaint={complaint} />
                 </div>
             </div>
         </section>
@@ -149,6 +248,15 @@ function DetailRow({ label, value, badge }) {
             ) : (
                 <p className="font-semibold">{value}</p>
             )}
+        </div>
+    );
+}
+
+function FormField({ label, children }) {
+    return (
+        <div>
+            <label className="text-sm text-[#27272E] font-medium mb-1.5 block">{label}</label>
+            {children}
         </div>
     );
 }
