@@ -7,6 +7,9 @@ import ComplainListPage from './pages/ComplainListPage'
 import RaiseComplaintPage from './pages/RaiseComplaintPage'
 import ComplainDetailPage from './pages/ComplainDetailPage'
 import SLASettingsPage from './pages/SLASettingsPage'
+import VoluntaryRecallPage from './pages/VoluntaryRecallPage'
+import VoluntaryRecallDetailPage from './pages/VoluntaryRecallDetailPage'
+import VendorResponsePage from './pages/VendorResponsePage'
 
 function ProtectedRoute({ children }) {
   const { user } = useUser()
@@ -35,6 +38,9 @@ export default function App() {
           <Route path="/complaints/raise" element={<ProtectedRoute><RaiseComplaintPage /></ProtectedRoute>} />
           <Route path="/complaint/:id" element={<ProtectedRoute><ComplainDetailPage /></ProtectedRoute>} />
           <Route path="/sla-settings" element={<ProtectedRoute><SLASettingsPage /></ProtectedRoute>} />
+          <Route path="/complaint/:id/vendor-response" element={<ProtectedRoute><VendorResponsePage /></ProtectedRoute>} />
+          <Route path="/voluntary-recall" element={<ProtectedRoute><VoluntaryRecallPage /></ProtectedRoute>} />
+          <Route path="/voluntary-recall/:id" element={<ProtectedRoute><VoluntaryRecallDetailPage /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
         </Routes>
       </div>

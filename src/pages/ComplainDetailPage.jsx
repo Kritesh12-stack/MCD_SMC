@@ -95,6 +95,20 @@ export default function ComplainDetailPage() {
                         </div>
                     </div>
 
+                    {/* Attachments */}
+                    {complaint.attachments?.length > 0 && (
+                        <div className="border-t pt-4">
+                            <p className="font-semibold text-sm mb-2">Attached Pictures</p>
+                            <div className="flex flex-wrap gap-2">
+                                {complaint.attachments.map((a) => (
+                                    <a key={a.id} href={a.file} target="_blank" rel="noreferrer">
+                                        <img src={a.file} alt={a.filename} className="w-20 h-20 object-cover rounded-md border border-[#E8E8E8] hover:opacity-80" />
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     {/* Add a comment */}
                     <div className="border-t pt-4 flex flex-col gap-3">
                         <p className="font-semibold text-sm">Add a comment</p>

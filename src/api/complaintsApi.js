@@ -14,3 +14,20 @@ export const getComplaints = (params = {}) => axiosInstance.get("/complaints/", 
 export const getComplaintById = (id) => axiosInstance.get(`/complaints/${id}/`);
 export const createComplaint = (payload) => axiosInstance.post("/complaints/", payload);
 export const addComment = (id, payload) => axiosInstance.post(`/complaints/${id}/comments/`, payload);
+export const uploadAttachment = (id, file) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    return axiosInstance.post(`/complaints/${id}/attachments/`, fd, { headers: { "Content-Type": "multipart/form-data" } });
+};
+export const acceptComplaint = (id, payload = {}) => axiosInstance.post(`/complaints/${id}/vendor-accept/`, payload);
+export const rejectComplaint = (id, rejectionReason, sentTo) => axiosInstance.post(`/complaints/${id}/vendor-reject/`, { rejection_reason: rejectionReason, sent_to: sentTo });
+
+export const getDashboardOverview = () => axiosInstance.get("/dashboard/overview/");
+export const getDashboardAnalytics = () => axiosInstance.get("/dashboard/analytics/");
+export const getDashboardCharts = () => axiosInstance.get("/dashboard/charts/");
+export const getVoluntaryRecalls = (params = {}) => axiosInstance.get("/recalls/voluntary/", { params });
+export const getVoluntaryRecallById = (id) => axiosInstance.get(`/recalls/voluntary/${id}/`);
+
+export const getSLASettings = () => axiosInstance.get("/sla/settings/");
+export const updateSLASettings = (payload) => axiosInstance.post("/sla/settings/", payload);
+export const getSLAViolations = () => axiosInstance.get("/sla/violations/");
