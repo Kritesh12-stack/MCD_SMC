@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LoginInput from "../components/LoginInput";
-import MC_Login from "../assets/MC_Login.jpg";
+import MC_Login from "../assets/MC_Login.png";
 import { useUser } from "../contexts/UserContext";
 import { loginApi, registerApi } from "../api/authApi";
 

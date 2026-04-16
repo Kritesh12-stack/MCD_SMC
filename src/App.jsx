@@ -35,7 +35,7 @@ export default function App() {
   return (
     <div className="min-h-screen">
       {!isLoginPage && user && <SideBar />}
-      <div className={!isLoginPage && user ? 'ml-64' : ''}>
+      <div className={!isLoginPage && user ? 'ml-56' : ''}>
         <Routes>
           <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
           <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <WorkspaceSelectionPage />} />

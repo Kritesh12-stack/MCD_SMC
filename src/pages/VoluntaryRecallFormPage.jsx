@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PageHeading from "../components/PageHeading";
+import CustomDropdown from "../components/CustomDropdown";
+import CustomInput from "../components/CustomInput";
 import { getProducts, getSuppliers, getFacilities, createVoluntaryRecall } from "../api/complaintsApi";
 
 export default function VoluntaryRecallFormPage() {
@@ -9,8 +11,8 @@ export default function VoluntaryRecallFormPage() {
   const [suppliers, setSuppliers] = useState([]);
   const [facilities, setFacilities] = useState([]);
   const [form, setForm] = useState({
-    product: "", batch_number: "", quantity: "", unit: "Lt",
-    distribution_centre: "", vendor: "", supplier: "", reason: "", image: null,
+    product: {}, batch_number: "", quantity: "", unit: { id: "Lt", name: "Lt" },
+    distribution_centre: {}, vendor: {}, supplier: "", reason: "", image: null,
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -27,12 +29,12 @@ export default function VoluntaryRecallFormPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.product || !form.supplier) return setError("Product and Supplier are required");
+    if (!form.product?.id || !form.vendor?.id) return setError("Product and Vendor are required");
     setSubmitting(true);
     setError("");
     try {
       await createVoluntaryRecall({
-        product: form.product, supplier: form.supplier,
+        product: form.product.id, supplier: form.vendor.id,
         reason: form.reason, status: "Initiated",
         regulatory_ref: form.batch_number,
       });
@@ -47,66 +49,63 @@ export default function VoluntaryRecallFormPage() {
   return (
     <div>
       <PageHeading title="Voluntary Recall Form" />
-      <div className="px-6 py-6 max-w-3xl">
+      <div className="px-6 py-6 w-full">
         {error && <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md text-sm">{error}</div>}
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Product */}
-          <Field label="Product">
-            <select value={form.product} onChange={e => update("product", e.target.value)} className="input-style">
-              <option value="">Select Product</option>
-              {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
-          </Field>
+          <CustomDropdown
+            title="Product"
+            options={products}
+            selected={form.product}
+            setSelected={val => update("product", val)}
+            placeholder="Select Product"
+          />
 
           {/* Batch Number */}
-          <Field label="Batch Number">
-            <input type="text" value={form.batch_number} onChange={e => update("batch_number", e.target.value)}
-              placeholder="Enter Batch Number" className="input-style" />
-          </Field>
+          <CustomInput title="Batch Number" value={form.batch_number} onChange={e => update("batch_number", e.target.value)} placeholder="Enter Batch Number" />
 
           {/* Quantity + Distribution Centre */}
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Quantity">
-              <div className="flex">
+            <div>
+              <div className="font-medium text-[#494949] text-sm mb-2">Quantity</div>
+              <div className="flex gap-2">
                 <input type="number" value={form.quantity} onChange={e => update("quantity", e.target.value)}
-                  placeholder="0" className="flex-1 border border-[#E8E8E8] rounded-l-md px-4 py-3 text-sm text-[#425466]" />
-                <select value={form.unit} onChange={e => update("unit", e.target.value)}
-                  className="border border-l-0 border-[#E8E8E8] rounded-r-md px-3 py-3 text-sm text-[#425466] bg-white">
-                  <option>Lt</option><option>Kg</option><option>Units</option><option>Pcs</option>
-                </select>
+                  placeholder="0" className="flex-1 border border-[#E8E8E8] rounded-md p-4 outline-0 text-sm text-[#666666]" />
+                <div className="w-28">
+                  <CustomDropdown
+                    options={[{ id: "Lt", name: "Lt" }, { id: "Kg", name: "Kg" }, { id: "Units", name: "Units" }, { id: "Pcs", name: "Pcs" }]}
+                    selected={form.unit}
+                    setSelected={val => update("unit", val)}
+                    placeholder="Unit"
+                  />
+                </div>
               </div>
-            </Field>
-            <Field label="Distribution Centre">
-              <select value={form.distribution_centre} onChange={e => update("distribution_centre", e.target.value)} className="input-style">
-                <option value="">Select Manager</option>
-                {facilities.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
-              </select>
-            </Field>
+            </div>
+            <CustomDropdown
+              title="Distribution Centre"
+              options={facilities}
+              selected={form.distribution_centre}
+              setSelected={val => update("distribution_centre", val)}
+              placeholder="Select Manager"
+            />
           </div>
 
           {/* Vendor + Supplier */}
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Vendor">
-              <select value={form.vendor} onChange={e => update("vendor", e.target.value)} className="input-style">
-                <option value="">Select Vendor</option>
-                {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
-            </Field>
-            <Field label="Supplier">
-              <select value={form.supplier} onChange={e => update("supplier", e.target.value)} className="input-style">
-                <option value="">Select Supplier</option>
-                {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
-            </Field>
+            <CustomDropdown
+              title="Vendor"
+              options={suppliers}
+              selected={form.vendor}
+              setSelected={val => update("vendor", val)}
+              placeholder="Select Vendor"
+            />
           </div>
 
           {/* Description + Profile Picture */}
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Description">
-              <textarea value={form.reason} onChange={e => update("reason", e.target.value)}
-                placeholder="Write Your Message" rows={4} className="input-style resize-none" />
-            </Field>
-            <Field label="Profile Picture">
+            <CustomInput title="Description" value={form.reason} onChange={e => update("reason", e.target.value)} placeholder="Write Your Message" textArea />
+            <div>
+              <div className="font-medium text-[#494949] text-sm mb-2">Profile Picture</div>
               <label className="flex flex-col items-center justify-center border border-dashed border-[#E8E8E8] rounded-md py-6 cursor-pointer hover:bg-gray-50">
                 <svg width="24" height="24" fill="none" stroke="#9CA3AF" strokeWidth="1.5" viewBox="0 0 24 24">
                   <path d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16" strokeLinecap="round" strokeLinejoin="round"/>
@@ -118,7 +117,7 @@ export default function VoluntaryRecallFormPage() {
                   onChange={e => update("image", e.target.files[0])} />
               </label>
               {form.image && <p className="text-xs text-green-600 mt-1">{form.image.name}</p>}
-            </Field>
+            </div>
           </div>
 
           {/* Buttons */}
@@ -135,16 +134,6 @@ export default function VoluntaryRecallFormPage() {
         </form>
       </div>
 
-      <style>{`.input-style { width: 100%; border: 1px solid #E8E8E8; border-radius: 0.375rem; padding: 0.75rem 1rem; font-size: 0.875rem; color: #425466; background: white; }`}</style>
-    </div>
-  );
-}
-
-function Field({ label, children }) {
-  return (
-    <div>
-      <label className="text-sm text-[#27272E] font-medium mb-1.5 block">{label}</label>
-      {children}
     </div>
   );
 }

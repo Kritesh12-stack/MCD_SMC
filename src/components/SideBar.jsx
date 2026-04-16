@@ -39,7 +39,7 @@ export default function SideBar() {
     }, [location.pathname]);
 
     return (
-        <section className="fixed top-0 left-0 h-screen w-64 bg-white shadow-lg overflow-auto flex flex-col items-center pt-11">
+        <section className="fixed top-0 left-0 h-screen w-56 bg-white shadow-lg overflow-auto flex flex-col items-center pt-11">
             <div className="w-20 h-24 rounded-md mb-4">
                 <img src={logo} alt="Logo" />
             </div>
