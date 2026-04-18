@@ -73,6 +73,26 @@ export default function DashboardPage() {
     // Donut — SLA
     const slaMet = totalTickets - slaBreached;
 
+    function exportToCSV() {
+        const headers = ["Ticket Id", "Product Name", "Category", "Quantity", "Vendor", "Status"];
+        const rows = complaints.map(c => [
+            c.ticket_id || "",
+            c.product_name || "",
+            c.complaint_category_name || "",
+            c.quantity || "",
+            c.supplier_name || "",
+            c.status || "",
+        ]);
+        const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `complaints_${new Date().toISOString().split("T")[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
     return (
         <section>
             <PageHeading title={"Dashboard"} />
@@ -80,7 +100,7 @@ export default function DashboardPage() {
                 <div className="text-[#27272E] text-2xl font-medium">Tickets</div>
                 <div className="flex items-center gap-4">
                     <FilterDropDown primarySelected={true} dropDownList={DATE_FILTERS} onChange={setFilter} />
-                    <CustomButton type="unfilled-red" title={"Export"} />
+                    <CustomButton type="unfilled-red" title={"Export"} handleSubmit={exportToCSV} />
                 </div>
             </div>
             <div className="flex gap-4 px-4 flex-wrap pb-4">

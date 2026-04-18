@@ -5,6 +5,7 @@ import CustomButton from "../components/CustomButton";
 import CustomDropdown from "../components/CustomDropdown";
 import CustomInput from "../components/CustomInput";
 import { getComplaintById, addComment, updateComplaint, getProducts, getSuppliers, submitStockAction } from "../api/complaintsApi";
+import FilterDropDown from "../components/FilterDropDown";
 import ResponseSheetPreview from "../components/ResponseSheetPreview";
 import { useUser } from "../contexts/UserContext";
 
@@ -41,7 +42,7 @@ export default function ComplainDetailPage() {
         product: "", recall_reference: "", quantity_recalled: "", quantity_unit: "",
         recall_date: "", recovery_location: "", disposal_method: "",
         supplier: "", supplier_location: "", supplier_contact: "", replenishment_supplier: "",
-        recovery_plan: "", notes: "", media: null, start_time: "", termination_date: "",
+        recovery_plan: "", notes: "", media: null, start_time: new Date().toISOString().split("T")[0], termination_date: "",
     });
     const [recoverySubmitting, setRecoverySubmitting] = useState("");
     const [stockActionForm, setStockActionForm] = useState({
@@ -71,8 +72,10 @@ export default function ComplainDetailPage() {
         async function fetchDetail() {
             try {
                 const res = await getComplaintById(id);
-                setComplaint(res.data?.data || res.data);
-                setStockAction(res.data?.data?.stock_action || res.data?.stock_action || "");
+                const data = res.data?.data || res.data;
+                setComplaint(data);
+                setStockAction(data?.stock_action || "");
+                if (data?.product) setRecovery(r => ({ ...r, product: data.product }));
             } catch (err) {
                 console.error("Failed to fetch complaint:", err);
             } finally {
@@ -117,6 +120,29 @@ export default function ComplainDetailPage() {
                 <div className="w-[65%] border border-[#E8E8E8] rounded-xl p-6 flex flex-col gap-4 bg-white">
                     <div className="flex justify-between items-start">
                         <p className="text-lg font-semibold">Details of <span className="font-normal">{complaint.ticket_id}</span></p>
+                              {/* <div className="border-b pb-3"> */}
+                            {complaint.stock_action === null && isMarketSCM && complaint.status === "VendorAccepted" &&  <FilterDropDown
+                                label="Action"
+                                
+                                dropDownList={[{ id: "Recall", name: "Recall" }, { id: "Release", name: "Release" }, { id: "Destroy", name: "Destroy" }]}
+                                onChange={async (val) => {
+                                    setStockAction(val);
+                                    if (val === "Release" || val === "Destroy") {
+                                        setStockActionError("");
+                                        try {
+                                            await submitStockAction(id, { action: val });
+                                            setStockActionSuccess(true);
+                                        } catch (err) {
+                                            const details = err.details;
+                                            const msg = Array.isArray(details) ? details[0] : (err.message || "Failed to submit stock action");
+                                            setStockActionError(msg);
+                                            setStockAction("");
+                                        }
+                                    }
+                                }}
+                            />}
+                            {stockActionError && <p className="text-red-500 text-xs mt-1">{stockActionError}</p>}
+                        {/* </div> */}
                         {/* <button className="flex items-center gap-1 text-sm border border-[#E8E8E8] rounded-md px-3 py-1 cursor-pointer">✎ Edit</button> */}
                     </div>
 
@@ -128,37 +154,6 @@ export default function ComplainDetailPage() {
                     <div>
                         <span className={`border text-xs px-3 py-1 rounded-full capitalize ${statusClass}`}>{complaint.status}</span>
                     </div>
-
-                    {/* Stock Action */}
-                    {complaint.stock_action === null && isMarketSCM && complaint.status === "VendorAccepted" && (
-                        <div className="flex flex-col gap-1">
-                            <div className="flex items-center gap-3">
-                                <label className="text-sm text-[#888] font-medium">Stock Action</label>
-                                <select value={stockAction} onChange={async (e) => {
-                                    const val = e.target.value;
-                                    setStockAction(val);
-                                    if (val === "Release" || val === "Destroy") {
-                                        setStockActionError("");
-                                        try {
-                                            await submitStockAction(id, { action: val });
-                                        setStockActionSuccess(true);
-                                        } catch (err) {
-                                            const details = err.details;
-                                            const msg = Array.isArray(details) ? details[0] : (err.message || "Failed to submit stock action");
-                                            setStockActionError(msg);
-                                            setStockAction("");
-                                        }
-                                    }
-                                }} className="border border-[#E8E8E8] rounded-md px-3 py-1.5 text-sm text-[#425466] bg-white">
-                                    <option value="">Select Action</option>
-                                    <option value="Recall">Recall</option>
-                                    <option value="Release">Release</option>
-                                    <option value="Destroy">Destroy</option>
-                                </select>
-                            </div>
-                            {stockActionError && <p className="text-red-500 text-sm">{stockActionError}</p>}
-                        </div>
-                    )}
 
                     <div className="grid grid-cols-2 gap-4 text-sm">
                         <DetailRow label="Date of Complaint" value={new Date(complaint.created_at).toLocaleString()} />
@@ -203,25 +198,33 @@ export default function ComplainDetailPage() {
                         </div>
                     </div>
 
-                    {/* Recovery Form - shown when Recall is selected */}
-                    {stockAction === "Recall" && (
+                    {/* Recovery Form - shown when Recall is selected and not yet submitted */}
+                    {stockAction === "Recall" && !stockActionSuccess && (
                         <div className="border-t pt-4 flex flex-col gap-4">
                             <p className="font-semibold text-base">Recovery Form</p>
                             <div className="grid grid-cols-2 gap-4">
+                                <CustomInput title="Product Name" value={complaint.product_name || ""} disabled />
+                                <CustomInput title="Date" type="date" value={recovery.recall_date} onChange={e => setRecovery(r => ({ ...r, recall_date: e.target.value }))} />
+                                <CustomInput title="Product Code Dates" value={recovery.recall_reference} placeholder="Type Code Dates" onChange={e => setRecovery(r => ({ ...r, recall_reference: e.target.value }))} />
+                                <CustomInput title="Mobile" value={recovery.quantity_recalled} placeholder="Enter Batch Number" onChange={e => setRecovery(r => ({ ...r, quantity_recalled: e.target.value }))} />
                                 <CustomDropdown
-                                    title="Product Name"
-                                    options={products.map(p => ({ id: p.id, name: p.name }))}
-                                    selected={products.find(p => p.id === recovery.product) || {}}
-                                    setSelected={p => setRecovery(r => ({ ...r, product: p.id }))}
-                                    placeholder="Select Product"
+                                    title="Supplier Name"
+                                    options={suppliers}
+                                    selected={suppliers.find(s => s.id === recovery.supplier) || {}}
+                                    setSelected={s => setRecovery(r => ({ ...r, supplier: s.id }))}
+                                    placeholder="Select Vendor"
                                 />
-                                <CustomInput title="Recall Reference" value={recovery.recall_reference} placeholder="Enter recall reference" onChange={e => setRecovery(r => ({ ...r, recall_reference: e.target.value }))} />
-                                <CustomInput title="Quantity Recalled" type="number" value={recovery.quantity_recalled} placeholder="Enter quantity" onChange={e => setRecovery(r => ({ ...r, quantity_recalled: e.target.value }))} />
-                                <CustomInput title="Quantity Unit" value={recovery.quantity_unit} placeholder="e.g. Kg, Lt" onChange={e => setRecovery(r => ({ ...r, quantity_unit: e.target.value }))} />
-                                <CustomInput title="Recall Date" type="date" value={recovery.recall_date} onChange={e => setRecovery(r => ({ ...r, recall_date: e.target.value }))} />
-                                <CustomInput title="Recovery Location" value={recovery.recovery_location} placeholder="Enter recovery location" onChange={e => setRecovery(r => ({ ...r, recovery_location: e.target.value }))} />
-                                <CustomInput title="Disposal Method" value={recovery.disposal_method} placeholder="Enter disposal method" onChange={e => setRecovery(r => ({ ...r, disposal_method: e.target.value }))} />
-                                <CustomInput title="Notes" textArea value={recovery.notes} placeholder="Additional notes" onChange={e => setRecovery(r => ({ ...r, notes: e.target.value }))} />
+                                <CustomInput title="Supplier Production Name & Location" value={recovery.supplier_location} placeholder="Select name and location" onChange={e => setRecovery(r => ({ ...r, supplier_location: e.target.value }))} />
+                                <CustomInput title="Supplier Contact" value={recovery.supplier_contact} placeholder="Select supplier contact" onChange={e => setRecovery(r => ({ ...r, supplier_contact: e.target.value }))} />
+                                <CustomInput title="Supplier of Replenishment Product" value={recovery.replenishment_supplier} placeholder="Select supplier contact" onChange={e => setRecovery(r => ({ ...r, replenishment_supplier: e.target.value }))} />
+                                <CustomDropdown
+                                    title="Recovery Plan"
+                                    options={[{ id: "Immediate", name: "Immediate" }, { id: "Scheduled", name: "Scheduled" }, { id: "Phased", name: "Phased" }]}
+                                    selected={{ id: recovery.recovery_plan, name: recovery.recovery_plan }}
+                                    setSelected={v => setRecovery(r => ({ ...r, recovery_plan: v.id }))}
+                                    placeholder="Select Recovery"
+                                />
+                                <CustomInput title="Reason for Recovery" value={recovery.notes} placeholder="Write Your Message" onChange={e => setRecovery(r => ({ ...r, notes: e.target.value }))} />
                             </div>
                             <div className="flex flex-col gap-2">
                                 <p className="font-medium text-[#494949] text-sm">Add Media</p>
@@ -278,6 +281,7 @@ export default function ComplainDetailPage() {
                     )}
                 </div>
                 <div className="w-[35%] border border-[#E8E8E8] rounded-xl p-4 bg-white flex flex-col gap-3 overflow-hidden min-w-0">
+                    
                     <ResponseSheetPreview complaint={complaint} />
                 </div>
             </div>

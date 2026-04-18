@@ -92,6 +92,26 @@ export default function ComplainListPage() {
         }
     }
 
+    function exportToCSV() {
+        const headers = ["Ticket Id", "Product Name", "Category", "Quantity", "Vendor", "Status"];
+        const rows = complaints.map(c => [
+            c.ticket_id || "",
+            c.product_name || "",
+            c.complaint_category_name || "",
+            c.quantity || "",
+            c.supplier_name || "",
+            c.status || "",
+        ]);
+        const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `complaints_${new Date().toISOString().split("T")[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
     const columns = [
         { key: "ticket_id", title: "Ticket Id" },
         { key: "product_name", title: "Product Name" },
@@ -127,7 +147,7 @@ export default function ComplainListPage() {
                     <SearchBar search={search} setSearch={setSearch} />
                     <div className="flex items-center gap-4">
                         <FilterDropDown primarySelected={true} dropDownList={DATE_FILTERS} onChange={setFilter} />
-                        <CustomButton title={"Export"} type={"unfilled-red"} rounded={false} length={"med"} />
+                        <CustomButton title={"Export"} type={"unfilled-red"} rounded={false} length={"med"} handleSubmit={exportToCSV} />
                         {!isVendor && <CustomButton title={"Raise a ticket"} type={"filled"} rounded={false} length={"large"} handleSubmit={() => navigate("/complaints/raise")} />}
                     </div>
                 </div>

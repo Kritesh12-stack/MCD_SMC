@@ -1,7 +1,7 @@
 import { useState } from "react"
 import DownIcon from "../assets/DownIcon.svg"
 
-export default function FilterDropDown({ primarySelected = false, dropDownList = [
+export default function FilterDropDown({ primarySelected = false, label, dropDownList = [
         { id: 1, name: "First Option" },
         { id: 2, name: "Second Option" },
         { id: 3, name: "Third Option" },
@@ -16,8 +16,9 @@ export default function FilterDropDown({ primarySelected = false, dropDownList =
     }
     
     return (
-        <div onClick={() => setDropDownOpen(prev => !prev)} className={`relative flex items-center rounded-full px-4 py-1 ${primarySelected ? "" : `bg-[#FAFAFA] border border-[#E8E8E8]`} gap-2 cursor-pointer`}>
-            <div className={!primarySelected ? `text-[#666666]`: "text-black"}>{primarySelected ? (dropDownList.find(i => i.id === selected)?.name ?? dropDownList[0]?.name) : "Filter"}</div>
+        <div className="flex items-center gap-2">
+            <div onClick={() => setDropDownOpen(prev => !prev)} className={`relative flex items-center rounded-full px-4 py-1 ${primarySelected ? "" : `bg-[#FAFAFA] border border-[#E8E8E8]`} gap-2 cursor-pointer`}>
+            <div className={!primarySelected ? `text-[#666666]`: "text-black"}>{primarySelected ? (dropDownList.find(i => i.id === selected)?.name ?? dropDownList[0]?.name) : label ? label : "Filter"}</div>
             <div className="mt-1">
                 <img
                     src={DownIcon}
@@ -29,6 +30,7 @@ export default function FilterDropDown({ primarySelected = false, dropDownList =
             {dropDownOpen && dropDownList.length && <div className="w-45 z-50 absolute top-full left-0 bg-white mt-2 shadow rounded-md ">
                 {dropDownList.map((i) => (<div className={`px-4 py-3 text-base ${i.id === selected ? "font-semibold" : ""} hover:bg-gray-50`} key={i.id} onClick={() => handleSelect(i.id)}>{i.name}</div>))}
             </div>}
+        </div>
         </div>
     )
 }

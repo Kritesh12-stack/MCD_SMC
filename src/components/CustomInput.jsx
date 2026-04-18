@@ -1,4 +1,4 @@
-export default function CustomInput({ title, value, placeholder, onChange, type, error, textArea = false }) {
+export default function CustomInput({ title, value, placeholder, onChange, type, error, textArea = false, disabled = false }) {
     const isDate = type === "date";
     return (
         <div className="w-full flex flex-col gap-2">
@@ -15,7 +15,7 @@ export default function CustomInput({ title, value, placeholder, onChange, type,
                     />
                 </div>
             ) : (
-                <input type={type || "text"} value={value} onChange={onChange} placeholder={placeholder} className="border border-[#E8E8E8] rounded-md p-4 outline-0 text-sm text-[#666666]" />
+                <input type={type || "text"} value={value} onChange={onChange} placeholder={placeholder} disabled={disabled} className={`border border-[#E8E8E8] rounded-md p-4 outline-0 text-sm text-[#666666] ${disabled ? "bg-gray-100 cursor-not-allowed text-[#999]" : "bg-white"}`} />
             )}
             {error && <p className="text-red-500 text-xs">{error}</p>}
         </div>

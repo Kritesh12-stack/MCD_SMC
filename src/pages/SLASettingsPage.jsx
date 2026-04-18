@@ -19,7 +19,7 @@ function ActionDropdown({ value, onChange }) {
   return (
     <div
       onClick={() => setOpen(p => !p)}
-      className="flex border border-[#E8E8E8] rounded-md p-4 justify-between items-center gap-2 relative cursor-pointer bg-white"
+      className="w-93.5 flex-1 flex border border-[#E8E8E8] rounded-md p-4 justify-between items-center gap-2 relative cursor-pointer bg-white"
     >
       <div className="text-sm text-[#666666] truncate">{value}</div>
       <img src={DownIcon} alt="down" className={`w-3 h-3 shrink-0 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
@@ -101,27 +101,27 @@ export default function SLASettingsPage() {
 
         {tab === "settings" ? (
           <div className="max-w-4xl">
-            <div className="grid grid-cols-[100px_130px_140px_1fr] items-center pb-3">
-              {["Severity", "Response (hrs)", "Resolution (hrs)", "Escalation Role"].map(h => (
-                <span key={h} className="text-xs text-[#8492A6] font-medium">{h}</span>
-              ))}
+            <div className="flex gap-5 items-center pb-3 bg-">
+             
+              <div className="w-full text-[#494949] font-medium bg-[#FAFAFA] border-b border-[#E8E8E8] flex text-sm p-3">
+                <div className="w-[19%]">Severity</div>
+                <div className="w-[25%]">Response (hrs)</div>
+                <div className="w-[60%]">Escalation Role</div>
+              </div>
             </div>
+            <div className="p-4 border rounded-md border-[#E8E8E8]">
             {settings.map((row, i) => (
-              <div key={row.id || i} className="grid grid-cols-[100px_130px_140px_1fr] items-center py-5 border-t border-[#E8E8E8]">
-                <span className="text-sm text-[#425466] font-medium">{row.severity}</span>
-                <div className="flex items-center gap-2">
+              <div key={row.id || i} className="flex gap-5 items-center py-4 border-b border-[#E8E8E8]">
+                <span className="w-[15%] text-sm text-[#425466] font-medium">{row.severity}</span>
+                <div className="w-25 flex items-center justify-between border border-[#E8E8E8] rounded-md p-4">
                   <input type="number" value={row.response_hours} onChange={e => updateField(i, "response_hours", e.target.value)}
-                    className="w-16 border border-[#E8E8E8] rounded-md px-2 py-1.5 text-sm text-[#425466]" />
-                  <ClockIcon />
-                </div>
-                <div className="flex items-center gap-2">
-                  <input type="number" value={row.resolution_hours} onChange={e => updateField(i, "resolution_hours", e.target.value)}
-                    className="w-16 border border-[#E8E8E8] rounded-md px-2 py-1.5 text-sm text-[#425466]" />
+                    className="w-10 outline-0  text-sm text-[#425466]" />
                   <ClockIcon />
                 </div>
                 <ActionDropdown value={row.escalation_roles} onChange={val => updateField(i, "escalation_roles", val)} />
               </div>
             ))}
+            </div>
             <div className="flex justify-end mt-8">
               <button onClick={handleSave} disabled={saving}
                 className="bg-[#F11518] text-white px-6 py-2.5 rounded-md text-sm font-semibold cursor-pointer hover:bg-[#d41315] disabled:opacity-50">
