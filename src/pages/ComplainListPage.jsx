@@ -7,6 +7,7 @@ import PageHeading from "../components/PageHeading";
 import SearchBar from "../components/SearchBar";
 import { getComplaints, getComplaintById, acceptComplaint, rejectComplaint } from "../api/complaintsApi";
 import { useUser } from "../contexts/UserContext";
+import { getStatusLabel, getStatusColor } from "../utils/statusUtils";
 
 const DATE_FILTERS = [
     { id: 7,   name: "Last 7 days" },
@@ -22,10 +23,10 @@ function getDateFrom(days) {
 }
 
 const STATUS_COLORS = {
-    pending: "bg-yellow-100 text-yellow-700 border-yellow-300",
-    acknowledged: "bg-blue-100 text-blue-700 border-blue-300",
-    justified: "bg-green-100 text-green-700 border-green-300",
-    unjustified: "bg-red-100 text-red-700 border-red-300",
+    destroyed: "bg-red-100 text-red-800 border-red-500",
+    pending: "bg-blue-100 text-blue-700 border-blue-300",
+    vendoraccepted: "bg-green-100 text-green-700 border-green-300",
+    vendorrejected: "bg-red-100 text-red-700 border-red-300",
     senttovendor: "bg-purple-100 text-purple-700 border-purple-300",
 };
 
@@ -122,8 +123,8 @@ export default function ComplainListPage() {
             key: "status",
             title: "Status",
             render: (value) => (
-                <span className={`px-3 py-1 text-xs font-medium rounded-md border capitalize ${STATUS_COLORS[value?.toLowerCase()] || STATUS_COLORS.pending}`}>
-                    {value}
+                <span className={`px-3 py-1 text-xs rounded-md border whitespace-nowrap ${getStatusColor(value)}`}>
+                    {getStatusLabel(value)}
                 </span>
             ),
         },
@@ -166,14 +167,14 @@ export default function ComplainListPage() {
                             <div className="p-6">
                                 <div className="flex justify-between items-start mb-4">
                                     <div>
-                                        <p className="text-xs text-[#888]">Details of {modal.complaint.ticket_id}</p>
+                                        <p className="text-xl font-bold text-[#434343]">Details of <span className="font-normal">{modal.complaint.ticket_id}</span> </p>
                                         <p className="font-semibold text-sm mt-0.5">{modal.complaint.ticket_id}</p>
                                         <span className="text-xs text-[#888] border border-[#E8E8E8] rounded px-2 py-0.5 mt-1 inline-block">{modal.complaint.facility_name || "—"}</span>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-xs text-[#888]">{modal.complaint.incident_date}</p>
-                                        <span className={`text-xs font-medium px-2 py-0.5 rounded border capitalize mt-1 inline-block ${STATUS_COLORS[modal.complaint.status?.toLowerCase()] || STATUS_COLORS.pending}`}>
-                                            {modal.complaint.status}
+                                        <span className={`text-xs font-medium px-2 py-0.5 rounded border mt-1 inline-block ${getStatusColor(modal.complaint.status)}`}>
+                                            {getStatusLabel(modal.complaint.status)}
                                         </span>
                                     </div>
                                 </div>
@@ -187,6 +188,18 @@ export default function ComplainListPage() {
                                 </div>
                                 <p className="font-semibold mt-4 text-sm">{modal.complaint.product_name}</p>
                                 <p className="text-xs text-[#666] mt-1">{modal.complaint.description || "—"}</p>
+                                {modal.complaint.attachments?.length > 0 && (
+                                    <div className="mt-3">
+                                        <p className="text-sm font-bold mt-4 text-[#494949] mb-1.5">Attached Pictures</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {modal.complaint.attachments.map((a) => (
+                                                <a key={a.id} href={a.file_url} target="_blank" rel="noreferrer">
+                                                    <img src={a.file_url} alt={a.filename} className="w-16 h-16 object-cover rounded-md border border-[#E8E8E8] hover:opacity-80" />
+                                                </a>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                                 <div className="flex justify-end gap-3 mt-6">
                                     <button onClick={() => setModal((m) => ({ ...m, step: "reject" }))} className="px-5 py-2 rounded-md border border-[#F11518] text-[#F11518] text-sm font-medium hover:bg-red-50">
                                         Reject
@@ -257,8 +270,8 @@ export default function ComplainListPage() {
 function DetailRow({ label, value }) {
     return (
         <div>
-            <p className="text-xs text-[#888]">{label}</p>
-            <p className="font-semibold text-sm mt-0.5">{value || "—"}</p>
+            <p className="text-sm font-bold text-[#494949]">{label}</p>
+            <p className="font-medium text-sm mt-0.5">{value || "—"}</p>
         </div>
     );
 }

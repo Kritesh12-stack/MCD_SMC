@@ -42,7 +42,7 @@ export default function VoluntaryRecallPage() {
     return (
         <div>
             <PageHeading title="Voluntary Recall" />
-            <div className="px-4">
+            <div className="px-4 w-[70%]">
                 <div className="flex justify-between items-center mb-4">
                     <p className="text-sm font-semibold text-[#27272E]">Voluntary Recall Status</p>
                     {isVendor && (
@@ -84,7 +84,7 @@ function RecallCard({ item, onView }) {
             </div>
             <div className="flex justify-between items-center mt-3">
                 <p className="text-xs text-[#888]">{item.supplier_name || "Vendor/Supplier"}</p>
-                <div className="flex items-center gap-4">
+                {/* <div className="flex items-center gap-4"> */}
                     <div className="flex items-center gap-1.5">
                         <span className={`w-5 h-5 rounded-full ${config.iconBg} text-white text-xs flex items-center justify-center font-bold`}>
                             {config.icon}
@@ -97,7 +97,7 @@ function RecallCard({ item, onView }) {
                     >
                         View
                     </button>
-                </div>
+                {/* </div> */}
             </div>
         </div>
     );

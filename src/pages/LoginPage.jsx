@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import LoginInput from "../components/LoginInput";
-import MC_Login from "../assets/MC_Login.png";
+import MC_Login_JPG from "../assets/MC_Login.jpg";
+import MC_Login_PNG from "../assets/MC_Login.png";
 import { useUser } from "../contexts/UserContext";
 import { loginApi, registerApi } from "../api/authApi";
+
+const CAROUSEL_IMAGES = [MC_Login_JPG, MC_Login_PNG];
 
 const REGISTER_FIELDS = [
   { key: "email", label: "Email", type: "email", placeholder: "Enter Your Email" },
@@ -20,6 +23,7 @@ export default function LoginPage() {
   const { login } = useUser();
   const navigate = useNavigate();
   const [tab, setTab] = useState("login");
+  const [current, setCurrent] = useState(0);
   const [loginCred, setLoginCred] = useState({ email: "", password: "" });
   const [registerCred, setRegisterCred] = useState({
     email: "", username: "", first_name: "", last_name: "",
@@ -28,6 +32,11 @@ export default function LoginPage() {
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrent(i => (i + 1) % CAROUSEL_IMAGES.length), 3000);
+    return () => clearInterval(timer);
+  }, []);
 
   function handleLoginChange(field) {
     return (e) => setLoginCred((prev) => ({ ...prev, [field]: e.target.value }));
@@ -108,8 +117,23 @@ export default function LoginPage() {
 
   return (
     <div className="text-xl h-screen grid grid-cols-2 place-items-center bg-red-500 p-8">
-      <div className="w-[70%]">
-        <img className="rounded-2xl" src={MC_Login} alt="Image" />
+      <div className="w-[70%] flex flex-col items-center gap-3">
+        <div className="relative overflow-hidden rounded-2xl w-full">
+          {CAROUSEL_IMAGES.map((img, i) => (
+            <img
+              key={i}
+              src={img}
+              alt={`slide-${i}`}
+              className={`w-full h-full object-cover rounded-2xl absolute top-0 left-0 transition-opacity duration-700 ${i === current ? "opacity-100" : "opacity-0"}`}
+            />
+          ))}
+          <img src={CAROUSEL_IMAGES[0]} alt="placeholder" className="w-full rounded-2xl invisible" />
+        </div>
+        <div className="flex gap-2">
+          {CAROUSEL_IMAGES.map((_, i) => (
+            <button key={i} onClick={() => setCurrent(i)} className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${i === current ? "bg-white w-6" : "bg-white/40 w-2"}`} />
+          ))}
+        </div>
       </div>
       <div className="w-fit bg-white rounded-4xl px-10 py-4 flex flex-col gap-4">
         <div>

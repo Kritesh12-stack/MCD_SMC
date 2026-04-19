@@ -86,7 +86,7 @@ export default function SLASettingsPage() {
   return (
     <section>
       <PageHeading title="SLA Settings" />
-      <div className="px-8 py-6">
+      <div className="px-4 w-[70%]">
         {error && <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md text-sm">{error}</div>}
         {success && <div className="mb-4 p-3 bg-green-50 text-green-600 rounded-md text-sm">{success}</div>}
 
@@ -104,8 +104,8 @@ export default function SLASettingsPage() {
             <div className="flex gap-5 items-center pb-3 bg-">
              
               <div className="w-full text-[#494949] font-medium bg-[#FAFAFA] border-b border-[#E8E8E8] flex text-sm p-3">
-                <div className="w-[19%]">Severity</div>
-                <div className="w-[25%]">Response (hrs)</div>
+                <div className="w-[18%]">Severity</div>
+                <div className="w-[18%]">Response (hrs)</div>
                 <div className="w-[60%]">Escalation Role</div>
               </div>
             </div>

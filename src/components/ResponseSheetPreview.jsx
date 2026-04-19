@@ -102,7 +102,7 @@ export default function ResponseSheetPreview({ complaint }) {
                 <td colSpan={3} style={{ border: "1px solid #000", padding: "4px" }}>
                   <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
                     {complaint.attachments.map(a => (
-                      <img key={a.id} src={a.file} alt={a.filename} crossOrigin="anonymous"
+                      <img key={a.id} src={a.file_url} alt={a.filename} 
                         style={{ width: "80px", height: "80px", objectFit: "cover", border: "1px solid #ccc" }} />
                     ))}
                   </div>

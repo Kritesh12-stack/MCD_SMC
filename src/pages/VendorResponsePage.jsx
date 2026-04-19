@@ -199,8 +199,8 @@ export default function VendorResponsePage() {
                             <p className="text-xs text-[#888] mb-1">Attached Pictures</p>
                             <div className="flex flex-wrap gap-1">
                                 {complaint.attachments.map((a) => (
-                                    <a key={a.id} href={a.file} target="_blank" rel="noreferrer">
-                                        <img src={a.file} alt={a.filename} className="w-14 h-14 object-cover rounded-md border border-[#E8E8E8] hover:opacity-80" />
+                                    <a key={a.id} href={a.file_url} target="_blank" rel="noreferrer">
+                                        <img src={a.file_url} alt={a.filename} className="w-14 h-14 object-cover rounded-md border border-[#E8E8E8] hover:opacity-80" />
                                     </a>
                                 ))}
                             </div>

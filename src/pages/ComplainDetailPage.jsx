@@ -119,9 +119,14 @@ export default function ComplainDetailPage() {
                 {/* Left Panel */}
                 <div className="w-[65%] border border-[#E8E8E8] rounded-xl p-6 flex flex-col gap-4 bg-white">
                     <div className="flex justify-between items-start">
-                        <p className="text-lg font-semibold">Details of <span className="font-normal">{complaint.ticket_id}</span></p>
+                        <p className="text-xl text-[#434343] font-semibold">Details of <span className="font-normal">{complaint.ticket_id}</span></p>
                               {/* <div className="border-b pb-3"> */}
-                            {complaint.stock_action === null && isMarketSCM && complaint.status === "VendorAccepted" &&  <FilterDropDown
+                              <div className="flex items-center gap-3">
+                            
+                            <div>
+                        <span className={`border text-xs px-3 py-2 rounded-full capitalize ${statusClass}`}>{complaint.status}</span>
+                    </div>
+                    {complaint.stock_action === null && isMarketSCM && complaint.status === "VendorAccepted" &&  <FilterDropDown
                                 label="Action"
                                 
                                 dropDownList={[{ id: "Recall", name: "Recall" }, { id: "Release", name: "Release" }, { id: "Destroy", name: "Destroy" }]}
@@ -141,19 +146,18 @@ export default function ComplainDetailPage() {
                                     }
                                 }}
                             />}
+                    </div>
                             {stockActionError && <p className="text-red-500 text-xs mt-1">{stockActionError}</p>}
                         {/* </div> */}
                         {/* <button className="flex items-center gap-1 text-sm border border-[#E8E8E8] rounded-md px-3 py-1 cursor-pointer">✎ Edit</button> */}
                     </div>
 
                     <div className="flex justify-between items-center text-sm text-[#494949]">
-                        <span className="font-semibold">{complaint.ticket_id}</span>
+                        <span className="font-bold">{complaint.ticket_id}</span>
                         <span>{new Date(complaint.created_at).toLocaleString()}</span>
                     </div>
 
-                    <div>
-                        <span className={`border text-xs px-3 py-1 rounded-full capitalize ${statusClass}`}>{complaint.status}</span>
-                    </div>
+                    
 
                     <div className="grid grid-cols-2 gap-4 text-sm">
                         <DetailRow label="Date of Complaint" value={new Date(complaint.created_at).toLocaleString()} />
@@ -164,31 +168,33 @@ export default function ComplainDetailPage() {
                         <DetailRow label="Issue" value={complaint.severity || "-"} />
                     </div>
 
-                    {/* Product Info */}
-                    <div className="flex gap-3 items-start border-t pt-4">
-                        <div>
-                            <p className="font-semibold text-sm">{complaint.product_name}</p>
-                            <p className="text-xs text-[#666] mt-1">{complaint.description || "No description provided."}</p>
-                        </div>
-                    </div>
+                    
 
                     {/* Attachments */}
                     {complaint.attachments?.length > 0 && (
-                        <div className="border-t pt-4">
+                        <div className="pt-4">
                             <p className="font-semibold text-sm mb-2">Attached Pictures</p>
                             <div className="flex flex-wrap gap-2">
                                 {complaint.attachments.map((a) => (
-                                    <a key={a.id} href={a.file} target="_blank" rel="noreferrer">
-                                        <img src={a.file} alt={a.filename} className="w-20 h-20 object-cover rounded-md border border-[#E8E8E8] hover:opacity-80" />
+                                    <a key={a.id} href={a.file_url} target="_blank" rel="noreferrer">
+                                        <img src={a.file_url} alt={a.filename} className="w-20 h-20 object-cover rounded-md border border-[#E8E8E8] hover:opacity-80" />
                                     </a>
                                 ))}
                             </div>
                         </div>
                     )}
 
+                    {/* Product Info */}
+                    <div className="flex gap-3 items-start border-t pt-4">
+                        <div>
+                            <p className="font-bold text-xl text-[#434343]">{complaint.product_name}</p>
+                            <p className="text-sm font-medium text-[#484848] mt-1">{complaint.description || "No description provided."}</p>
+                        </div>
+                    </div>
+
                     {/* Add a comment */}
                     <div className="border-t pt-4 flex flex-col gap-3">
-                        <p className="font-semibold text-sm">Add a comment</p>
+                        <p className="font-bold text-xl text-[#434343]">Add a comment</p>
                         <div className="w-40">
                             <CustomDropdown options={sendToOptions} selected={selected} setSelected={setSelected} placeholder="Notify role" />
                         </div>
@@ -199,7 +205,7 @@ export default function ComplainDetailPage() {
                     </div>
 
                     {/* Recovery Form - shown when Recall is selected and not yet submitted */}
-                    {stockAction === "Recall" && !stockActionSuccess && (
+                    {stockAction === "Recall" && !stockActionSuccess && complaint.stock_action !== "Recall" && (
                         <div className="border-t pt-4 flex flex-col gap-4">
                             <p className="font-semibold text-base">Recovery Form</p>
                             <div className="grid grid-cols-2 gap-4">
@@ -245,7 +251,7 @@ export default function ComplainDetailPage() {
                                 <button onClick={async () => {
                                     // Validate
                                     if (!recovery.recall_reference) return setStockActionError("Recall reference is required");
-                                    if (!recovery.recovery_location) return setStockActionError("Recovery location is required");
+                                    // if (!recovery.recovery_location) return setStockActionError("Recovery location is required");
                                     if (recovery.quantity_recalled && isNaN(Number(recovery.quantity_recalled))) return setStockActionError("Quantity recalled must be a number");
                                     setStockActionError("");
                                     setRecoverySubmitting(true);
@@ -256,7 +262,7 @@ export default function ComplainDetailPage() {
                                             quantity_recalled: recovery.quantity_recalled || undefined,
                                             quantity_unit: recovery.quantity_unit || undefined,
                                             recall_date: recovery.recall_date || undefined,
-                                            recovery_location: recovery.recovery_location,
+                                            recovery_location: recovery.recovery_location || "location not specified",
                                             disposal_method: recovery.disposal_method || undefined,
                                             notes: recovery.notes || undefined,
                                         });
@@ -307,12 +313,12 @@ export default function ComplainDetailPage() {
 
 function DetailRow({ label, value, badge }) {
     return (
-        <div>
-            <p className="text-[#888] font-medium">{label}</p>
+        <div className="flex flex-col gap-1">
+            <p className="text-[#494949] font-bold">{label}</p>
             {badge ? (
                 <span className="border border-[#E8E8E8] rounded-md px-2 py-1 text-xs">{value}</span>
             ) : (
-                <p className="font-semibold">{value}</p>
+                <p className="font-medium text-[#494949]">{value}</p>
             )}
         </div>
     );

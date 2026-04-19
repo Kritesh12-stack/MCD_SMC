@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import PageHeading from "../components/PageHeading";
 import { getMockRecalls } from "../api/complaintsApi";
 import { useUser } from "../contexts/UserContext";
+// import tick from "../assets/tick.svg";
 
 const STATUS_CONFIG = {
-    accepted:  { icon: "✔", iconBg: "bg-green-500", textColor: "text-green-500", label: "Accepted" },
+    accepted:  { icon: "✔", iconBg: "bg-blue-500", textColor: "text-blue-500", label: "Accepted" },
     rejected:  { icon: "!", iconBg: "bg-red-400",   textColor: "text-red-500",   label: "Rejected" },
     inprocess: { icon: "…", iconBg: "bg-yellow-400", textColor: "text-yellow-500", label: "In Process" },
 };
@@ -42,7 +43,7 @@ export default function MockRecallPage() {
     return (
         <div>
             <PageHeading title="Mock Recall" />
-            <div className="px-4">
+            <div className="px-4 w-[70%]">
                 <div className="flex justify-between items-center mb-4">
                     <p className="text-sm font-semibold text-[#27272E]">Mock Recall Status</p>
                     {isVendor && (
@@ -83,7 +84,7 @@ function RecallCard({ item, onView }) {
             </div>
             <div className="flex justify-between items-center mt-3">
                 <p className="text-xs text-[#888]">{item.supplier_name || "Vendor/Supplier"}</p>
-                <div className="flex items-center gap-4">
+                {/* <div className="flex items-center gap-4"> */}
                     <div className="flex items-center gap-1.5">
                         <span className={`w-5 h-5 rounded-full ${config.iconBg} text-white text-xs flex items-center justify-center font-bold`}>
                             {config.icon}
@@ -93,7 +94,7 @@ function RecallCard({ item, onView }) {
                     <button onClick={onView} className="px-5 py-1.5 rounded-full border border-[#27272E] text-sm font-medium text-[#27272E] hover:bg-gray-50">
                         View
                     </button>
-                </div>
+                {/* </div> */}
             </div>
         </div>
     );

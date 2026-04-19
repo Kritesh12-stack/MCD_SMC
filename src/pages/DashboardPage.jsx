@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import BatchTable from "../components/BatchTable";
 import OverviewItem from "../components/OverviewItem";
 import PageHeading from "../components/PageHeading";
@@ -12,7 +13,9 @@ import DonutChart from "../components/DonutChart";
 import LineChartCard from "../components/LineChartCard";
 import MultiDonutChart from "../components/MultiDonutChart";
 import HorizontalBarChartCard from "../components/HorizontalBarChartCard";
-import { getDashboardOverview, getDashboardAnalytics, getComplaints } from "../api/complaintsApi";
+import { getDashboardOverview, getDashboardAnalytics, getComplaints, getComplaintById } from "../api/complaintsApi";
+import { useUser } from "../contexts/UserContext";
+import { getStatusLabel, getStatusColor } from "../utils/statusUtils";
 
 const DATE_FILTERS = [
     { id: 7,   name: "Last 7 days" },
@@ -31,6 +34,10 @@ export default function DashboardPage() {
     const [complaints, setComplaints] = useState([]);
     const [complaintsLoading, setComplaintsLoading] = useState(true);
     const [filter, setFilter] = useState(7);
+    const [modal, setModal] = useState(null);
+    const { user } = useUser();
+    const isVendor = user?.role === "Vendor";
+    const navigate = useNavigate();
 
     useEffect(() => {
         async function fetchAll() {
@@ -73,6 +80,16 @@ export default function DashboardPage() {
     // Donut — SLA
     const slaMet = totalTickets - slaBreached;
 
+    async function handleView(row) {
+        if (!isVendor) return navigate(`/complaint/${row.id}`);
+        try {
+            const res = await getComplaintById(row.id);
+            setModal(res.data?.data || res.data);
+        } catch {
+            navigate(`/complaint/${row.id}`);
+        }
+    }
+
     function exportToCSV() {
         const headers = ["Ticket Id", "Product Name", "Category", "Quantity", "Vendor", "Status"];
         const rows = complaints.map(c => [
@@ -110,7 +127,7 @@ export default function DashboardPage() {
                 <OverviewItem Icon={totalTicketResolve} title="Resolved" value={resolved} bgColor="#FF7E30" />
             </div>
 
-            <BatchTable data={complaints} loading={complaintsLoading} />
+            <BatchTable data={complaints} loading={complaintsLoading} onView={handleView} />
 
             <div className="flex justify-between items-center px-4 my-4">
                 <div className="text-[#27272E] text-2xl font-medium">Tickets Overview</div>
@@ -148,6 +165,60 @@ export default function DashboardPage() {
                     </div>
                 )}
             </div>
+            {modal && (
+            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setModal(null)}>
+                <div className="bg-white rounded-2xl w-full max-w-md mx-4 shadow-xl" onClick={e => e.stopPropagation()}>
+                    <div className="p-6">
+                        <div className="flex justify-between items-start mb-4">
+                            <div>
+                                <p className="text-xs text-[#888]">Details of {modal.ticket_id}</p>
+                                <p className="font-semibold text-sm mt-0.5">{modal.ticket_id}</p>
+                                <span className="text-xs text-[#888] border border-[#E8E8E8] rounded px-2 py-0.5 mt-1 inline-block">{modal.facility_name || "—"}</span>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-xs text-[#888]">{modal.incident_date}</p>
+                                <span className={`text-xs font-medium px-2 py-0.5 rounded border mt-1 inline-block whitespace-nowrap ${getStatusColor(modal.status)}`}>
+                                    {getStatusLabel(modal.status)}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                            <DetailRow label="Date of Complaint" value={modal.incident_date} />
+                            <DetailRow label="SAP Code" value={modal.sap_code || "—"} />
+                            <DetailRow label="Batch" value={modal.batch_number || "—"} />
+                            <DetailRow label="Category" value={modal.complaint_category_name} />
+                            <DetailRow label="Volume Affected" value={modal.quantity ? `${modal.quantity} ${modal.quantity_unit || ""}` : "—"} />
+                            <DetailRow label="Issue" value={modal.severity} />
+                        </div>
+                        <p className="font-semibold mt-4 text-sm">{modal.product_name}</p>
+                        <p className="text-xs text-[#666] mt-1">{modal.description || "—"}</p>
+                        {modal.attachments?.length > 0 && (
+                            <div className="mt-3">
+                                <p className="text-xs text-[#888] mb-1.5">Attached Pictures</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {modal.attachments.map((a) => (
+                                        <a key={a.id} href={a.file} target="_blank" rel="noreferrer">
+                                            <img src={a.file} alt={a.filename} className="w-16 h-16 object-cover rounded-md border border-[#E8E8E8] hover:opacity-80" />
+                                        </a>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        )}
         </section>
+
+        
+    );
+}
+
+function DetailRow({ label, value }) {
+    return (
+        <div>
+            <p className="text-xs text-[#888]">{label}</p>
+            <p className="font-semibold text-sm mt-0.5">{value || "—"}</p>
+        </div>
     );
 }

@@ -4,9 +4,10 @@ import SearchBar from "./SearchBar";
 import FilterDropDown from "./FilterDropDown";
 import CustomButton from "./CustomButton";
 import CustomTable from "./CustomTable";
+import { getStatusLabel, getStatusColor } from "../utils/statusUtils";
 
 const STATUS_COLORS = {
-    pending: "bg-yellow-100 text-yellow-700 border-yellow-300",
+    pending: "bg-blue-100 text-blue-700 border-blue-300",
     vendoraccepted: "bg-green-100 text-green-700 border-green-300",
     vendorrejected: "bg-red-100 text-red-700 border-red-300",
     senttovendor: "bg-purple-100 text-purple-700 border-purple-300",
@@ -23,7 +24,7 @@ const SORT_FILTERS = [
 
 const STATUS_KEYS = ["pending", "senttovendor", "vendoraccepted", "vendorrejected"];
 
-export default function BatchTable({ data = [], loading = false }) {
+export default function BatchTable({ data = [], loading = false, onView }) {
     const [searchText, setSearchText] = useState("");
     const [sort, setSort] = useState(null);
     const navigate = useNavigate();
@@ -48,8 +49,8 @@ export default function BatchTable({ data = [], loading = false }) {
             key: "status",
             title: "Status",
             render: (value) => (
-                <span className={`px-3 py-1 text-xs font-medium rounded-md border capitalize ${STATUS_COLORS[value?.toLowerCase()] || STATUS_COLORS.pending}`}>
-                    {value}
+                <span className={`px-3 py-1 text-xs rounded-md border whitespace-nowrap ${getStatusColor(value)}`}>
+                    {getStatusLabel(value)}
                 </span>
             ),
         },
@@ -57,7 +58,7 @@ export default function BatchTable({ data = [], loading = false }) {
             key: "action",
             title: "Action",
             render: (_, row) => (
-                <button className="text-blue-600 hover:underline" onClick={() => navigate(`/complaint/${row.id}`)}>View</button>
+                <button className="text-blue-600 hover:underline" onClick={() => onView ? onView(row) : navigate(`/complaint/${row.id}`)}>View</button>
             ),
         },
         { key: "sla", title: "SLA", render: () => "-" },
