@@ -219,7 +219,7 @@ export default function ComplainDetailPage() {
                                 <CustomInput title="Supplier of Replenishment Product" value={recovery.replenishment_supplier} placeholder="Select supplier contact" onChange={e => setRecovery(r => ({ ...r, replenishment_supplier: e.target.value }))} />
                                 <CustomDropdown
                                     title="Recovery Plan"
-                                    options={[{ id: "Immediate", name: "Immediate" }, { id: "Scheduled", name: "Scheduled" }, { id: "Phased", name: "Phased" }]}
+                                    options={[{ id: "Plan A (Critical)", name: "Plan A (Critical)" }, { id: "Plan B (Operational Problem)", name: "Plan B (Operational Problem)" }, { id: "Plan C (Specification Deviation)", name: "Plan C (Specification Deviation)" }, { id: "Plan D (Supplier Level)", name: "Plan D (Supplier Level)" }]}
                                     selected={{ id: recovery.recovery_plan, name: recovery.recovery_plan }}
                                     setSelected={v => setRecovery(r => ({ ...r, recovery_plan: v.id }))}
                                     placeholder="Select Recovery"
