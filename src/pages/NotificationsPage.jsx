@@ -22,6 +22,9 @@ const TYPE_CONFIG = {
     ComplaintCreated:  { icon: "!", iconBg: "bg-yellow-400", textColor: "text-yellow-500" },
     ComplaintUpdated:  { icon: "✔", iconBg: "bg-blue-500",   textColor: "text-blue-500"   },
     SLABreached:       { icon: "!", iconBg: "bg-red-500",    textColor: "text-red-500"     },
+    StatusChanged:     { icon: "⚡", iconBg: "bg-indigo-500", textColor: "text-indigo-500"  },
+    VendorResponse:    { icon: "✔", iconBg: "bg-green-500",  textColor: "text-green-500"   },
+    RecallInitiated:   { icon: "⚠", iconBg: "bg-orange-500", textColor: "text-orange-500"  },
 };
 
 function getConfig(type = "") {
