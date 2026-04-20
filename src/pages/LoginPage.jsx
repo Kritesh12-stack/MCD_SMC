@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import LoginInput from "../components/LoginInput";
 import MC_Login_JPG from "../assets/MC_Login.jpg";
 import MC_Login_PNG from "../assets/MC_Login.png";
+import MCD_LOGO from "../assets/MCD_LOGO_login.png";
 import { useUser } from "../contexts/UserContext";
 import { loginApi, registerApi } from "../api/authApi";
 
@@ -116,8 +117,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="text-xl h-screen grid grid-cols-2 place-items-center bg-red-500 p-8">
+    <div className="text-xl h-screen grid grid-cols-2 place-items-center bg-[#DB0006] p-8">
       <div className="w-[70%] flex flex-col items-center gap-3">
+        <img src={MCD_LOGO} alt="McDonald's Logo" className="h-16 object-contain absolute top-4 left-4 mb-2" />
+        <div className="text-white text-3xl tracking-wider mb-6">McDonald's</div>
         <div className="relative overflow-hidden rounded-2xl w-full">
           {CAROUSEL_IMAGES.map((img, i) => (
             <img
@@ -190,8 +193,8 @@ export default function LoginPage() {
           </>
         )}
 
-        <div className="text-center w-full px-8 font-normal text-[#7C7C7C] text-base pb-4">
-          by logging in, i agree with McDonald's <br /> privacy policy and terms of service
+        <div className="text-center w-full px-6 font-normal text-[#7C7C7C] text-base pb-4 leading-6">
+          By Logging in, I agree with McDonald's <br /> <span className="font-semibold text-[#FFA13A]">Privacy Policy</span> and <span className="font-semibold text-[#FFA13A]">Terms of Service</span>
         </div>
       </div>
     </div>
