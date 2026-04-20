@@ -66,7 +66,13 @@ export default function DashboardPage() {
     const lineData = analytics?.complaints_per_day?.map(d => ({ name: d.day.slice(5), count: d.count })) || [];
 
     // Multi donut — status breakdown
-    const statusColors = { SentToVendor: "#4F6BED", Justified: "#16A34A", Unjustified: "#EF4444", Pending: "#F59E0B" };
+    const statusColors = { SentToVendor: "#4F6BED", Justified: "#16A34A", Unjustified: "#EF4444", Pending: "#F59E0B",
+        VendorAccepted: "#16A34A",  // green
+    VendorRejected: "#EF4444",  // red
+    Released:       "#F59E0B",  // amber
+    Recalled:       "#F97316",  // orange
+    Destroyed:      "#6B7280",  // gray
+     };
     const multiDonutData = Object.entries(analytics?.complaint_status_breakdown || {}).map(([label, value]) => ({
         label, value, color: statusColors[label] || "#888",
     }));

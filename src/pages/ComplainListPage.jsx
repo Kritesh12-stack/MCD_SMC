@@ -180,7 +180,7 @@ export default function ComplainListPage() {
                                 </div>
                                 <div className="grid grid-cols-2 gap-3 text-sm">
                                     <DetailRow label="Date of Complaint" value={modal.complaint.incident_date} />
-                                    <DetailRow label="SAP Code" value={modal.complaint.sap_code || "—"} />
+                                    <DetailRow label="SAP Code" value={modal.complaint.wrin || "—"} />
                                     <DetailRow label="Batch" value={modal.complaint.batch_number || "—"} />
                                     <DetailRow label="Category" value={modal.complaint.complaint_category_name} />
                                     <DetailRow label="Volume Affected" value={modal.complaint.quantity ? `${modal.complaint.quantity} ${modal.complaint.quantity_unit || ""}` : "—"} />
