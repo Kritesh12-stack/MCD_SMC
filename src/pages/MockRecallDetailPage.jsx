@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import PageHeading from "../components/PageHeading";
+import MockWatermark from "../components/MockWatermark";
 import { getMockRecallById, acceptMockRecall, rejectMockRecall } from "../api/complaintsApi";
 
 const STATUS_CONFIG = {
@@ -63,7 +64,7 @@ export default function MockRecallDetailPage() {
     const config = getStatusConfig(recall.status);
 
     return (
-        <div>
+        <MockWatermark>
             <PageHeading title="Mock Recall" />
             <div className="px-4">
                 <button onClick={() => navigate("/mock-recall")} className="text-sm text-[#888] hover:text-[#27272E] mb-4 flex items-center gap-1">
@@ -160,7 +161,7 @@ export default function MockRecallDetailPage() {
                     </div>
                 </div>
             )}
-        </div>
+        </MockWatermark>
     );
 }
 

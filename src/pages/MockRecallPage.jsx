@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PageHeading from "../components/PageHeading";
+import MockWatermark from "../components/MockWatermark";
 import { getMockRecalls } from "../api/complaintsApi";
 import { useUser } from "../contexts/UserContext";
 // import tick from "../assets/tick.svg";
@@ -41,7 +42,7 @@ export default function MockRecallPage() {
     }, []);
 
     return (
-        <div>
+        <MockWatermark>
             <PageHeading title="Mock Recall" />
             <div className="px-4 w-[70%]">
                 <div className="flex justify-between items-center mb-4">
@@ -67,7 +68,7 @@ export default function MockRecallPage() {
                     </div>
                 )}
             </div>
-        </div>
+        </MockWatermark>
     );
 }
 

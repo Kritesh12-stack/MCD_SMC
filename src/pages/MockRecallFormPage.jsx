@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PageHeading from "../components/PageHeading";
+import MockWatermark from "../components/MockWatermark";
 import { getProducts, getSuppliers, getFacilities, createMockRecall } from "../api/complaintsApi";
 
 export default function MockRecallFormPage() {
@@ -49,7 +50,7 @@ export default function MockRecallFormPage() {
   };
 
   return (
-    <div>
+    <MockWatermark>
       <PageHeading title="Mock Recall Form" />
       <div className="px-6 py-6 max-w-3xl">
         {error && <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md text-sm">{error}</div>}
@@ -125,7 +126,7 @@ export default function MockRecallFormPage() {
         </form>
       </div>
       <style>{`.input-style { width: 100%; border: 1px solid #E8E8E8; border-radius: 0.375rem; padding: 0.75rem 1rem; font-size: 0.875rem; color: #425466; background: white; }`}</style>
-    </div>
+    </MockWatermark>
   );
 }
 
