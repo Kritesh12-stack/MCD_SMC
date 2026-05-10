@@ -16,6 +16,11 @@ import NotificationsPage from './pages/NotificationsPage'
 import MockRecallPage from './pages/MockRecallPage'
 import MockRecallDetailPage from './pages/MockRecallDetailPage'
 import MockRecallFormPage from './pages/MockRecallFormPage'
+import CreateReport from './pages/CreateReport'
+import { useModule } from './contexts/ModuleContext'
+import ScoreDashboard from './pages/ScoreDashboard'
+import BatchDetails from './pages/BatchDetails'
+import BatchMonitoringPage from './pages/BatchMonitoringPage'
 
 function ProtectedRoute({ children }) {
   const { user } = useUser()
@@ -29,6 +34,7 @@ function GuestRoute({ children }) {
 
 export default function App() {
   const { user } = useUser()
+  const { module } = useModule()
   const location = useLocation()
   const isLoginPage = location.pathname === '/login'
 
@@ -39,7 +45,7 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
           <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <WorkspaceSelectionPage />} />
-          <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute>{module === "scoreCard" ? <ScoreDashboard /> : <DashboardPage />}</ProtectedRoute>} />
           <Route path="/complaints" element={<ProtectedRoute><ComplainListPage /></ProtectedRoute>} />
           <Route path="/complaints/raise" element={<ProtectedRoute><RaiseComplaintPage /></ProtectedRoute>} />
           <Route path="/complaint/:id" element={<ProtectedRoute><ComplainDetailPage /></ProtectedRoute>} />
@@ -52,6 +58,9 @@ export default function App() {
           <Route path="/mock-recall" element={<ProtectedRoute><MockRecallPage /></ProtectedRoute>} />
           <Route path="/mock-recall/new" element={<ProtectedRoute><MockRecallFormPage /></ProtectedRoute>} />
           <Route path="/mock-recall/:id" element={<ProtectedRoute><MockRecallDetailPage /></ProtectedRoute>} />
+          <Route path='/create-report' element={<ProtectedRoute><CreateReport/></ProtectedRoute>} />
+          <Route path='/batch-details' element={<ProtectedRoute><BatchDetails/></ProtectedRoute>} />
+          <Route path="/batch-monitoring" element={<ProtectedRoute><BatchMonitoringPage /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to={user ? '/dashboard' : '/'} replace />} />
         </Routes>
       </div>

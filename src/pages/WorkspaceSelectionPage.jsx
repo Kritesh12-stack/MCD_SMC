@@ -1,4 +1,15 @@
+import { useNavigate } from "react-router-dom"
+import { useModule } from "../contexts/ModuleContext"
+
 export default function WorkspaceSelectionPage() {
+  const { setModule } = useModule()
+  const navigate = useNavigate()
+
+  const goToLogin = (moduleKey) => {
+    setModule(moduleKey)
+    navigate("/login")
+  }
+
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
       {/* Header */}
@@ -11,9 +22,18 @@ export default function WorkspaceSelectionPage() {
         <div className="bg-white rounded-xl shadow-sm p-10 max-w-3xl w-full">
           <h2 className="text-2xl font-semibold text-[#1A1A2E] mb-8">Select your workspace</h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div  className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Complaint Management System */}
-            <a href="/login"
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => goToLogin("complaint")}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault()
+                  goToLogin("complaint")
+                }
+              }}
               className="border-2 border-[#F11518] rounded-xl p-6 flex flex-col items-center justify-between hover:shadow-md transition-shadow cursor-pointer group"
             >
               <div className="h-32 flex items-center justify-center mb-6">
@@ -34,11 +54,20 @@ export default function WorkspaceSelectionPage() {
                 <span className="text-base font-medium text-[#1A1A2E]">Complaint Management System</span>
                 <span className="text-[#F11518] text-xl group-hover:translate-x-1 transition-transform">›</span>
               </div>
-            </a>
+            </div>
 
             {/* Score Card */}
             <div
-              className="border border-[#E5E7EB] rounded-xl p-6 flex flex-col items-center justify-between hover:shadow-md transition-shadow cursor-pointer group opacity-70"
+              role="button"
+              tabIndex={0}
+              onClick={() => goToLogin("scoreCard")}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault()
+                  goToLogin("scoreCard")
+                }
+              }}
+              className="border border-[#E5E7EB] rounded-xl p-6 flex flex-col items-center justify-between hover:shadow-md transition-shadow cursor-pointer group"
             >
               <div className="h-32 flex items-center justify-center mb-6">
                 <svg width="120" height="100" viewBox="0 0 120 100" fill="none">

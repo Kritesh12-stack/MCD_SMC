@@ -13,6 +13,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import logo from "../assets/Logo_mcd.png"
 import { getUnreadNotificationCount } from "../api/complaintsApi";
 import { useUser } from "../contexts/UserContext";
+import { useModule } from "../contexts/ModuleContext";
 
 export default function SideBar() {
     const [selected, setSelected] = useState("Dashboard")
@@ -20,6 +21,7 @@ export default function SideBar() {
     const location = useLocation()
     const navigate = useNavigate()
     const { logout } = useUser()
+    const { module , setModule } = useModule()  
 
     const isActive = (path) => location.pathname.startsWith(path)
 
@@ -44,7 +46,8 @@ export default function SideBar() {
                 <img src={logo} alt="Logo" />
             </div>
             <SidebarItem path="/dashboard" Icon={DashboardIcon} title={"Dashboard"} setSelected={setSelected} isSelected={isActive("/dashboard")}/>
-            <SidebarItem path="/complaints" Icon={CompList} title={"Complaints List"} setSelected={setSelected} isSelected={isActive("/complaint")}/>
+            <SidebarItem path="/batch-monitoring" Icon={CompList} title={"Batch Monitoring"} setSelected={setSelected} isSelected={isActive("/batch-monitoring")}/>
+            <SidebarItem path="/complaints" Icon={CompList} title={"Complaints List"} setSelected={setSelected} isSelected={isActive("/complaint") && !isActive("/batch-monitoring")}/>
             <SidebarItem path="/mock-recall" Icon={mockRecall} title={"Mock Recall"} setSelected={setSelected} isSelected={isActive("/mock-recall")}/>
             <SidebarItem path="/sla-settings" Icon={Sla} title={"SLA Settings"} setSelected={setSelected} isSelected={isActive("/sla-settings")}/>
             <SidebarItem path="/voluntary-recall" Icon={voluntaryRecall} title={"Voluntary Recall"} setSelected={setSelected} isSelected={isActive("/voluntary-recall")}/>
@@ -52,6 +55,7 @@ export default function SideBar() {
             <SidebarItem path="/notifications" Icon={notification} title={"Notifications"} setSelected={setSelected} isSelected={isActive("/notifications")} badge={unreadCount}/>
             {/* <SidebarItem path="/account" Icon={account} title={"Account"} setSelected={setSelected} isSelected={isActive("/account")}/> */}
             <SidebarItem path="/logout" Icon={logoutIcon} title={"Logout"} setSelected={setSelected} isSelected={false} onClick={handleLogout}/>
+
         </section>
     )
 }
