@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useBatchesList } from "../hooks/useBatchesList";
 import PageHeading from "../components/PageHeading";
 import OverviewItem from "../components/OverviewItem";
 import SearchBar from "../components/SearchBar";
@@ -12,8 +13,6 @@ import TotalTicket from "../assets/TotalTicket.svg";
 import ticketInProgress from "../assets/ticketInProgress.svg";
 import totalOpenTicket from "../assets/totalOpenTicket.svg";
 import totalTicketResolve from "../assets/totalTicketResolve.svg";
-import { STATIC_BATCH_ROWS } from "./BatchMonitoringPage";
-
 const DATE_FILTERS = [
     { id: 7, name: "Last 7 days" },
     { id: 30, name: "Last 1 month" },
@@ -31,6 +30,14 @@ const STATUS_BADGE = {
     pending: "bg-amber-100 text-amber-800 border border-amber-200",
     rejected: "bg-red-100 text-red-800 border border-red-300",
     approved: "bg-blue-100 text-blue-800 border border-blue-200",
+    inprogress: "bg-purple-100 text-purple-800 border border-purple-200",
+};
+
+const STATUS_LABEL = {
+    pending: "Pending",
+    rejected: "Rejected",
+    approved: "Approved",
+    inprogress: "In Progress",
 };
 
 const RISK_CLASS = {
@@ -40,7 +47,7 @@ const RISK_CLASS = {
 };
 
 function statusLabel(key) {
-    return key.charAt(0).toUpperCase() + key.slice(1);
+    return STATUS_LABEL[key] ?? (key.charAt(0).toUpperCase() + key.slice(1));
 }
 
 /** Static trend — periods 1–12 */
@@ -67,18 +74,31 @@ const DECISION_RATE_DATA = [
 export default function ScoreDashboard() {
     const navigate = useNavigate();
     const [search, setSearch] = useState("");
+    const { rows, loading, error, notice, fromApi, meta } = useBatchesList();
+
+    const overviewStats = useMemo(() => {
+        if (!fromApi || rows.length === 0) return null;
+        const total = meta?.total ?? rows.length;
+        const approved = rows.filter((r) => r.status === "approved").length;
+        const rejected = rows.filter((r) => r.status === "rejected").length;
+        const inprogress = rows.filter((r) => r.status === "inprogress").length;
+        const pending = rows.filter((r) => r.status === "pending").length;
+        const scores = rows.map((r) => parseFloat(r._raw?.overall_score)).filter((s) => !isNaN(s));
+        const avgScore = scores.length ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : "—";
+        return { total, approved, rejected, inprogress, pending, avgScore };
+    }, [rows, fromApi, meta]);
 
     const filteredRows = useMemo(() => {
         const q = search.trim().toLowerCase();
-        if (!q) return STATIC_BATCH_ROWS;
-        return STATIC_BATCH_ROWS.filter(
+        if (!q) return rows;
+        return rows.filter(
             (r) =>
-                r.batchId.toLowerCase().includes(q) ||
-                r.supplier.toLowerCase().includes(q) ||
-                r.productType.toLowerCase().includes(q) ||
-                r.sku.toLowerCase().includes(q)
+                String(r.batchId).toLowerCase().includes(q) ||
+                String(r.supplier).toLowerCase().includes(q) ||
+                String(r.productType).toLowerCase().includes(q) ||
+                String(r.sku).toLowerCase().includes(q)
         );
-    }, [search]);
+    }, [search, rows]);
 
     function exportTableCSV() {
         const headers = [
@@ -215,16 +235,31 @@ export default function ScoreDashboard() {
                 </div>
             </div>
             <div className="flex gap-4 px-4 flex-wrap pb-6">
-                <OverviewItem Icon={TotalTicket} title="Total Batches Today" value={100} bgColor="#F11518" />
-                <OverviewItem Icon={ticketInProgress} title="Pending QA Reviews" value={8} bgColor="#FFC72C" />
-                <OverviewItem Icon={totalTicketResolve} title="Approved Batch" value={18} bgColor="#4C6FFF" />
-                <OverviewItem Icon={totalOpenTicket} title="Rejected Batch" value={120} bgColor="#FF7E30" />
-                <OverviewItem Icon={totalOpenTicket} title="Correction Required" value={15} bgColor="#9CA3AF" />
-                <OverviewItem Icon={TotalTicket} title="Avg Quality Score" value={80} bgColor="#92400E" />
+                <OverviewItem Icon={TotalTicket} title="Total Batches" value={overviewStats?.total ?? 100} bgColor="#F11518" />
+                <OverviewItem Icon={ticketInProgress} title="In Progress" value={overviewStats?.inprogress ?? 8} bgColor="#FFC72C" />
+                <OverviewItem Icon={totalTicketResolve} title="Approved Batch" value={overviewStats?.approved ?? 18} bgColor="#4C6FFF" />
+                <OverviewItem Icon={totalOpenTicket} title="Rejected Batch" value={overviewStats?.rejected ?? 120} bgColor="#FF7E30" />
+                <OverviewItem Icon={totalOpenTicket} title="Pending" value={overviewStats?.pending ?? 15} bgColor="#9CA3AF" />
+                <OverviewItem Icon={TotalTicket} title="Avg Quality Score" value={overviewStats?.avgScore ?? 80} bgColor="#92400E" />
             </div>
 
             <div className="px-4 pb-6">
                 <div className="w-full p-4 rounded-md border border-[#E8E8E8] shadow-sm bg-white">
+                    {error ? (
+                        <p className="text-sm text-red-600 mb-3">{error} (showing sample rows)</p>
+                    ) : null}
+                    {notice ? (
+                        <p className="text-sm text-[#6C757D] mb-3">
+                            {notice}
+                            {meta?.total != null ? ` API total: ${meta.total}.` : ""}
+                        </p>
+                    ) : null}
+                    {fromApi && meta?.total != null ? (
+                        <p className="text-xs text-[#888] mb-2">
+                            Loaded {rows.length} batch{rows.length !== 1 ? "es" : ""} (page {meta.page ?? 1} of{" "}
+                            {meta.total_pages ?? 1}).
+                        </p>
+                    ) : null}
                     <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
                         <div className="flex flex-wrap items-center gap-3 flex-1 min-w-0">
                             <SearchBar search={search} setSearch={setSearch} />
@@ -243,7 +278,11 @@ export default function ScoreDashboard() {
                             handleSubmit={() => navigate("/create-report")}
                         />
                     </div>
-                    <CustomTable columns={columns} data={filteredRows} maxRows={15} />
+                    {loading ? (
+                        <div className="text-center py-10 text-gray-500">Loading batches…</div>
+                    ) : (
+                        <CustomTable columns={columns} data={filteredRows} maxRows={15} />
+                    )}
                 </div>
             </div>
 

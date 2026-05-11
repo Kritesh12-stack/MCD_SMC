@@ -5,6 +5,7 @@ import SearchBar from "../components/SearchBar";
 import FilterDropDown from "../components/FilterDropDown";
 import CustomButton from "../components/CustomButton";
 import CustomTable from "../components/CustomTable";
+import { useBatchesList } from "../hooks/useBatchesList";
 
 const DATE_FILTERS = [
     { id: "7d", name: "Last 7 Days" },
@@ -48,6 +49,14 @@ const STATUS_BADGE = {
     pending: "bg-amber-100 text-amber-800 border border-amber-200",
     rejected: "bg-red-100 text-red-800 border border-red-300",
     approved: "bg-blue-100 text-blue-800 border border-blue-200",
+    inprogress: "bg-purple-100 text-purple-800 border border-purple-200",
+};
+
+const STATUS_LABEL = {
+    pending: "Pending",
+    rejected: "Rejected",
+    approved: "Approved",
+    inprogress: "In Progress",
 };
 
 const RISK_CLASS = {
@@ -56,109 +65,26 @@ const RISK_CLASS = {
     Low: "text-emerald-700 font-medium",
 };
 
-/** Static mock rows — replace with API later */
-export const STATIC_BATCH_ROWS = [
-    {
-        id: "1",
-        batchId: "COM-2025-0012",
-        supplier: "Salamonca",
-        productType: "American Cheese Slices",
-        sku: "BB-21",
-        productionDate: "18 Feb 2026",
-        status: "pending",
-        riskFlag: "Medium",
-    },
-    {
-        id: "2",
-        batchId: "COM-2025-0015",
-        supplier: "Green Farms Ltd",
-        productType: "Burger Bun",
-        sku: "YG-11",
-        productionDate: "18 Feb 2026",
-        status: "approved",
-        riskFlag: "Low",
-    },
-    {
-        id: "3",
-        batchId: "COM-2025-0018",
-        supplier: "Cooker Dooker",
-        productType: "FC Chicken Patty",
-        sku: "YG-07",
-        productionDate: "17 Feb 2026",
-        status: "rejected",
-        riskFlag: "High",
-    },
-    {
-        id: "4",
-        batchId: "COM-2025-0020",
-        supplier: "Salamonca",
-        productType: "Bun Potato",
-        sku: "BB-25",
-        productionDate: "16 Feb 2026",
-        status: "pending",
-        riskFlag: "Low",
-    },
-    {
-        id: "5",
-        batchId: "COM-2025-0021",
-        supplier: "Green Farms Ltd",
-        productType: "American Cheese Slices",
-        sku: "BB-21",
-        productionDate: "15 Feb 2026",
-        status: "approved",
-        riskFlag: "Medium",
-    },
-    {
-        id: "6",
-        batchId: "COM-2025-0024",
-        supplier: "Cooker Dooker",
-        productType: "Burger Bun",
-        sku: "YG-11",
-        productionDate: "14 Feb 2026",
-        status: "pending",
-        riskFlag: "High",
-    },
-    {
-        id: "7",
-        batchId: "COM-2025-0028",
-        supplier: "Salamonca",
-        productType: "FC Chicken Patty",
-        sku: "YG-07",
-        productionDate: "13 Feb 2026",
-        status: "rejected",
-        riskFlag: "Medium",
-    },
-    {
-        id: "8",
-        batchId: "COM-2025-0030",
-        supplier: "Green Farms Ltd",
-        productType: "Bun Potato",
-        sku: "BB-25",
-        productionDate: "12 Feb 2026",
-        status: "approved",
-        riskFlag: "Low",
-    },
-];
-
 function statusLabel(key) {
-    return key.charAt(0).toUpperCase() + key.slice(1);
+    return STATUS_LABEL[key] ?? (key.charAt(0).toUpperCase() + key.slice(1));
 }
 
 export default function BatchMonitoringPage() {
     const navigate = useNavigate();
     const [search, setSearch] = useState("");
+    const { rows, loading, error, notice, fromApi, meta } = useBatchesList();
 
     const filteredRows = useMemo(() => {
         const q = search.trim().toLowerCase();
-        if (!q) return STATIC_BATCH_ROWS;
-        return STATIC_BATCH_ROWS.filter(
+        if (!q) return rows;
+        return rows.filter(
             (r) =>
-                r.batchId.toLowerCase().includes(q) ||
-                r.supplier.toLowerCase().includes(q) ||
-                r.productType.toLowerCase().includes(q) ||
-                r.sku.toLowerCase().includes(q)
+                String(r.batchId).toLowerCase().includes(q) ||
+                String(r.supplier).toLowerCase().includes(q) ||
+                String(r.productType).toLowerCase().includes(q) ||
+                String(r.sku).toLowerCase().includes(q)
         );
-    }, [search]);
+    }, [search, rows]);
 
     function exportToCSV() {
         const headers = [
@@ -233,6 +159,23 @@ export default function BatchMonitoringPage() {
             <PageHeading title={"Batch Monitoring Table"} />
             <div className="px-4 pb-6">
                 <div className="w-full rounded-md bg-white">
+                    {error ? (
+                        <p className="text-sm text-red-600 mb-3 px-1">
+                            {error} (showing sample rows)
+                        </p>
+                    ) : null}
+                    {notice ? (
+                        <p className="text-sm text-[#6C757D] mb-3 px-1">
+                            {notice}
+                            {meta?.total != null ? ` API total: ${meta.total}.` : ""}
+                        </p>
+                    ) : null}
+                    {fromApi && meta?.total != null ? (
+                        <p className="text-xs text-[#888] mb-2 px-1">
+                            Loaded {rows.length} batch{rows.length !== 1 ? "es" : ""} (page {meta.page ?? 1} of{" "}
+                            {meta.total_pages ?? 1}).
+                        </p>
+                    ) : null}
                     <div className="flex flex-wrap items-center gap-3 mb-4 justify-between">
                         <div className="flex flex-wrap items-center gap-3">
                             <FilterDropDown
@@ -291,7 +234,11 @@ export default function BatchMonitoringPage() {
                         />
                     </div>
 
-                    <CustomTable columns={columns} data={filteredRows} maxRows={15} />
+                    {loading ? (
+                        <div className="text-center py-10 text-gray-500">Loading batches…</div>
+                    ) : (
+                        <CustomTable columns={columns} data={filteredRows} maxRows={15} />
+                    )}
                 </div>
             </div>
         </div>

@@ -46,11 +46,11 @@ export default function SideBar() {
                 <img src={logo} alt="Logo" />
             </div>
             <SidebarItem path="/dashboard" Icon={DashboardIcon} title={"Dashboard"} setSelected={setSelected} isSelected={isActive("/dashboard")}/>
-            <SidebarItem path="/batch-monitoring" Icon={CompList} title={"Batch Monitoring"} setSelected={setSelected} isSelected={isActive("/batch-monitoring")}/>
-            <SidebarItem path="/complaints" Icon={CompList} title={"Complaints List"} setSelected={setSelected} isSelected={isActive("/complaint") && !isActive("/batch-monitoring")}/>
-            <SidebarItem path="/mock-recall" Icon={mockRecall} title={"Mock Recall"} setSelected={setSelected} isSelected={isActive("/mock-recall")}/>
-            <SidebarItem path="/sla-settings" Icon={Sla} title={"SLA Settings"} setSelected={setSelected} isSelected={isActive("/sla-settings")}/>
-            <SidebarItem path="/voluntary-recall" Icon={voluntaryRecall} title={"Voluntary Recall"} setSelected={setSelected} isSelected={isActive("/voluntary-recall")}/>
+            {module === "scoreCard" ? <SidebarItem path="/batch-monitoring" Icon={CompList} title={"Batch Monitoring"} setSelected={setSelected} isSelected={isActive("/batch-monitoring")}/> : null }
+            {module === "complaint" ? <SidebarItem path="/complaints" Icon={CompList} title={"Complaints List"} setSelected={setSelected} isSelected={isActive("/complaint") && !isActive("/batch-monitoring")}/> : null}
+            {module === "complaint" ? <SidebarItem path="/mock-recall" Icon={mockRecall} title={"Mock Recall"} setSelected={setSelected} isSelected={isActive("/mock-recall")}/> : null}
+            {module === "complaint" ? <SidebarItem path="/sla-settings" Icon={Sla} title={"SLA Settings"} setSelected={setSelected} isSelected={isActive("/sla-settings")}/> : null}
+            {module === "complaint" ? <SidebarItem path="/voluntary-recall" Icon={voluntaryRecall} title={"Voluntary Recall"} setSelected={setSelected} isSelected={isActive("/voluntary-recall")}/> : null}
             {/* <SidebarItem path="/settings" Icon={settings} title={"Settings"} setSelected={setSelected} isSelected={isActive("/settings")}/> */}
             <SidebarItem path="/notifications" Icon={notification} title={"Notifications"} setSelected={setSelected} isSelected={isActive("/notifications")} badge={unreadCount}/>
             {/* <SidebarItem path="/account" Icon={account} title={"Account"} setSelected={setSelected} isSelected={isActive("/account")}/> */}
