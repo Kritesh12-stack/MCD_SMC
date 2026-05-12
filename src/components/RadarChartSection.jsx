@@ -13,7 +13,7 @@ function SampleRadarCard({ sample }) {
         subject: a.name,
         groupScore: Number(a.score) || 0,
         targetScore: Number(a.target) || 5,
-        mcdScore: Number(a.target) || 5,
+        mcdScore: Number(a.mcd_score ?? a.target) || 5,
     }));
 
     return (

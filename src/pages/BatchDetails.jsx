@@ -558,7 +558,7 @@ export default function BatchDetails() {
                 <QualityMetricsComparison spiderCharts={chartsData?.spider_charts || []} />
 
                 {chartsData?.samples_graph?.length > 0 ? (
-                    <section className="mt-6">
+                    <section className="mt-6 max-w-sm">
                         <HorizontalBarChartCard
                             title="Samples Score Graph"
                             data={chartsData.samples_graph.map((s, i) => ({
