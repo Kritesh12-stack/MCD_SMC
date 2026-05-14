@@ -78,9 +78,14 @@ export default function LoginPage() {
       const { data } = await loginApi(loginCred.email, loginCred.password);
       const { user, access, refresh } = data.data;
       login({
+        id: user.id,
         username: `${user.first_name} ${user.last_name}`.trim(),
         email: user.email,
         role: user.role,
+        region_id: user.region_id,
+        region_ids: user.region_ids,
+        supplier_id: user.supplier_id,
+        supplier_name: user.supplier_name,
         access,
         refresh,
       });

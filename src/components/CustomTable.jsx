@@ -4,7 +4,7 @@ const CustomTable = ({ columns, data, maxRows = null }) => {
   const maxHeight = maxRows ? `${32 + maxRows * 44}px` : "auto";
 
   return (
-    <div className=" bg-white">
+    <div className="bg-white">
       <style>{`
         .custom-table-scroll::-webkit-scrollbar {
           width: 4px;
@@ -13,11 +13,11 @@ const CustomTable = ({ columns, data, maxRows = null }) => {
           background: transparent;
         }
         .custom-table-scroll::-webkit-scrollbar-thumb {
-          background-color: #FF5858;
+          background-color: #d9dee7;
           border-radius: 3px;
         }
         .custom-table-scroll::-webkit-scrollbar-thumb:hover {
-          background-color: #b91c1c;
+          background-color: #aeb7c5;
         }
       `}</style>
       <div 
@@ -27,13 +27,13 @@ const CustomTable = ({ columns, data, maxRows = null }) => {
           overflowY: maxRows ? "auto" : "visible",
         }}
       >
-        <table className="w-full text-[10px] text-left text-gray-700">
+        <table className="w-full text-left text-[12px] text-[#344054]">
 
           {/* Header */}
-          <thead className="text-[#494949] sticky top-0 bg-gray-100 uppercase text-[10px]">
+          <thead className="sticky top-0 bg-[#F8FAFC] text-[11px] uppercase tracking-[0.04em] text-[#667085]">
             <tr>
               {columns.map((col) => (
-                <th key={col.key} className="px-4 py-2 font-medium">
+                <th key={col.key} className="px-4 py-3 font-semibold">
                   {col.title}
                 </th>
               ))}
@@ -45,10 +45,10 @@ const CustomTable = ({ columns, data, maxRows = null }) => {
             {data.map((row, rowIndex) => (
               <tr
                 key={rowIndex}
-                className="border-b border-b-gray-100 last:border-none hover:bg-gray-50"
+                className="border-b border-b-[#EEF1F5] last:border-none hover:bg-[#FBFCFD]"
               >
                 {columns.map((col) => (
-                  <td key={col.key} className="px-4 py-3">
+                  <td key={col.key} className="px-4 py-3.5">
 
                     {/* Custom Render */}
                     {col.render

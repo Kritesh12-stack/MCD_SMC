@@ -99,12 +99,28 @@ function statusTone(status) {
     return "bg-slate-50 text-slate-700 border-slate-200";
 }
 
+const BATCH_STATUS_LABEL = {
+    Pending:               "Pending",
+    Draft:                 "Draft",
+    Submitted:             "Submitted",
+    UnderMarketQAReview:   "Under Market QA Review",
+    UnderRegionalQAReview: "Under Regional QA Review",
+    Escalated:             "Escalated",
+    CorrectionRequired:    "Correction Required",
+    Approved:              "Approved",
+    Rejected:              "Rejected",
+};
+
+function batchStatusLabel(status) {
+    return BATCH_STATUS_LABEL[status] ?? status ?? "-";
+}
+
 function canMarketReviewStatus(status) {
-    return ["InProgress", "Submitted", "UnderMarketQAReview", "Pending", "Escalated"].includes(status);
+    return ["Pending", "Submitted", "UnderMarketQAReview", "Escalated"].includes(status);
 }
 
 function canRegionalReviewStatus(status) {
-    return ["InProgress", "Submitted", "UnderRegionalQAReview"].includes(status);
+    return ["Pending", "Submitted", "UnderRegionalQAReview"].includes(status);
 }
 
 function canSubmitCorrectionStatus(status) {
@@ -414,7 +430,7 @@ export default function BatchDetails() {
                             <div>
                                 <div className="font-semibold text-[#202124]">Status</div>
                                 <span className={`mt-1 inline-flex rounded-md border px-2.5 py-1 text-xs font-semibold ${statusTone(batch?.status)}`}>
-                                    {display(batch?.status)}
+                                    {batchStatusLabel(batch?.status)}
                                 </span>
                             </div>
                             <div>
@@ -478,6 +494,7 @@ export default function BatchDetails() {
                             <SummaryCard
                                 label="Evaluator"
                                 value={chartsData?.summary?.evaluator || scorecard.evaluator_email || batch?.created_by_email || "-"}
+                                small
                             />
                             <SummaryCard
                                 label="Complaint Raised"
@@ -535,13 +552,17 @@ export default function BatchDetails() {
                         />
                         <ScoreTable
                             title="Average"
-                            columns={["PQI %", "Score", "Deg of Diff"]}
+                            columns={["PQI %", "Avg Score", "Target"]}
                             rows={rows.map((row) => [
                                 row.pqi === null ? "-" : `${formatNumber(row.pqi, 1)}%`,
                                 formatNumber(row.score, 1),
                                 formatNumber(row.diff, 1),
                             ])}
-                            footer={["Total", formatNumber(average(rows.map((row) => row.score)), 1), formatNumber(average(rows.map((row) => row.diff)), 1)]}
+                            footer={[
+                                "Total",
+                                formatNumber(average(rows.map((row) => row.score)), 1),
+                                formatNumber(scorecard.target_score ?? batch?.scorecard?.target_score ?? 5, 1),
+                            ]}
                         />
                         <ScoreTable
                             title="Range"
@@ -558,7 +579,7 @@ export default function BatchDetails() {
                 <QualityMetricsComparison spiderCharts={chartsData?.spider_charts || []} />
 
                 {chartsData?.samples_graph?.length > 0 ? (
-                    <section className="mt-6 w-1/2">
+                    <section className="mt-6 max-w-sm">
                         <HorizontalBarChartCard
                             title="Samples Score Graph"
                             data={chartsData.samples_graph.map((s, i) => ({
@@ -577,7 +598,7 @@ export default function BatchDetails() {
                             <div>
                                 <div className="text-[18px] font-semibold text-[#202124]">Market QA Decision</div>
                                 <div className="mt-1 text-sm text-[#6F7785]">
-                                    Current status: <span className="font-semibold text-[#202124]">{display(batch?.status)}</span>
+                                    Current status: <span className="font-semibold text-[#202124]">{batchStatusLabel(batch?.status)}</span>
                                 </div>
                             </div>
                             {!canMarketReview ? (
@@ -633,7 +654,7 @@ export default function BatchDetails() {
                             <div>
                                 <div className="text-[18px] font-semibold text-[#202124]">Regional QA Review</div>
                                 <div className="mt-1 text-sm text-[#6F7785]">
-                                    Current status: <span className="font-semibold text-[#202124]">{display(batch?.status)}</span>
+                                    Current status: <span className="font-semibold text-[#202124]">{batchStatusLabel(batch?.status)}</span>
                                 </div>
                             </div>
                             {!canRegionalReview ? (
@@ -757,38 +778,6 @@ export default function BatchDetails() {
                     </section>
                 ) : null}
 
-                {scorecardId ? (
-                    <section className="surface-panel mt-5 p-5">
-                        <div className="flex flex-wrap items-center justify-between gap-4">
-                            <div>
-                                <div className="text-[18px] font-semibold text-[#202124]">Scorecard Report</div>
-                                <div className="mt-1 text-sm text-[#6F7785]">
-                                    Generate a scorecard snapshot or export the JSON report.
-                                </div>
-                            </div>
-                            <div className="flex flex-wrap gap-3">
-                                <button
-                                    type="button"
-                                    disabled={Boolean(reportLoading)}
-                                    onClick={handleGenerateReport}
-                                    className="h-10 rounded-full border border-[#E6E9EE] bg-white px-5 text-sm font-semibold text-[#202124] disabled:cursor-not-allowed disabled:opacity-60"
-                                >
-                                    {reportLoading === "generate" ? "Generating..." : "Generate Report"}
-                                </button>
-                                <button
-                                    type="button"
-                                    disabled={Boolean(reportLoading)}
-                                    onClick={handleExportReport}
-                                    className="h-10 rounded-full bg-[#F11518] px-5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
-                                >
-                                    {reportLoading === "export" ? "Exporting..." : "Export JSON"}
-                                </button>
-                            </div>
-                        </div>
-                        {reportError ? <div className="mt-3 text-sm text-red-700">{reportError}</div> : null}
-                        {reportMessage ? <div className="mt-3 text-sm text-emerald-700">{reportMessage}</div> : null}
-                    </section>
-                ) : null}
 
                 {id ? (
                     <section className="surface-panel mt-5 p-5">
@@ -827,7 +816,7 @@ export default function BatchDetails() {
     );
 }
 
-function SummaryCard({ label, value, detail, badge = false }) {
+function SummaryCard({ label, value, detail, badge = false, small = false }) {
     return (
         <div className="min-h-[104px] rounded-lg border border-[#E6E9EE] bg-[#FBFCFD] p-4 text-xs text-[#494949]">
             <div>{label}</div>
@@ -837,7 +826,7 @@ function SummaryCard({ label, value, detail, badge = false }) {
                     <span className="text-xs font-semibold">{display(value)}</span>
                 </div>
             ) : (
-                <div className="mt-2 break-words text-2xl font-bold text-[#DB2F28]">{display(value)}</div>
+                <div className={`mt-2 break-all font-bold text-[#DB2F28] ${small ? "text-xs leading-5" : "text-2xl"}`}>{display(value)}</div>
             )}
             {detail ? <div className="mt-2 break-words text-[#6F7785]">{detail}</div> : null}
         </div>

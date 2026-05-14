@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import PageHeading from "../components/PageHeading";
 import SearchBar from "../components/SearchBar";
 import FilterDropDown from "../components/FilterDropDown";
@@ -8,55 +8,43 @@ import CustomTable from "../components/CustomTable";
 import { useBatchesList } from "../hooks/useBatchesList";
 
 const DATE_FILTERS = [
-    { id: "7d", name: "Last 7 Days" },
-    { id: "30d", name: "Last 30 Days" },
-    { id: "90d", name: "Last 90 Days" },
-];
-
-const PRODUCT_FILTERS = [
-    { id: "all", name: "All Products" },
-    { id: "cheese", name: "American Cheese Slices" },
-    { id: "bun", name: "Burger Bun" },
-];
-
-const VENDOR_FILTERS = [
-    { id: "all", name: "All Vendors" },
-    { id: "salamonca", name: "Salamonca" },
-    { id: "green", name: "Green Farms Ltd" },
-    { id: "cooker", name: "Cooker Dooker" },
-];
-
-const OUTLET_FILTERS = [
-    { id: "all", name: "All Outlets" },
-    { id: "out1", name: "Outlet North" },
-    { id: "out2", name: "Outlet South" },
-];
-
-const STATUS_FILTERS = [
-    { id: "all", name: "All Status" },
-    { id: "pending", name: "Pending" },
-    { id: "approved", name: "Approved" },
-    { id: "rejected", name: "Rejected" },
+    { id: "all", name: "All Dates" },
+    { id: "7", name: "Last 7 Days" },
+    { id: "30", name: "Last 30 Days" },
+    { id: "90", name: "Last 90 Days" },
 ];
 
 const TABLE_FILTER_SORT = [
+    { id: "newest", name: "Newest" },
     { id: "az", name: "A - Z" },
     { id: "za", name: "Z - A" },
     { id: "date", name: "Production date" },
 ];
 
 const STATUS_BADGE = {
-    pending: "bg-amber-100 text-amber-800 border border-amber-200",
-    rejected: "bg-red-100 text-red-800 border border-red-300",
-    approved: "bg-blue-100 text-blue-800 border border-blue-200",
-    inprogress: "bg-purple-100 text-purple-800 border border-purple-200",
+    pending:               "bg-amber-100 text-amber-800 border border-amber-200",
+    rejected:              "bg-red-100 text-red-800 border border-red-300",
+    approved:              "bg-blue-100 text-blue-800 border border-blue-200",
+    inprogress:            "bg-amber-100 text-amber-800 border border-amber-200",
+    submitted:             "bg-indigo-100 text-indigo-800 border border-indigo-200",
+    correctionrequired:    "bg-orange-100 text-orange-800 border border-orange-200",
+    escalated:             "bg-rose-100 text-rose-800 border border-rose-200",
+    underregionalqareview: "bg-cyan-100 text-cyan-800 border border-cyan-200",
+    undermarketqareview:   "bg-cyan-100 text-cyan-800 border border-cyan-200",
+    draft:                 "bg-gray-100 text-gray-700 border border-gray-200",
 };
 
 const STATUS_LABEL = {
-    pending: "Pending",
-    rejected: "Rejected",
-    approved: "Approved",
-    inprogress: "In Progress",
+    pending:               "Pending",
+    rejected:              "Rejected",
+    approved:              "Approved",
+    inprogress:            "Pending",
+    submitted:             "Submitted",
+    correctionrequired:    "Correction Required",
+    escalated:             "Escalated",
+    underregionalqareview: "Under Regional QA Review",
+    undermarketqareview:   "Under Market QA Review",
+    draft:                 "Draft",
 };
 
 const RISK_CLASS = {
@@ -69,22 +57,82 @@ function statusLabel(key) {
     return STATUS_LABEL[key] ?? (key.charAt(0).toUpperCase() + key.slice(1));
 }
 
+function optionize(rows, key, allLabel) {
+    const values = [...new Set(rows.map((row) => row[key]).filter((value) => value && value !== "—"))];
+    return [{ id: "all", name: allLabel }, ...values.map((value) => ({ id: value, name: value }))];
+}
+
+function statusOptions(rows) {
+    const values = [...new Set(rows.map((row) => row.status).filter(Boolean))];
+    return [{ id: "all", name: "All Status" }, ...values.map((value) => ({ id: value, name: statusLabel(value) }))];
+}
+
+function parseRowDate(row) {
+    const raw = row?._raw?.production_date || row?._raw?.created_at || row?.productionDate;
+    const date = new Date(raw);
+    return Number.isNaN(date.getTime()) ? null : date;
+}
+
 export default function BatchMonitoringPage() {
     const navigate = useNavigate();
+    const location = useLocation();
     const [search, setSearch] = useState("");
+    const [dateFilter, setDateFilter] = useState("all");
+    const [productFilter, setProductFilter] = useState("all");
+    const [vendorFilter, setVendorFilter] = useState("all");
+    const [riskFilter, setRiskFilter] = useState("all");
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [sort, setSort] = useState("newest");
     const { rows, loading, error, notice, fromApi, meta } = useBatchesList();
+
+    const productFilters = useMemo(() => optionize(rows, "productType", "All Products"), [rows]);
+    const vendorFilters = useMemo(() => optionize(rows, "supplier", "All Vendors"), [rows]);
+    const riskFilters = useMemo(() => optionize(rows, "riskFlag", "All Risk"), [rows]);
+    const statusFilters = useMemo(() => statusOptions(rows), [rows]);
+    const successMessage = location.state?.createdBatchNumber
+        ? `Report created for batch ${location.state.createdBatchNumber}.`
+        : "";
 
     const filteredRows = useMemo(() => {
         const q = search.trim().toLowerCase();
-        if (!q) return rows;
-        return rows.filter(
-            (r) =>
-                String(r.batchId).toLowerCase().includes(q) ||
-                String(r.supplier).toLowerCase().includes(q) ||
-                String(r.productType).toLowerCase().includes(q) ||
-                String(r.sku).toLowerCase().includes(q)
-        );
-    }, [search, rows]);
+        const now = new Date();
+
+        const filtered = rows.filter((r) => {
+            const searchable = [
+                r.batchId,
+                r.supplier,
+                r.productType,
+                r.sku,
+                r.productionDate,
+                r.status,
+                statusLabel(r.status || ""),
+                r.riskFlag,
+            ].join(" ").toLowerCase();
+
+            if (q && !searchable.includes(q)) return false;
+            if (productFilter !== "all" && r.productType !== productFilter) return false;
+            if (vendorFilter !== "all" && r.supplier !== vendorFilter) return false;
+            if (riskFilter !== "all" && r.riskFlag !== riskFilter) return false;
+            if (statusFilter !== "all" && r.status !== statusFilter) return false;
+            if (dateFilter !== "all") {
+                const rowDate = parseRowDate(r);
+                if (!rowDate) return false;
+                const days = Number(dateFilter);
+                const cutoff = new Date(now);
+                cutoff.setDate(cutoff.getDate() - days);
+                if (rowDate < cutoff) return false;
+            }
+            return true;
+        });
+
+        return [...filtered].sort((a, b) => {
+            if (sort === "az") return String(a.batchId).localeCompare(String(b.batchId));
+            if (sort === "za") return String(b.batchId).localeCompare(String(a.batchId));
+            const aDate = parseRowDate(a)?.getTime() ?? 0;
+            const bDate = parseRowDate(b)?.getTime() ?? 0;
+            return bDate - aDate;
+        });
+    }, [search, rows, productFilter, vendorFilter, riskFilter, statusFilter, dateFilter, sort]);
 
     function exportToCSV() {
         const headers = [
@@ -140,8 +188,8 @@ export default function BatchMonitoringPage() {
             render: (_, row) => (
                 <button
                     type="button"
-                    className="text-blue-600 hover:underline"
-                    onClick={() => navigate("/batch-details")}
+                    className="font-medium text-[#DB2F28] hover:underline"
+                    onClick={() => navigate(`/batch-details/${row.id}`)}
                 >
                     View
                 </button>
@@ -155,10 +203,15 @@ export default function BatchMonitoringPage() {
     ];
 
     return (
-        <div>
+        <div className="pb-10">
             <PageHeading title={"Batch Monitoring Table"} />
-            <div className="px-4 pb-6">
-                <div className="w-full rounded-md bg-white">
+            <div className="px-6 pb-6">
+                <div className="surface-panel w-full p-5">
+                    {successMessage ? (
+                        <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
+                            {successMessage}
+                        </div>
+                    ) : null}
                     {error ? (
                         <p className="text-sm text-red-600 mb-3 px-1">
                             {error} (showing sample rows)
@@ -176,32 +229,37 @@ export default function BatchMonitoringPage() {
                             {meta.total_pages ?? 1}).
                         </p>
                     ) : null}
-                    <div className="flex flex-wrap items-center gap-3 mb-4 justify-between">
+                    <div className="flex flex-wrap items-center gap-3 mb-5 justify-between border-b border-[#EEF1F5] pb-4">
                         <div className="flex flex-wrap items-center gap-3">
                             <FilterDropDown
                                 primarySelected={true}
                                 dropDownList={DATE_FILTERS}
-                                onChange={() => {}}
+                                value={dateFilter}
+                                onChange={setDateFilter}
                             />
                             <FilterDropDown
                                 primarySelected={true}
-                                dropDownList={PRODUCT_FILTERS}
-                                onChange={() => {}}
+                                dropDownList={productFilters}
+                                value={productFilter}
+                                onChange={setProductFilter}
                             />
                             <FilterDropDown
                                 primarySelected={true}
-                                dropDownList={VENDOR_FILTERS}
-                                onChange={() => {}}
+                                dropDownList={vendorFilters}
+                                value={vendorFilter}
+                                onChange={setVendorFilter}
                             />
                             <FilterDropDown
                                 primarySelected={true}
-                                dropDownList={OUTLET_FILTERS}
-                                onChange={() => {}}
+                                dropDownList={riskFilters}
+                                value={riskFilter}
+                                onChange={setRiskFilter}
                             />
                             <FilterDropDown
                                 primarySelected={true}
-                                dropDownList={STATUS_FILTERS}
-                                onChange={() => {}}
+                                dropDownList={statusFilters}
+                                value={statusFilter}
+                                onChange={setStatusFilter}
                             />
                         </div>
                         <CustomButton
@@ -222,7 +280,8 @@ export default function BatchMonitoringPage() {
                                 primarySelected={false}
                                 label={"Filter"}
                                 dropDownList={TABLE_FILTER_SORT}
-                                onChange={() => {}}
+                                value={sort}
+                                onChange={setSort}
                             />
                         </div>
                         <CustomButton
@@ -236,6 +295,8 @@ export default function BatchMonitoringPage() {
 
                     {loading ? (
                         <div className="text-center py-10 text-gray-500">Loading batches…</div>
+                    ) : filteredRows.length === 0 ? (
+                        <div className="text-center py-10 text-gray-500">No batches match the current search and filters.</div>
                     ) : (
                         <CustomTable columns={columns} data={filteredRows} maxRows={15} />
                     )}

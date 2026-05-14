@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useBatchesList } from "../hooks/useBatchesList";
 import PageHeading from "../components/PageHeading";
@@ -13,6 +13,7 @@ import TotalTicket from "../assets/TotalTicket.svg";
 import ticketInProgress from "../assets/ticketInProgress.svg";
 import totalOpenTicket from "../assets/totalOpenTicket.svg";
 import totalTicketResolve from "../assets/totalTicketResolve.svg";
+import { getScorecardAnalytics } from "../api/scorecardsApi";
 const DATE_FILTERS = [
     { id: 7, name: "Last 7 days" },
     { id: 30, name: "Last 1 month" },
@@ -27,17 +28,17 @@ const TABLE_FILTER_SORT = [
 ];
 
 const STATUS_BADGE = {
-    pending: "bg-amber-100 text-amber-800 border border-amber-200",
-    rejected: "bg-red-100 text-red-800 border border-red-300",
-    approved: "bg-blue-100 text-blue-800 border border-blue-200",
-    inprogress: "bg-purple-100 text-purple-800 border border-purple-200",
+    pending:    "bg-amber-100 text-amber-800 border border-amber-200",
+    rejected:   "bg-red-100 text-red-800 border border-red-300",
+    approved:   "bg-blue-100 text-blue-800 border border-blue-200",
+    inprogress: "bg-amber-100 text-amber-800 border border-amber-200",
 };
 
 const STATUS_LABEL = {
-    pending: "Pending",
-    rejected: "Rejected",
-    approved: "Approved",
-    inprogress: "In Progress",
+    pending:    "Pending",
+    rejected:   "Rejected",
+    approved:   "Approved",
+    inprogress: "Pending",
 };
 
 const RISK_CLASS = {
@@ -52,40 +53,57 @@ function statusLabel(key) {
 
 /** Static trend — periods 1–12 */
 const DECISION_RATE_LINES = [
-    { key: "approvalRate", color: "#991B1B", label: "Approval Rate %" },
-    { key: "rejectionRate", color: "#F9A8D4", label: "Rejection Rate %" },
+    { key: "approvalRate", color: "#4F6BED", label: "Approved %" },
+    { key: "rejectionRate", color: "#EF4444", label: "Rejected %" },
+    { key: "pendingRate", color: "#F59E0B", label: "Pending %" },
 ];
 
 const DECISION_RATE_DATA = [
-    { name: "1", approvalRate: 71, rejectionRate: 29 },
-    { name: "2", approvalRate: 73, rejectionRate: 27 },
-    { name: "3", approvalRate: 76, rejectionRate: 24 },
-    { name: "4", approvalRate: 74, rejectionRate: 26 },
-    { name: "5", approvalRate: 78, rejectionRate: 22 },
-    { name: "6", approvalRate: 80, rejectionRate: 20 },
-    { name: "7", approvalRate: 79, rejectionRate: 21 },
-    { name: "8", approvalRate: 81, rejectionRate: 19 },
-    { name: "9", approvalRate: 77, rejectionRate: 23 },
-    { name: "10", approvalRate: 82, rejectionRate: 18 },
-    { name: "11", approvalRate: 84, rejectionRate: 16 },
-    { name: "12", approvalRate: 83, rejectionRate: 17 },
+    { name: "1",  approvalRate: 71, rejectionRate: 29, pendingRate: 0 },
+    { name: "2",  approvalRate: 73, rejectionRate: 27, pendingRate: 0 },
+    { name: "3",  approvalRate: 76, rejectionRate: 24, pendingRate: 0 },
+    { name: "4",  approvalRate: 74, rejectionRate: 26, pendingRate: 0 },
+    { name: "5",  approvalRate: 78, rejectionRate: 22, pendingRate: 0 },
+    { name: "6",  approvalRate: 80, rejectionRate: 20, pendingRate: 0 },
+    { name: "7",  approvalRate: 79, rejectionRate: 21, pendingRate: 0 },
+    { name: "8",  approvalRate: 81, rejectionRate: 19, pendingRate: 0 },
+    { name: "9",  approvalRate: 77, rejectionRate: 23, pendingRate: 0 },
+    { name: "10", approvalRate: 82, rejectionRate: 18, pendingRate: 0 },
+    { name: "11", approvalRate: 84, rejectionRate: 16, pendingRate: 0 },
+    { name: "12", approvalRate: 83, rejectionRate: 17, pendingRate: 0 },
 ];
 
 export default function ScoreDashboard() {
     const navigate = useNavigate();
     const [search, setSearch] = useState("");
+    const [analytics, setAnalytics] = useState(null);
+    const [analyticsError, setAnalyticsError] = useState("");
     const { rows, loading, error, notice, fromApi, meta } = useBatchesList();
+
+    useEffect(() => {
+        let cancelled = false;
+        getScorecardAnalytics({ days: 90 })
+            .then((res) => {
+                if (!cancelled) setAnalytics(res?.data?.data ?? null);
+            })
+            .catch((err) => {
+                if (!cancelled) setAnalyticsError(err?.message || "Failed to load scorecard analytics.");
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
     const overviewStats = useMemo(() => {
         if (!fromApi || rows.length === 0) return null;
         const total = meta?.total ?? rows.length;
         const approved = rows.filter((r) => r.status === "approved").length;
         const rejected = rows.filter((r) => r.status === "rejected").length;
-        const inprogress = rows.filter((r) => r.status === "inprogress").length;
-        const pending = rows.filter((r) => r.status === "pending").length;
+        const pending = rows.filter((r) => r.status === "inprogress" || r.status === "pending").length;
+        const correctionRequired = rows.filter((r) => r.status === "correctionrequired").length;
         const scores = rows.map((r) => parseFloat(r._raw?.overall_score)).filter((s) => !isNaN(s));
         const avgScore = scores.length ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : "—";
-        return { total, approved, rejected, inprogress, pending, avgScore };
+        return { total, approved, rejected, pending, correctionRequired, avgScore };
     }, [rows, fromApi, meta]);
 
     const filteredRows = useMemo(() => {
@@ -134,12 +152,11 @@ export default function ScoreDashboard() {
     function exportOverviewCSV() {
         const headers = ["Metric", "Value"];
         const rows = [
-            ["Total Batches Today", "100"],
-            ["Pending QA Reviews", "8"],
-            ["Approved Batch", "18"],
-            ["Rejected Batch", "120"],
-            ["Correction Required", "15"],
-            ["Avg Quality Score", "80"],
+            ["Total Batches", overviewStats?.total ?? rows.length],
+            ["Pending", overviewStats?.pending ?? 0],
+            ["Approved Batch", overviewStats?.approved ?? 0],
+            ["Rejected Batch", overviewStats?.rejected ?? 0],
+            ["Avg Quality Score", overviewStats?.avgScore ?? "—"],
         ];
         const csv = [headers, ...rows]
             .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))
@@ -155,7 +172,7 @@ export default function ScoreDashboard() {
 
     function exportDecisionLineCSV() {
         const headers = ["Period", "Approval Rate %", "Rejection Rate %"];
-        const rows = DECISION_RATE_DATA.map((d) => [d.name, d.approvalRate, d.rejectionRate]);
+        const rows = decisionRateData.map((d) => [d.name, d.approvalRate, d.rejectionRate]);
         const csv = [headers, ...rows]
             .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))
             .join("\n");
@@ -191,8 +208,8 @@ export default function ScoreDashboard() {
             render: (_, row) => (
                 <button
                     type="button"
-                    className="text-blue-600 hover:underline"
-                    onClick={() => navigate("/batch-details")}
+                    className="font-medium text-[#DB2F28] hover:underline"
+                    onClick={() => navigate(`/batch-details/${row.id}`)}
                 >
                     View
                 </button>
@@ -204,6 +221,20 @@ export default function ScoreDashboard() {
             render: (v) => <span className={RISK_CLASS[v] ?? ""}>{v}</span>,
         },
     ];
+
+    const approvalStats = analytics?.approval_rate;
+    // Prefer row-derived counts (always accurate) over analytics API which may lag
+    const approvalCount = overviewStats?.approved ?? approvalStats?.approved?.count ?? 0;
+    const rejectionCount = overviewStats?.rejected ?? approvalStats?.rejected?.count ?? 0;
+    const pendingCount = overviewStats?.pending ?? 0;
+    const decisionRateData = analytics?.batch_decision_rate?.length
+        ? analytics.batch_decision_rate.map((row) => ({
+            name: row.date,
+            approvalRate: row.approval_rate ?? 0,
+            rejectionRate: row.rejection_rate ?? 0,
+            pendingRate: row.pending_rate ?? (100 - (row.approval_rate ?? 0) - (row.rejection_rate ?? 0)),
+        }))
+        : DECISION_RATE_DATA;
 
     const lineChartHeaderRight = (
         <div className="flex items-center gap-2 shrink-0">
@@ -224,27 +255,27 @@ export default function ScoreDashboard() {
     );
 
     return (
-        <section>
+        <section className="pb-10">
             <PageHeading title={"Score Dashboard"} />
 
-            <div className="flex justify-between items-center px-4 mb-4">
-                <div className="text-[#27272E] text-2xl font-medium">Overview</div>
+            <div className="flex justify-between items-center px-6 mb-4">
+                <div className="text-[#202124] text-[18px] font-semibold">Overview</div>
                 <div className="flex items-center gap-4">
                     <FilterDropDown primarySelected={true} dropDownList={DATE_FILTERS} onChange={() => {}} />
                     <CustomButton type="unfilled-red" title={"Export"} handleSubmit={exportOverviewCSV} />
                 </div>
             </div>
-            <div className="flex gap-4 px-4 flex-wrap pb-6">
+            <div className="flex gap-4 px-6 flex-wrap pb-6">
                 <OverviewItem Icon={TotalTicket} title="Total Batches" value={overviewStats?.total ?? 100} bgColor="#F11518" />
-                <OverviewItem Icon={ticketInProgress} title="In Progress" value={overviewStats?.inprogress ?? 8} bgColor="#FFC72C" />
-                <OverviewItem Icon={totalTicketResolve} title="Approved Batch" value={overviewStats?.approved ?? 18} bgColor="#4C6FFF" />
-                <OverviewItem Icon={totalOpenTicket} title="Rejected Batch" value={overviewStats?.rejected ?? 120} bgColor="#FF7E30" />
-                <OverviewItem Icon={totalOpenTicket} title="Pending" value={overviewStats?.pending ?? 15} bgColor="#9CA3AF" />
-                <OverviewItem Icon={TotalTicket} title="Avg Quality Score" value={overviewStats?.avgScore ?? 80} bgColor="#92400E" />
+                <OverviewItem Icon={ticketInProgress} title="Pending" value={overviewStats?.pending ?? 8} bgColor="#FFC72C" />
+                <OverviewItem Icon={totalTicketResolve} title="Approved" value={overviewStats?.approved ?? 18} bgColor="#4C6FFF" />
+                <OverviewItem Icon={totalOpenTicket} title="Rejected" value={overviewStats?.rejected ?? 0} bgColor="#FF7E30" />
+                <OverviewItem Icon={ticketInProgress} title="Correction Required" value={overviewStats?.correctionRequired ?? 0} bgColor="#F97316" />
+                <OverviewItem Icon={totalTicketResolve} title="Avg Quality Score" value={overviewStats?.avgScore ?? 80} bgColor="#92400E" />
             </div>
 
-            <div className="px-4 pb-6">
-                <div className="w-full p-4 rounded-md border border-[#E8E8E8] shadow-sm bg-white">
+            <div className="px-6 pb-6">
+                <div className="surface-panel w-full p-5">
                     {error ? (
                         <p className="text-sm text-red-600 mb-3">{error} (showing sample rows)</p>
                     ) : null}
@@ -270,13 +301,22 @@ export default function ScoreDashboard() {
                                 onChange={() => {}}
                             />
                         </div>
-                        <CustomButton
-                            title={"Create Report"}
-                            type={"filled"}
-                            rounded={true}
-                            length={"large"}
-                            handleSubmit={() => navigate("/create-report")}
-                        />
+                        <div className="flex flex-wrap items-center gap-3">
+                            <CustomButton
+                                title={"Export"}
+                                type={"unfilled-red"}
+                                rounded={false}
+                                length={"med"}
+                                handleSubmit={exportTableCSV}
+                            />
+                            <CustomButton
+                                title={"Create Report"}
+                                type={"filled"}
+                                rounded={true}
+                                length={"large"}
+                                handleSubmit={() => navigate("/create-report")}
+                            />
+                        </div>
                     </div>
                     {loading ? (
                         <div className="text-center py-10 text-gray-500">Loading batches…</div>
@@ -286,15 +326,25 @@ export default function ScoreDashboard() {
                 </div>
             </div>
 
-            <div className="flex justify-between items-center px-4 mb-4">
-                <div className="text-[#27272E] text-2xl font-medium">Analytics Snapshot</div>
+            <div className="flex justify-between items-center px-6 mb-4">
+                <div className="text-[#202124] text-[18px] font-semibold">Analytics Snapshot</div>
             </div>
-            <div className="px-4 flex flex-wrap gap-6 pb-8 items-stretch">
-                <DonutChart value1={700} value2={200} label1="Approval" label2="Reject" />
+            <div className="px-6 flex flex-wrap gap-6 pb-8 items-stretch">
+                {analyticsError ? (
+                    <div className="basis-full text-sm text-red-600">{analyticsError} Showing fallback analytics.</div>
+                ) : null}
+                <DonutChart
+                    value1={approvalCount}
+                    value2={rejectionCount}
+                    value3={Math.max(0, pendingCount)}
+                    label1="Approved"
+                    label2="Rejected"
+                    label3="Pending"
+                />
                 <div className="flex-1 min-w-[min(100%,480px)]">
                     <LineChartCard
                         title="Batch Decision Rate"
-                        data={DECISION_RATE_DATA}
+                        data={decisionRateData}
                         lines={DECISION_RATE_LINES}
                         headerRight={lineChartHeaderRight}
                     />

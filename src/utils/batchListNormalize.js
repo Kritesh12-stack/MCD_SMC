@@ -53,7 +53,7 @@ export function mapApiBatchToTableRow(b, index) {
     let status = "pending";
     if (rawStatus.includes("approv")) status = "approved";
     else if (rawStatus.includes("reject")) status = "rejected";
-    else if (rawStatus.includes("inprogress") || rawStatus.includes("in_progress")) status = "inprogress";
+    else if (rawStatus.includes("inprogress") || rawStatus.includes("in_progress")) status = "pending";
     else if (rawStatus) status = rawStatus.replace(/[^a-z]/g, "") || "pending";
 
     const riskRaw = b.risk_flag ?? b.risk ?? b.risk_level ?? "";

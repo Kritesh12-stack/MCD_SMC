@@ -41,8 +41,8 @@ export default function SideBar() {
     }, [location.pathname]);
 
     return (
-        <section style={{ fontFamily: "Inter, sans-serif" }} className="fixed top-0 left-0 h-screen w-56 bg-white shadow-lg overflow-auto flex flex-col items-center pt-11">
-            <div className="w-20 h-24 rounded-md mb-4">
+        <section style={{ fontFamily: "Inter, sans-serif" }} className="fixed top-0 left-0 z-20 h-screen w-56 overflow-auto border-r border-[#E6E9EE] bg-white/96 shadow-[8px_0_28px_rgba(16,24,40,0.05)] flex flex-col items-center pt-8">
+            <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-xl bg-[#FFFCF0] ring-1 ring-[#FFE08A]">
                 <img src={logo} alt="Logo" />
             </div>
             <SidebarItem path="/dashboard" Icon={DashboardIcon} title={"Dashboard"} setSelected={setSelected} isSelected={isActive("/dashboard")}/>

@@ -25,7 +25,7 @@ export const rejectComplaint = (id, rejectionReason, notifiedRoles) => axiosInst
 export const submitStockAction = (id, payload) => axiosInstance.post(`/complaints/${id}/stock-action/`, payload);
 
 export const getDashboardOverview = () => axiosInstance.get("/dashboard/overview/");
-export const getDashboardAnalytics = () => axiosInstance.get("/dashboard/analytics/");
+export const getDashboardAnalytics = (params = {}) => axiosInstance.get("/dashboard/analytics/", { params });
 export const getDashboardCharts = () => axiosInstance.get("/dashboard/charts/");
 export const getVoluntaryRecalls = (params = {}) => axiosInstance.get("/recalls/voluntary/", { params });
 export const getVoluntaryRecallById = (id) => axiosInstance.get(`/recalls/voluntary/${id}/`);

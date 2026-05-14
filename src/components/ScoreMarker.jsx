@@ -1,4 +1,3 @@
-import { useState } from 'react'
 export default function ScoreMarker({ question, subtitle, score, onScoreChange }) {
     const colours = [
         ["#EA3323", "#FFF", "NOT McD Quality"],
@@ -14,18 +13,18 @@ export default function ScoreMarker({ question, subtitle, score, onScoreChange }
     const selectedColour = score ? colours[score - 1] : null;
 
     return (
-        <div className="p-5 w-[800px] border-l-4 border-[#FF5858] bg-[#F9FAFB]">
+        <div className="w-full border-l-3 border-[#DB2F28] bg-[#FBFCFD] p-4">
             <div className="flex justify-between items-center">
-                <div className="text-[#2C2C2C] text-lg font-medium">{question}</div>
+                <div className="text-[#202124] text-[14px] font-semibold">{question}</div>
                 <div className="flex items-center text-sm text-[#6C757D] gap-2">
                     <div>Score : </div>
-                    <div className="flex items-center"><span className="text-[#FF5858] text-2xl">{score}</span> / 9</div>
+                    <div className="flex items-center"><span className="text-[#DB2F28] text-xl font-semibold">{score}</span> / 9</div>
                 </div>
             </div>
             <div className="flex justify-between items-center">
-                <div className="text-sm text-[#6C757D]">{subtitle}</div>
+                <div className="text-[12px] text-[#6F7785]">{subtitle}</div>
                 <div
-                    className="text-xs font-medium px-2 py-1 rounded-md"
+                    className="text-[11px] font-medium px-2 py-1 rounded-md"
                     style={{
                         color: selectedColour ? selectedColour[1] : "#FFC72C",
                         backgroundColor: selectedColour ? selectedColour[0] : "#FFF3CD",
@@ -34,7 +33,19 @@ export default function ScoreMarker({ question, subtitle, score, onScoreChange }
                     {selectedColour ? selectedColour[2] : "-"}
                 </div>
             </div>
-            <div className="flex w-full justify-between py-5">{[1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => (<div key={i} onClick={() => onScoreChange(i)} style={{ backgroundColor: i == score ? colours[i-1][0] : "", color: i == score ? colours[i-1][1] : "" }} className="border-2 cursor-pointer border-[#D1D5DC] text-base font-normal w-[60px] h-[60px] rounded-full flex justify-center items-center">{i}</div>))}</div>
+            <div className="flex flex-wrap items-center gap-5 py-5">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => (
+                    <button
+                        type="button"
+                        key={i}
+                        onClick={() => onScoreChange(i)}
+                        style={{ backgroundColor: i == score ? colours[i - 1][0] : "", color: i == score ? colours[i - 1][1] : "" }}
+                        className="h-12 w-12 shrink-0 rounded-full border border-[#CBD3DF] text-[14px] font-medium cursor-pointer flex justify-center items-center transition-transform hover:scale-105"
+                    >
+                        {i}
+                    </button>
+                ))}
+            </div>
         </div>
     )
 }

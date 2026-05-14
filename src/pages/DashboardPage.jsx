@@ -43,7 +43,7 @@ export default function DashboardPage() {
         async function fetchAll() {
             const [overviewRes, analyticsRes, complaintsRes] = await Promise.allSettled([
                 getDashboardOverview(),
-                getDashboardAnalytics(),
+                getDashboardAnalytics({ days: filter }),
                 getComplaints({ page_size: 10 }),
             ]);
             if (overviewRes.status === "fulfilled") setOverview(overviewRes.value.data?.data);
@@ -52,7 +52,7 @@ export default function DashboardPage() {
             setComplaintsLoading(false);
         }
         fetchAll();
-    }, []);
+    }, [filter]);
 
     // Overview cards
     const totalTickets = overview?.complaints?.total ?? 0;
@@ -65,14 +65,14 @@ export default function DashboardPage() {
     // Line chart — complaints per day
     const lineData = analytics?.complaints_per_day?.map(d => ({ name: d.day.slice(5), count: d.count })) || [];
 
-    // Multi donut — status breakdown
+    // Multi donut — complaint status breakdown
     const statusColors = { SentToVendor: "#4F6BED", Justified: "#16A34A", Unjustified: "#EF4444", Pending: "#F59E0B",
-        VendorAccepted: "#16A34A",  // green
-    VendorRejected: "#EF4444",  // red
-    Released:       "#F59E0B",  // amber
-    Recalled:       "#F97316",  // orange
-    Destroyed:      "#6B7280",  // gray
-     };
+        VendorAccepted: "#16A34A",
+        VendorRejected: "#EF4444",
+        Released:       "#F59E0B",
+        Recalled:       "#F97316",
+        Destroyed:      "#6B7280",
+    };
     const multiDonutData = Object.entries(analytics?.complaint_status_breakdown || {}).map(([label, value]) => ({
         label, value, color: statusColors[label] || "#888",
     }));

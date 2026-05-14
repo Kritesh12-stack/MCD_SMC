@@ -1,69 +1,77 @@
 const DonutChart = ({
     value1,
     value2,
+    value3,
     label1,
     label2,
-  }) => {
-    const total = value1 + value2;
-  
-    const percent1 = Math.round((value1 / total) * 100);
-    const percent2 = 100 - percent1;
-  
-    const angle1 = (percent1 / 100) * 360;
-  
+    label3,
+}) => {
+    const total = (value1 || 0) + (value2 || 0) + (value3 || 0);
+    const pct1 = total ? (value1 / total) * 100 : 0;
+    const pct2 = total ? (value2 / total) * 100 : 0;
+    const pct3 = total ? (value3 / total) * 100 : 0;
+
+    const angle1 = (pct1 / 100) * 360;
+    const angle2 = angle1 + (pct2 / 100) * 360;
+
+    const gradient = label3
+        ? `conic-gradient(#4F6BED 0deg ${angle1}deg, #EF4444 ${angle1}deg ${angle2}deg, #F59E0B ${angle2}deg 360deg)`
+        : `conic-gradient(#4F6BED 0deg ${angle1}deg, #EF4444 ${angle1}deg 360deg)`;
+
     return (
-      <div className="bg-white p-6 rounded-xl shadow w-[350px]">
-        
-        {/* Title */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-sm font-medium text-gray-700">
-            {label1} vs {label2}
-          </h2>
-          <div className="w-5 h-5 bg-orange-400 text-white text-xs flex items-center justify-center rounded-full">
-            i
-          </div>
+        <div className="bg-white p-6 rounded-xl shadow w-[350px]">
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-sm font-medium text-gray-700">
+                    {label3 ? `${label1} / ${label2} / ${label3}` : `${label1} vs ${label2}`}
+                </h2>
+                <div className="w-5 h-5 bg-orange-400 text-white text-xs flex items-center justify-center rounded-full">
+                    i
+                </div>
+            </div>
+
+            <div className="flex justify-center mb-6">
+                <div
+                    className="w-40 h-40 rounded-full relative"
+                    style={{ background: gradient }}
+                >
+                    <div className="absolute inset-6 bg-white rounded-full"></div>
+                </div>
+            </div>
+
+            <div className="flex justify-between text-sm">
+                <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                        <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
+                        {label1}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span className="w-3 h-3 bg-red-500 rounded-full"></span>
+                        {label2}
+                    </div>
+                    {label3 && (
+                        <div className="flex items-center gap-2">
+                            <span className="w-3 h-3 bg-amber-400 rounded-full"></span>
+                            {label3}
+                        </div>
+                    )}
+                </div>
+
+                <div className="text-right flex flex-col gap-2">
+                    <div className="text-blue-500 font-medium">
+                        {value1} ({Math.round(pct1)}%)
+                    </div>
+                    <div className="text-red-500 font-medium">
+                        {value2} ({Math.round(pct2)}%)
+                    </div>
+                    {label3 && (
+                        <div className="text-amber-500 font-medium">
+                            {value3} ({Math.round(pct3)}%)
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
-  
-        {/* Donut */}
-        <div className="flex justify-center mb-6">
-          <div
-            className="w-40 h-40 rounded-full relative"
-            style={{
-              background: `conic-gradient(
-                #4F6BED 0deg ${angle1}deg,
-                #EF4444 ${angle1}deg 360deg
-              )`,
-            }}
-          >
-            {/* Inner white circle */}
-            <div className="absolute inset-6 bg-white rounded-full"></div>
-          </div>
-        </div>
-  
-        {/* Legend */}
-        <div className="flex justify-between text-sm">
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
-              {label1}
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 bg-red-500 rounded-full"></span>
-              {label2}
-            </div>
-          </div>
-  
-          <div className="text-right">
-            <div className="text-blue-500 font-medium">
-              {value1} ({percent1}%)
-            </div>
-            <div className="text-gray-600">
-              {value2} ({percent2}%)
-            </div>
-          </div>
-        </div>
-      </div>
     );
-  };
-  
-  export default DonutChart;
+};
+
+export default DonutChart;

@@ -39,9 +39,9 @@ export default function App() {
   const isLoginPage = location.pathname === '/login'
 
   return (
-    <div className="min-h-screen">
+    <div className="app-shell min-h-screen">
       {!isLoginPage && user && <SideBar />}
-      <div className={!isLoginPage && user ? 'ml-56' : ''}>
+      <div className={!isLoginPage && user ? 'ml-56 min-h-screen' : ''}>
         <Routes>
           <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
           <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <WorkspaceSelectionPage />} />
@@ -60,6 +60,7 @@ export default function App() {
           <Route path="/mock-recall/:id" element={<ProtectedRoute><MockRecallDetailPage /></ProtectedRoute>} />
           <Route path='/create-report' element={<ProtectedRoute><CreateReport/></ProtectedRoute>} />
           <Route path='/batch-details' element={<ProtectedRoute><BatchDetails/></ProtectedRoute>} />
+          <Route path='/batch-details/:id' element={<ProtectedRoute><BatchDetails/></ProtectedRoute>} />
           <Route path="/batch-monitoring" element={<ProtectedRoute><BatchMonitoringPage /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to={user ? '/dashboard' : '/'} replace />} />
         </Routes>

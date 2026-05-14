@@ -23,10 +23,25 @@ function revokeIfNeeded(url) {
  * Up to 3 JPEG evidence images with per-slot caption (subtext).
  * Upload UI matches ComplainDetailPage recovery form pattern.
  */
-export default function EvidenceDocumentation() {
+export default function EvidenceDocumentation({ onChange }) {
   const [slots, setSlots] = useState(DEFAULT_SLOTS);
   const slotsRef = useRef(slots);
-  slotsRef.current = slots;
+
+  useEffect(() => {
+    slotsRef.current = slots;
+  }, [slots]);
+
+  useEffect(() => {
+    if (!onChange) return;
+    onChange(
+      slots
+        .filter((slot) => slot.file)
+        .map((slot) => ({
+          file: slot.file,
+          caption: slot.subtext,
+        }))
+    );
+  }, [slots, onChange]);
 
   useEffect(() => {
     return () => {
