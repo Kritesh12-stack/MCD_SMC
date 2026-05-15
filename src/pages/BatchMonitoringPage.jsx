@@ -83,7 +83,7 @@ export default function BatchMonitoringPage() {
     const [riskFilter, setRiskFilter] = useState("all");
     const [statusFilter, setStatusFilter] = useState("all");
     const [sort, setSort] = useState("newest");
-    const { rows, loading, error, notice, fromApi, meta } = useBatchesList();
+    const { rows, loading, error, meta } = useBatchesList();
 
     const productFilters = useMemo(() => optionize(rows, "productType", "All Products"), [rows]);
     const vendorFilters = useMemo(() => optionize(rows, "supplier", "All Vendors"), [rows]);
@@ -213,21 +213,7 @@ export default function BatchMonitoringPage() {
                         </div>
                     ) : null}
                     {error ? (
-                        <p className="text-sm text-red-600 mb-3 px-1">
-                            {error} (showing sample rows)
-                        </p>
-                    ) : null}
-                    {notice ? (
-                        <p className="text-sm text-[#6C757D] mb-3 px-1">
-                            {notice}
-                            {meta?.total != null ? ` API total: ${meta.total}.` : ""}
-                        </p>
-                    ) : null}
-                    {fromApi && meta?.total != null ? (
-                        <p className="text-xs text-[#888] mb-2 px-1">
-                            Loaded {rows.length} batch{rows.length !== 1 ? "es" : ""} (page {meta.page ?? 1} of{" "}
-                            {meta.total_pages ?? 1}).
-                        </p>
+                        <p className="text-sm text-red-600 mb-3 px-1">{error}</p>
                     ) : null}
                     <div className="flex flex-wrap items-center gap-3 mb-5 justify-between border-b border-[#EEF1F5] pb-4">
                         <div className="flex flex-wrap items-center gap-3">

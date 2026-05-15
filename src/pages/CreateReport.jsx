@@ -125,7 +125,23 @@ export default function CreateReport() {
 
     const sectionKeys = Object.keys(questions);
 
+    const incompleteSections = sectionKeys.filter((section) =>
+        (questions[section]?.list ?? []).some(
+            (q) => scores[section]?.[q.id] == null || scores[section][q.id] === ""
+        )
+    );
+    const isSampleComplete = sectionKeys.length > 0 && incompleteSections.length === 0;
+
+    const [sectionError, setSectionError] = useState("");
+
     function handleSubmit() {
+        if (!isSampleComplete) {
+            const first = incompleteSections[0];
+            setSelectedSection(first);
+            setSectionError(`Score all attributes in "${first}" before proceeding.`);
+            return;
+        }
+        setSectionError("");
         setAllSamples((prev) => [...prev, { sampleId, scores }]);
         setIsSubmitted(true);
     }
@@ -190,7 +206,6 @@ export default function CreateReport() {
             const res = await createReport({
                 batch_id: batchId,
                 product_id: selectedProduct.id,
-                supplier: selectedProduct.supplier || undefined,
                 region: user?.region_id || undefined,
                 sku: selectedProduct.sku || "",
                 production_date: productionDate,
@@ -362,22 +377,37 @@ export default function CreateReport() {
                         <div className="flex gap-4 items-center cursor-pointer" onClick={() => setIsDropdownOpen((prev) => !prev)}>
                             <img src={DownIcon} alt="toggle" className={`transition-transform ${isDropdownOpen ? "rotate-180" : ""}`} />
                             <div className="flex flex-col">
-                                <div className="text-lg font-semibold">{selectedSection}</div>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-lg font-semibold">{selectedSection}</span>
+                                    {incompleteSections.includes(selectedSection)
+                                        ? <span className="text-[11px] text-red-500 font-medium">Incomplete</span>
+                                        : <span className="text-[11px] text-emerald-600 font-medium">✓ Done</span>
+                                    }
+                                </div>
                                 <div className="text-sm font-normal">{questions[selectedSection]?.subTitle}</div>
                             </div>
                         </div>
                         {isDropdownOpen ? (
                             <div className="absolute left-4 top-full z-10 mt-2 min-w-[420px] bg-white border border-[#D1D5DC] rounded-md shadow-md">
-                                {sectionKeys.map((section) => (
-                                    <div
-                                        key={section}
-                                        className="px-4 py-3 hover:bg-[#F9FAFB] cursor-pointer border-b border-[#E5E7EB] last:border-b-0"
-                                        onClick={() => { setSelectedSection(section); setIsDropdownOpen(false); }}
-                                    >
-                                        <div className="text-base font-semibold">{section}</div>
-                                        <div className="text-sm text-[#6C757D]">{questions[section].subTitle}</div>
-                                    </div>
-                                ))}
+                                {sectionKeys.map((section) => {
+                                    const incomplete = incompleteSections.includes(section);
+                                    return (
+                                        <div
+                                            key={section}
+                                            className="px-4 py-3 hover:bg-[#F9FAFB] cursor-pointer border-b border-[#E5E7EB] last:border-b-0"
+                                            onClick={() => { setSelectedSection(section); setIsDropdownOpen(false); setSectionError(""); }}
+                                        >
+                                            <div className="flex items-center justify-between">
+                                                <div className="text-base font-semibold">{section}</div>
+                                                {incomplete
+                                                    ? <span className="text-[11px] text-red-500 font-medium">Incomplete</span>
+                                                    : <span className="text-[11px] text-emerald-600 font-medium">✓ Done</span>
+                                                }
+                                            </div>
+                                            <div className="text-sm text-[#6C757D]">{questions[section].subTitle}</div>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         ) : null}
                     </div>
@@ -411,8 +441,24 @@ export default function CreateReport() {
                 {!isSubmitted ? <EvidenceDocumentation onChange={setEvidenceItems} /> : null}
 
                 {!isSubmitted ? (
-                    <div className="w-full flex justify-end px-4">
-                        <CustomButton handleSubmit={handleSubmit} title="Process the Report" rounded={true} type="filled" length="large" />
+                    <div className="w-full flex flex-col items-end px-4 gap-2">
+                        {sectionError && (
+                            <p className="text-sm text-red-600">{sectionError}</p>
+                        )}
+                        {!isSampleComplete && sectionKeys.length > 0 && !sectionError && (
+                            <p className="text-sm text-[#6C757D]">
+                                Score all attributes in every section to proceed.
+                                {incompleteSections.length > 0 && ` Remaining: ${incompleteSections.join(", ")}.`}
+                            </p>
+                        )}
+                        <CustomButton
+                            handleSubmit={handleSubmit}
+                            title="Process the Report"
+                            rounded={true}
+                            type="filled"
+                            length="large"
+                            disabled={!isSampleComplete}
+                        />
                     </div>
                 ) : null}
             </div>
@@ -465,6 +511,26 @@ export default function CreateReport() {
                                 allSamples={sec.sampleScores}
                             />
                         ))}
+                    </div>
+
+                    {/* Product Quality Score row */}
+                    <div className="mt-6 grid items-center p-4 border border-transparent"
+                        style={{ gridTemplateColumns: "180px 1fr repeat(4, 100px)", gap: "16px" }}>
+                        <div />
+                        <div className="flex flex-col items-end pr-2">
+                            <div className="text-[13px] font-bold text-[#202124]">Product Quality Score</div>
+                            <div className="text-xs text-[#6C757D]">(Value furthest away from target)</div>
+                        </div>
+                        {Array.from({ length: 4 }).map((_, si) => {
+                            const qScore = qualityScores[si] ?? null;
+                            return (
+                                <div key={si} className="flex justify-center items-center gap-1 h-[50px] rounded-xl border-2 border-[#202124] bg-white text-sm font-medium text-[#202124]">
+                                    {qScore != null ? (
+                                        <>{qScore}&nbsp;<span className="font-bold">%</span></>
+                                    ) : ""}
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             ) : null}

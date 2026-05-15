@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../contexts/UserContext";
 import { useBatchesList } from "../hooks/useBatchesList";
 import PageHeading from "../components/PageHeading";
 import OverviewItem from "../components/OverviewItem";
@@ -75,10 +76,12 @@ const DECISION_RATE_DATA = [
 
 export default function ScoreDashboard() {
     const navigate = useNavigate();
+    const { user } = useUser();
+    const isVendor = user?.role === "Vendor";
     const [search, setSearch] = useState("");
     const [analytics, setAnalytics] = useState(null);
     const [analyticsError, setAnalyticsError] = useState("");
-    const { rows, loading, error, notice, fromApi, meta } = useBatchesList();
+    const { rows, loading, error, meta } = useBatchesList();
 
     useEffect(() => {
         let cancelled = false;
@@ -95,7 +98,7 @@ export default function ScoreDashboard() {
     }, []);
 
     const overviewStats = useMemo(() => {
-        if (!fromApi || rows.length === 0) return null;
+        if (rows.length === 0) return null;
         const total = meta?.total ?? rows.length;
         const approved = rows.filter((r) => r.status === "approved").length;
         const rejected = rows.filter((r) => r.status === "rejected").length;
@@ -104,7 +107,7 @@ export default function ScoreDashboard() {
         const scores = rows.map((r) => parseFloat(r._raw?.overall_score)).filter((s) => !isNaN(s));
         const avgScore = scores.length ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : "—";
         return { total, approved, rejected, pending, correctionRequired, avgScore };
-    }, [rows, fromApi, meta]);
+    }, [rows, meta]);
 
     const filteredRows = useMemo(() => {
         const q = search.trim().toLowerCase();
@@ -266,30 +269,18 @@ export default function ScoreDashboard() {
                 </div>
             </div>
             <div className="flex gap-4 px-6 flex-wrap pb-6">
-                <OverviewItem Icon={TotalTicket} title="Total Batches" value={overviewStats?.total ?? 100} bgColor="#F11518" />
-                <OverviewItem Icon={ticketInProgress} title="Pending" value={overviewStats?.pending ?? 8} bgColor="#FFC72C" />
-                <OverviewItem Icon={totalTicketResolve} title="Approved" value={overviewStats?.approved ?? 18} bgColor="#4C6FFF" />
+                <OverviewItem Icon={TotalTicket} title="Total Batches" value={overviewStats?.total ?? 0} bgColor="#F11518" />
+                <OverviewItem Icon={ticketInProgress} title="Pending" value={overviewStats?.pending ?? 0} bgColor="#FFC72C" />
+                <OverviewItem Icon={totalTicketResolve} title="Approved" value={overviewStats?.approved ?? 0} bgColor="#4C6FFF" />
                 <OverviewItem Icon={totalOpenTicket} title="Rejected" value={overviewStats?.rejected ?? 0} bgColor="#FF7E30" />
                 <OverviewItem Icon={ticketInProgress} title="Correction Required" value={overviewStats?.correctionRequired ?? 0} bgColor="#F97316" />
-                <OverviewItem Icon={totalTicketResolve} title="Avg Quality Score" value={overviewStats?.avgScore ?? 80} bgColor="#92400E" />
+                <OverviewItem Icon={totalTicketResolve} title="Avg Quality Score" value={overviewStats?.avgScore ?? "—"} bgColor="#92400E" />
             </div>
 
             <div className="px-6 pb-6">
                 <div className="surface-panel w-full p-5">
                     {error ? (
-                        <p className="text-sm text-red-600 mb-3">{error} (showing sample rows)</p>
-                    ) : null}
-                    {notice ? (
-                        <p className="text-sm text-[#6C757D] mb-3">
-                            {notice}
-                            {meta?.total != null ? ` API total: ${meta.total}.` : ""}
-                        </p>
-                    ) : null}
-                    {fromApi && meta?.total != null ? (
-                        <p className="text-xs text-[#888] mb-2">
-                            Loaded {rows.length} batch{rows.length !== 1 ? "es" : ""} (page {meta.page ?? 1} of{" "}
-                            {meta.total_pages ?? 1}).
-                        </p>
+                        <p className="text-sm text-red-600 mb-3">{error}</p>
                     ) : null}
                     <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
                         <div className="flex flex-wrap items-center gap-3 flex-1 min-w-0">
@@ -309,13 +300,15 @@ export default function ScoreDashboard() {
                                 length={"med"}
                                 handleSubmit={exportTableCSV}
                             />
-                            <CustomButton
-                                title={"Create Report"}
-                                type={"filled"}
-                                rounded={true}
-                                length={"large"}
-                                handleSubmit={() => navigate("/create-report")}
-                            />
+                            {isVendor && (
+                                <CustomButton
+                                    title={"Create Report"}
+                                    type={"filled"}
+                                    rounded={true}
+                                    length={"large"}
+                                    handleSubmit={() => navigate("/create-report")}
+                                />
+                            )}
                         </div>
                     </div>
                     {loading ? (

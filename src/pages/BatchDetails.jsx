@@ -704,42 +704,6 @@ export default function BatchDetails() {
                     </section>
                 ) : null}
 
-                {canSubmitCorrection ? (
-                    <section className="surface-panel mt-5 p-5">
-                        <div className="text-[18px] font-semibold text-[#202124]">
-                            {batch?.status === "CorrectionRequired" ? "Correction Response" : "Submit Batch for Review"}
-                        </div>
-                        <div className="mt-1 text-sm text-[#6F7785]">
-                            Add the supplier response details, then submit the batch back to QA.
-                        </div>
-                        <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
-                            <input
-                                value={correctionReason}
-                                onChange={(event) => setCorrectionReason(event.target.value)}
-                                placeholder="Reason or response summary"
-                                className="h-11 rounded-lg border border-[#E6E9EE] bg-white px-3 text-sm text-[#202124] outline-none placeholder:text-[#9AA3B2]"
-                            />
-                            <input
-                                value={correctionDetails}
-                                onChange={(event) => setCorrectionDetails(event.target.value)}
-                                placeholder="Batch details / production update"
-                                className="h-11 rounded-lg border border-[#E6E9EE] bg-white px-3 text-sm text-[#202124] outline-none placeholder:text-[#9AA3B2]"
-                            />
-                        </div>
-                        {correctionError ? <div className="mt-3 text-sm text-red-700">{correctionError}</div> : null}
-                        {correctionMessage ? <div className="mt-3 text-sm text-emerald-700">{correctionMessage}</div> : null}
-                        <div className="mt-4 flex justify-end">
-                            <button
-                                type="button"
-                                disabled={correctionLoading}
-                                onClick={handleCorrectionSubmit}
-                                className="h-10 rounded-full bg-[#F11518] px-6 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
-                            >
-                                {correctionLoading ? "Submitting..." : "Submit to QA"}
-                            </button>
-                        </div>
-                    </section>
-                ) : null}
 
                 {isMarketReviewer && ["Approved", "Rejected"].includes(batch?.status) ? (
                     <section className="surface-panel mt-5 p-5">
