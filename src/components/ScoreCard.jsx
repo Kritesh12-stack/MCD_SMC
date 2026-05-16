@@ -14,14 +14,15 @@ function overallSectionScore(scores) {
     );
 }
 
-const NAME_COL_W = 112;
+const NAME_COL_W = 104;
 const SCALE_BOX_SIZE = 28;
 const SCALE_GAP = 4;
 const SCALE_COL_W = 9 * SCALE_BOX_SIZE + 8 * SCALE_GAP;
-const SCORE_COL_MIN_W = 96;
-const COLS = `minmax(104px, ${NAME_COL_W}px) ${SCALE_COL_W}px repeat(4, minmax(${SCORE_COL_MIN_W}px, 1fr))`;
-const GAP = "clamp(10px, 1.2vw, 18px)";
+const SCORE_COL_W = 118;
+const COLS = `${NAME_COL_W}px ${SCALE_COL_W}px repeat(4, ${SCORE_COL_W}px)`;
+const GAP = "14px";
 const MAX_COLS = 4;
+const TABLE_W = NAME_COL_W + SCALE_COL_W + (MAX_COLS * SCORE_COL_W) + (5 * 14);
 
 const SAMPLE_CELL_H = 34;
 const SCORE_CELL_H = 34;
@@ -47,7 +48,7 @@ export default function ScoreCard({ sectionTitle, items = [], allSamples = [] })
             {samples.length > 1 && (
                 <div
                     className="grid items-center pb-4"
-                    style={{ gridTemplateColumns: COLS, gap: GAP }}
+                    style={{ gridTemplateColumns: COLS, gap: GAP, width: `${TABLE_W}px`, maxWidth: "100%" }}
                 >
                     <div />
                     <div className="text-[12px] font-semibold text-right text-[#202124] pr-1 tracking-wide">
@@ -73,6 +74,7 @@ export default function ScoreCard({ sectionTitle, items = [], allSamples = [] })
                     <div
                         key={rowIdx}
                         className="mb-3 rounded-[6px] border border-[#F3D9D7] bg-[#FFF7F6] px-2 py-2"
+                        style={{ width: `${TABLE_W + 16}px`, maxWidth: "100%" }}
                     >
                         <div
                             className="grid items-center"
@@ -126,7 +128,7 @@ export default function ScoreCard({ sectionTitle, items = [], allSamples = [] })
                                         return (
                                             <div
                                                 key={n}
-                                                className="rounded-[4px] border border-black bg-white flex items-center justify-center text-[13px] font-normal text-black"
+                                                className="rounded-[4px] border border-black bg-white flex items-center justify-center text-[16px] font-normal text-black"
                                                 style={{ width: `${SCALE_BOX_SIZE}px`, height: `${SCALE_BOX_SIZE}px` }}
                                             >
                                                 {showNumber ? n : ""}
@@ -156,12 +158,12 @@ export default function ScoreCard({ sectionTitle, items = [], allSamples = [] })
                         {item.comments && (
                             <div
                                 className="mt-3 grid items-start"
-                                style={{ gridTemplateColumns: `${NAME_COL_W}px ${SCALE_COL_W}px`, gap: GAP }}
+                                style={{ gridTemplateColumns: `${NAME_COL_W}px ${SCALE_COL_W + 14 + SCORE_COL_W}px`, gap: GAP }}
                             >
                                 <div className="text-[13px] text-[#494949] text-right pr-2 pt-2">
                                     Comments:
                                 </div>
-                                <div className="px-3 py-2 border border-black rounded-[4px] bg-white text-[11px] text-[#494949] leading-relaxed">
+                                <div className="px-3 py-2 border border-black rounded-[4px] bg-white text-[12px] text-[#494949] leading-relaxed">
                                     {item.comments}
                                 </div>
                             </div>
@@ -173,7 +175,7 @@ export default function ScoreCard({ sectionTitle, items = [], allSamples = [] })
             {sectionTitle && (
                 <div
                     className="grid items-center py-4"
-                    style={{ gridTemplateColumns: COLS, gap: GAP }}
+                    style={{ gridTemplateColumns: COLS, gap: GAP, width: `${TABLE_W}px`, maxWidth: "100%" }}
                 >
                     <div />
                     <div className="flex flex-col items-end pr-2">

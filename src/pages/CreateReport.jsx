@@ -37,8 +37,8 @@ function normalizeMappings(mappings) {
 }
 
 const SCORE_PERCENT = { 1: 0, 2: 25, 3: 60, 4: 85, 5: 100, 6: 85, 7: 60, 8: 25, 9: 0 };
-const SCORECARD_REVIEW_GRID = "minmax(104px, 112px) 284px repeat(4, minmax(96px, 1fr))";
-const SCORECARD_REVIEW_GAP = "clamp(10px, 1.2vw, 18px)";
+const SCORECARD_REVIEW_GRID = "104px 284px repeat(4, 118px)";
+const SCORECARD_REVIEW_GAP = "14px";
 const SCORE_LEGEND = [
     { scale: "1", percentage: "0", remark: "NOT McD Quality", bgColor: "#EA3323", color: "#FFF" },
     { scale: "2", percentage: "25", remark: "Significant Difference", bgColor: "#EA3323", color: "#FFF" },
