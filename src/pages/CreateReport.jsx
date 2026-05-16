@@ -519,7 +519,7 @@ export default function CreateReport() {
 
                     {/* Product Quality Score row */}
                     <div className="mt-6 grid items-center p-4 border border-transparent"
-                        style={{ gridTemplateColumns: "180px 1fr repeat(4, 100px)", gap: "16px" }}>
+                        style={{ gridTemplateColumns: "180px 280px repeat(4, 100px)", gap: "16px" }}>
                         <div />
                         <div className="flex flex-col items-end pr-2">
                             <div className="text-[13px] font-bold text-[#202124]">Product Quality Score</div>

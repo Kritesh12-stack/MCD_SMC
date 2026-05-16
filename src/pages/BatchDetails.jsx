@@ -458,6 +458,41 @@ export default function BatchDetails() {
                                 <div className="mt-1">{display(batch?.risk_level)}</div>
                             </div>
                         </div>
+                        {(() => {
+                            const attachments = (batch?.scorecard?.media || []).map((item) => ({ key: item.id, url: item.url, label: item.filename }));
+                            const rawUrls = (batch?.media_urls || []).map((url, i) => ({ key: `raw-${i}`, url, label: null }));
+                            const allMedia = [...attachments, ...rawUrls];
+                            return (
+                                <div className="mt-5 border-t border-[#E6E9EE] pt-4">
+                                    <div className="mb-3 text-sm font-semibold text-[#202124]">
+                                        Attached Pictures
+                                        {allMedia.length > 0 && <span className="ml-1 font-normal text-[#6F7785]">({allMedia.length})</span>}
+                                    </div>
+                                    {allMedia.length === 0 ? (
+                                        <p className="text-sm text-[#9AA3B2]">No images uploaded.</p>
+                                    ) : (
+                                        <div className="flex flex-wrap gap-2">
+                                            {allMedia.map((item) => (
+                                                <a
+                                                    key={item.key}
+                                                    href={item.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="group overflow-hidden rounded-lg border border-[#E6E9EE] bg-[#F8FAFC]"
+                                                >
+                                                    <img
+                                                        src={item.url}
+                                                        alt={item.label || "evidence"}
+                                                        className="h-24 w-24 object-cover transition-transform group-hover:scale-105"
+                                                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                                                    />
+                                                </a>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })()}
                         <div className="mt-5 border-t border-[#E6E9EE] pt-4">
                             <div className="mb-2 text-sm font-semibold text-[#202124]">Reason</div>
                             <p className="text-sm leading-6 text-[#494949]">{display(batch?.description || batch?.notes)}</p>
@@ -575,55 +610,6 @@ export default function BatchDetails() {
                         />
                     </div>
                 </section>
-
-                {(() => {
-                    const attachments = (batch?.scorecard?.media || []).map((item) => ({
-                        key: item.id,
-                        url: item.url,
-                        label: item.filename,
-                    }));
-                    const rawUrls = (batch?.media_urls || []).map((url, i) => ({
-                        key: `raw-${i}`,
-                        url,
-                        label: null,
-                    }));
-                    const allMedia = [...attachments, ...rawUrls];
-                    return (
-                        <section className="surface-panel mt-5 p-5">
-                            <div className="mb-4 text-[18px] font-semibold text-[#202124]">
-                                Uploaded Images
-                                {allMedia.length > 0 && (
-                                    <span className="ml-2 text-sm font-normal text-[#6F7785]">({allMedia.length})</span>
-                                )}
-                            </div>
-                            {allMedia.length === 0 ? (
-                                <div className="text-sm text-[#6F7785]">No images uploaded for this batch.</div>
-                            ) : (
-                                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                                    {allMedia.map((item) => (
-                                        <a
-                                            key={item.key}
-                                            href={item.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="group overflow-hidden rounded-lg border border-[#E6E9EE] bg-[#F8FAFC]"
-                                        >
-                                            <img
-                                                src={item.url}
-                                                alt={item.label || "evidence"}
-                                                className="h-36 w-full object-cover transition-transform group-hover:scale-105"
-                                                onError={(e) => { e.currentTarget.style.display = "none"; }}
-                                            />
-                                            {item.label ? (
-                                                <div className="truncate px-2 py-1.5 text-xs text-[#6F7785]">{item.label}</div>
-                                            ) : null}
-                                        </a>
-                                    ))}
-                                </div>
-                            )}
-                        </section>
-                    );
-                })()}
 
                 <QualityMetricsComparison spiderCharts={chartsData?.spider_charts || []} />
 
