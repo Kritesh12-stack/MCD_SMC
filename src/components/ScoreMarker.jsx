@@ -1,14 +1,14 @@
 export default function ScoreMarker({ question, subtitle, score, onScoreChange }) {
     const colours = [
-        ["#EA3323", "#FFF", "NOT McD Quality"],
-        ["#FFFF54", "#000000", "Significant Difference"],
-        ["#52976A", "#000000", "Marginal"],
-        ["#52976A", "#000000", "Slight Difference"],
-        ["#52976A", "#000000", "Equal to TARGET"],
-        ["#52976A", "#000000", "Slight Difference"],
-        ["#52976A", "#000000", "Marginal"],
-        ["#52976A", "#000000", "Significant Difference"],
-        ["#52976A", "#000000", "NOT McD Quality"],
+        ["#EA3323", "#FFF",     "NOT McD Quality"],
+        ["#EA3323", "#FFF",     "Significant Difference"],
+        ["#FFFF54", "#000000",  "Marginal"],
+        ["#FFFF54", "#000000",  "Slight Difference"],
+        ["#52976A", "#FFFFFF",  "Equal to TARGET"],
+        ["#FFFF54", "#000000",  "Slight Difference"],
+        ["#FFFF54", "#000000",  "Marginal"],
+        ["#EA3323", "#FFF",     "Significant Difference"],
+        ["#EA3323", "#FFF",     "NOT McD Quality"],
     ]
     const selectedColour = score ? colours[score - 1] : null;
 

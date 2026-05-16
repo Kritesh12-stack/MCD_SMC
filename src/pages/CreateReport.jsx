@@ -75,6 +75,7 @@ export default function CreateReport() {
     // allSamples: [{ sampleId, scores }]
     const [allSamples, setAllSamples] = useState([]);
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [reason, setReason] = useState("");
 
     const [submitError, setSubmitError] = useState("");
     const [createdBatch, setCreatedBatch] = useState(null);
@@ -210,6 +211,7 @@ export default function CreateReport() {
                 region: user?.region_id || undefined,
                 sku: selectedProduct.sku || "",
                 production_date: productionDate,
+                description: reason.trim() || undefined,
                 samples: samplesPayload,
             });
             const batch = res?.data?.data ?? null;
@@ -247,15 +249,15 @@ export default function CreateReport() {
     const riskFlags = allSamples.map((s) => calcRiskFlag(s.scores));
 
     const paramData = [
-        { scale: "1", percentage: "0",   remark: "NOT McD Quality",       bgColor: "#EA3323", color: "#FFF" },
-        { scale: "2", percentage: "25",  remark: "Significant Difference", bgColor: "#EA3323", color: "#FFF" },
-        { scale: "3", percentage: "60",  remark: "Marginal",               bgColor: "#FFFF54", color: "#000000" },
-        { scale: "4", percentage: "85",  remark: "Slight Difference",      bgColor: "#FFFF54", color: "#000000" },
-        { scale: "5", percentage: "100", remark: "Equal to TARGET",        bgColor: "#52976A", color: "#000000" },
-        { scale: "4", percentage: "85",  remark: "Slight Difference",      bgColor: "#FFFF54", color: "#000000" },
-        { scale: "3", percentage: "60",  remark: "Marginal",               bgColor: "#FFFF54", color: "#000000" },
-        { scale: "2", percentage: "25",  remark: "Significant Difference", bgColor: "#EA3323", color: "#FFF" },
         { scale: "1", percentage: "0",   remark: "NOT McD Quality",        bgColor: "#EA3323", color: "#FFF" },
+        { scale: "2", percentage: "25",  remark: "Significant Difference",  bgColor: "#EA3323", color: "#FFF" },
+        { scale: "3", percentage: "60",  remark: "Marginal",                bgColor: "#FFFF54", color: "#000000" },
+        { scale: "4", percentage: "85",  remark: "Slight Difference",       bgColor: "#FFFF54", color: "#000000" },
+        { scale: "5", percentage: "100", remark: "Equal to TARGET",         bgColor: "#52976A", color: "#FFFFFF" },
+        { scale: "6", percentage: "85",  remark: "Slight Difference",       bgColor: "#FFFF54", color: "#000000" },
+        { scale: "7", percentage: "60",  remark: "Marginal",                bgColor: "#FFFF54", color: "#000000" },
+        { scale: "8", percentage: "25",  remark: "Significant Difference",  bgColor: "#EA3323", color: "#FFF" },
+        { scale: "9", percentage: "0",   remark: "NOT McD Quality",         bgColor: "#EA3323", color: "#FFF" },
     ];
 
     if (createdBatch) {
@@ -539,8 +541,17 @@ export default function CreateReport() {
 
             {isSubmitted ? (
                 <div className="p-4">
+                    <div className="mt-4">
+                        <div className="text-sm font-semibold text-[#202124] mb-2">Reason</div>
+                        <textarea
+                            value={reason}
+                            onChange={(e) => setReason(e.target.value)}
+                            placeholder="Enter here"
+                            className="w-full min-h-[80px] resize-y rounded-lg border border-[#D1D5DC] bg-white px-3 py-3 text-sm text-[#202124] outline-none placeholder:text-[#9AA3B2]"
+                        />
+                    </div>
                     {submitError ? <p className="text-sm text-red-600 text-right mb-3">{submitError}</p> : null}
-                    <div className="flex justify-end">
+                    <div className="flex justify-end mt-4">
                         <CustomButton
                             title={submitting ? "Creating..." : "Create report and quality metrics comparison"}
                             rounded={true}
