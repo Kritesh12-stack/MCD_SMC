@@ -1,8 +1,5 @@
 const TARGET = 5;
 
-const SCORE_BG = ["#EA3323","#EA3323","#FFFF54","#FFFF54","#52976A","#FFFF54","#FFFF54","#EA3323","#EA3323"];
-const SCORE_FG = ["#FFF","#FFF","#000","#000","#FFF","#000","#000","#FFF","#FFF"];
-
 const SCORE_PERCENT = { 1: 0, 2: 25, 3: 60, 4: 85, 5: 100, 6: 85, 7: 60, 8: 25, 9: 0 };
 
 function scoreToPercent(score) {
@@ -17,14 +14,17 @@ function overallSectionScore(scores) {
     );
 }
 
-// Name 130 + Scale 210 + 4×80 score + 5×12 gap = 730px total
-const COLS = "130px 210px repeat(4, 80px)";
-const GAP = "12px";
+const NAME_COL_W = 140;
+const SCALE_COL_W = 9 * 38 + 8 * 5; // 9 boxes x 38px + 8 gaps x 5px = 382px
+const SCORE_COL_W = 148;
+const COLS = `${NAME_COL_W}px ${SCALE_COL_W}px repeat(4, ${SCORE_COL_W}px)`;
+const GAP = "18px";
 const MAX_COLS = 4;
+const TABLE_MIN_W = NAME_COL_W + SCALE_COL_W + (MAX_COLS * SCORE_COL_W) + (5 * 18);
 
-// Each scale box width: (210 - 8×2) / 9 ≈ 21.6px — small squares matching the reference
-const SCALE_BOX_H = 24; // px — square-ish boxes
-const SCORE_CELL_H = 36; // px — taller white cells for the actual score
+const SCALE_BOX_SIZE = 38;
+const SCALE_GAP = 5;
+const SCORE_CELL_H = 40;
 
 export default function ScoreCard({ sectionTitle, items = [], allSamples = [] }) {
     const samples = allSamples.length > 0 ? allSamples : [{ sampleId: null, items }];
@@ -36,131 +36,159 @@ export default function ScoreCard({ sectionTitle, items = [], allSamples = [] })
     });
 
     return (
-        <div className="flex flex-col w-full max-w-[760px]">
-            {/* Section title */}
+        <div className="flex flex-col w-full min-w-fit">
             {sectionTitle && (
-                <div className="px-2 py-3 text-[13px] font-semibold text-[#202124]">
+                <div className="px-0 pb-5 pt-1 text-[18px] font-semibold text-[#202124]">
                     {sectionTitle}
                 </div>
             )}
 
-            {/* "SAMPLE CODES :" header row — only when multiple samples */}
             {samples.length > 1 && (
                 <div
-                    className="grid items-center px-4 py-2"
-                    style={{ gridTemplateColumns: COLS, gap: GAP }}
+                    className="grid items-center pb-4"
+                    style={{ gridTemplateColumns: COLS, gap: GAP, minWidth: `${TABLE_MIN_W}px` }}
                 >
-                    {/* Span name + scale columns for the label */}
-                    <div
-                        className="text-[11px] font-semibold text-right text-[#6C757D] pr-2"
-                        style={{ gridColumn: "1 / 3" }}
-                    >
+                    <div />
+                    <div className="text-[12px] font-semibold text-right text-[#202124] pr-1 tracking-wide">
                         SAMPLE CODES :
                     </div>
                     {Array.from({ length: MAX_COLS }).map((_, i) => (
-                        <div key={i} className="flex justify-center text-[11px] font-semibold text-[#6C757D]">
+                        <div
+                            key={i}
+                            className="flex justify-center items-center text-[13px] font-medium text-[#202124] bg-white rounded-md border border-[#E0E4EA] w-full"
+                            style={{ height: `${SCORE_CELL_H}px` }}
+                        >
                             {samples[i]?.sampleId || ""}
                         </div>
                     ))}
                 </div>
             )}
 
-            {/* Attribute rows */}
-            {items.map((item, rowIdx) => (
-                <div
-                    key={rowIdx}
-                    className="grid items-center px-4 pb-3 pt-8 mb-2 border border-[#F3D9D7] rounded-lg bg-[#FFF7F6]"
-                    style={{ gridTemplateColumns: COLS, gap: GAP }}
-                >
-                    {/* Attribute name */}
-                    <div className="text-[12px] font-medium text-[#202124] leading-snug">
-                        {item.question}
-                    </div>
+            {items.map((item, rowIdx) => {
+                const isDefect = item.scaleType === "defect";
+                const targetLeftPx = 4 * SCALE_BOX_SIZE + 4 * SCALE_GAP + SCALE_BOX_SIZE / 2;
 
-                    {/*
-                      Scale column:
-                      - Fixed height matches SCALE_BOX_H so it doesn't make the row taller than SCORE_CELL_H
-                      - Labels float above inside the pt-8 (32px) row padding via absolute -top-5 (20px)
-                      - CSS Grid repeat(9,1fr) with gap:2px gives uniform ~21.6px boxes — small and square-ish
-                    */}
-                    <div className="relative" style={{ height: `${SCALE_BOX_H}px` }}>
-                        <span
-                            className="absolute text-[10px] text-[#6F7785]"
-                            style={{ top: "-20px", left: 0 }}
-                        >
-                            Light
-                        </span>
-                        <span
-                            className="absolute text-[10px] text-[#6F7785]"
-                            style={{ top: "-20px", left: "50%", transform: "translateX(-50%)" }}
-                        >
-                            Target
-                        </span>
-                        <span
-                            className="absolute text-[10px] text-[#6F7785]"
-                            style={{ top: "-20px", right: 0 }}
-                        >
-                            Dark
-                        </span>
+                return (
+                    <div
+                        key={rowIdx}
+                        className="mb-3 rounded-[6px] border border-[#F3D9D7] bg-[#FFF7F6] px-2 py-3"
+                        style={{ minWidth: `${TABLE_MIN_W + 16}px` }}
+                    >
                         <div
-                            style={{
-                                display: "grid",
-                                gridTemplateColumns: "repeat(9, 1fr)",
-                                gap: "2px",
-                                height: "100%",
-                            }}
+                            className="grid items-center"
+                            style={{ gridTemplateColumns: COLS, gap: GAP }}
                         >
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
-                                <div
-                                    key={n}
-                                    style={{ backgroundColor: SCORE_BG[n - 1], color: SCORE_FG[n - 1] }}
-                                    className="rounded text-[11px] font-semibold flex justify-center items-center border border-[#CBD3DF]"
-                                >
-                                    {n}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Score cells — wider and taller than the scale boxes */}
-                    {Array.from({ length: MAX_COLS }).map((_, si) => {
-                        const s = samples[si];
-                        const sc = s
-                            ? (s.items[rowIdx]?.score ?? (si === 0 ? item.score : null) ?? "")
-                            : "";
-                        return (
-                            <div
-                                key={si}
-                                className="flex justify-center items-center text-sm bg-white w-full rounded border border-[#E6E9EE]"
-                                style={{ height: `${SCORE_CELL_H}px` }}
-                            >
-                                {sc !== "" && sc != null ? sc : ""}
+                            <div className="text-[14px] font-medium text-[#494949] leading-snug">
+                                {item.question}
                             </div>
-                        );
-                    })}
-                </div>
-            ))}
 
-            {/* Overall section score row */}
+                            <div className="relative mt-5" style={{ height: `${SCALE_BOX_SIZE}px` }}>
+                                {isDefect ? (
+                                    <>
+                                        <span
+                                            className="absolute text-[12px] italic font-semibold text-[#494949]"
+                                            style={{ top: "-24px", left: `${targetLeftPx}px`, transform: "translateX(-50%)" }}
+                                        >
+                                            None
+                                        </span>
+                                        <span
+                                            className="absolute text-[12px] italic font-semibold text-[#494949]"
+                                            style={{ top: "-24px", right: 0 }}
+                                        >
+                                            More
+                                        </span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span
+                                            className="absolute text-[12px] italic font-semibold text-[#494949]"
+                                            style={{ top: "-24px", left: 0 }}
+                                        >
+                                            Light
+                                        </span>
+                                        <span
+                                            className="absolute text-[12px] italic font-semibold text-[#494949]"
+                                            style={{ top: "-24px", left: `${targetLeftPx}px`, transform: "translateX(-50%)" }}
+                                        >
+                                            Target
+                                        </span>
+                                        <span
+                                            className="absolute text-[12px] italic font-semibold text-[#494949]"
+                                            style={{ top: "-24px", right: 0 }}
+                                        >
+                                            Dark
+                                        </span>
+                                    </>
+                                )}
+                                <div className="flex" style={{ gap: `${SCALE_GAP}px` }}>
+                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => {
+                                        const showNumber = !isDefect || n >= 5;
+                                        return (
+                                            <div
+                                                key={n}
+                                                className="rounded-[4px] border border-black bg-white flex items-center justify-center text-[14px] font-normal text-black"
+                                                style={{ width: `${SCALE_BOX_SIZE}px`, height: `${SCALE_BOX_SIZE}px` }}
+                                            >
+                                                {showNumber ? n : ""}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {Array.from({ length: MAX_COLS }).map((_, si) => {
+                                const s = samples[si];
+                                const sc = s
+                                    ? (s.items[rowIdx]?.score ?? (si === 0 ? item.score : null) ?? "")
+                                    : "";
+                                return (
+                                    <div
+                                        key={si}
+                                        className="flex justify-center items-center bg-white rounded-md border border-[#E0E4EA] text-[14px] font-normal text-[#202124] w-full"
+                                        style={{ height: `${SCORE_CELL_H}px` }}
+                                    >
+                                        {sc !== "" && sc != null ? sc : ""}
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {item.comments && (
+                            <div
+                                className="mt-3 grid items-start"
+                                style={{ gridTemplateColumns: `${NAME_COL_W}px ${SCALE_COL_W}px`, gap: GAP }}
+                            >
+                                <div className="text-[13px] text-[#494949] text-right pr-2 pt-2">
+                                    Comments:
+                                </div>
+                                <div className="px-3 py-2 border border-black rounded-[4px] bg-white text-[11px] text-[#494949] leading-relaxed">
+                                    {item.comments}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
+
             {sectionTitle && (
                 <div
-                    className="grid items-center px-4 py-3"
-                    style={{ gridTemplateColumns: COLS, gap: GAP }}
+                    className="grid items-center py-5"
+                    style={{ gridTemplateColumns: COLS, gap: GAP, minWidth: `${TABLE_MIN_W}px` }}
                 >
                     <div />
                     <div className="flex flex-col items-end pr-2">
-                        <span className="text-[12px] font-semibold text-[#202124]">
+                        <span className="text-[14px] font-bold text-[#202124]">
                             Overall {sectionTitle} Score
                         </span>
-                        <span className="text-[10px] text-[#6C757D]">(Value furthest away from target)</span>
+                        <span className="text-[12px] text-[#8A929E]">(Value furthest away from target)</span>
                     </div>
                     {Array.from({ length: MAX_COLS }).map((_, si) => {
                         const pct = sectionOverallPercents[si] ?? null;
                         return (
                             <div
                                 key={si}
-                                className="flex justify-center items-center w-full rounded border-2 border-[#202124] bg-white text-sm font-bold text-[#202124]"
-                                style={{ height: `${SCORE_CELL_H}px` }}
+                                className="flex justify-center items-center w-full rounded-[6px] border-2 border-[#202124] bg-white text-[16px] font-bold text-[#202124]"
+                                style={{ height: `${SCORE_CELL_H + 2}px` }}
                             >
                                 {pct != null ? <>{pct}&thinsp;<span>%</span></> : ""}
                             </div>

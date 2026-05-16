@@ -28,6 +28,8 @@ function normalizeMappings(mappings) {
                 attributeId,
                 question: (m.attribute_name || "").trim(),
                 subtitle: m.question_text || "",
+                scaleType: m.scale_type || "standard",
+                comments: m.comments_text || null,
             });
         }
     });
@@ -35,22 +37,15 @@ function normalizeMappings(mappings) {
 }
 
 const SCORE_PERCENT = { 1: 0, 2: 25, 3: 60, 4: 85, 5: 100, 6: 85, 7: 60, 8: 25, 9: 0 };
-const TARGET = 5;
+const SCORECARD_REVIEW_GRID = "140px 382px repeat(4, 148px)";
+const SCORECARD_REVIEW_GAP = "18px";
+const SCORECARD_REVIEW_MIN_WIDTH = 1204;
 
 function calcQualityScore(scores) {
     const vals = Object.values(scores).flatMap(s => Object.values(s)).filter(s => s != null && s !== "");
     if (!vals.length) return null;
     const total = vals.reduce((sum, s) => sum + (SCORE_PERCENT[s] ?? 0), 0);
     return Math.round(total / vals.length);
-}
-
-function calcRiskFlag(scores) {
-    const vals = Object.values(scores).flatMap(s => Object.values(s)).filter(s => s != null && s !== "");
-    if (!vals.length) return null;
-    const worst = vals.reduce((w, s) => Math.abs(s - TARGET) > Math.abs(w - TARGET) ? s : w);
-    if ([1, 2, 8, 9].includes(worst)) return { label: "High", color: "#EF4444" };
-    if ([3, 7].includes(worst)) return { label: "Medium", color: "#F59E0B" };
-    return { label: "Low", color: "#16A34A" };
 }
 
 export default function CreateReport() {
@@ -235,7 +230,7 @@ export default function CreateReport() {
     // Build per-section display data for ScoreCard (all samples)
     const allSectionsForDisplay = sectionKeys.map((section) => ({
         sectionTitle: section,
-        items: questions[section].list.map((q) => ({ question: q.question, score: null })),
+        items: questions[section].list.map((q) => ({ question: q.question, score: null, scaleType: q.scaleType, comments: q.comments })),
         sampleScores: allSamples.map((s) => ({
             sampleId: s.sampleId,
             items: questions[section].list.map((q) => ({
@@ -246,8 +241,6 @@ export default function CreateReport() {
     }));
 
     const qualityScores = allSamples.map((s) => calcQualityScore(s.scores));
-    const riskFlags = allSamples.map((s) => calcRiskFlag(s.scores));
-
     const paramData = [
         { scale: "1", percentage: "0",   remark: "NOT McD Quality",        bgColor: "#EA3323", color: "#FFF" },
         { scale: "2", percentage: "25",  remark: "Significant Difference",  bgColor: "#EA3323", color: "#FFF" },
@@ -469,9 +462,10 @@ export default function CreateReport() {
 
             {/* ── Page 2: review scorecard ── */}
             {isSubmitted ? (
-                <div className="p-4">
-                    <div className="flex justify-between items-center">
-                        <div className="font-bold text-2xl text-[#494949]">Select the score to fill in the scorecard</div>
+                <div className="px-4 pb-4 pt-2">
+                    <div className="mx-auto max-w-[1220px]">
+                    <div className="flex flex-wrap items-center justify-between gap-4 pb-5">
+                        <div className="font-bold text-[26px] leading-tight text-[#494949]">Select the score to fill in the scorecard</div>
                         <CustomButton
                             title="Add another sample"
                             rounded={true}
@@ -482,27 +476,27 @@ export default function CreateReport() {
                         />
                     </div>
 
-                    {/* Per-sample quality + risk summary */}
-                    <div className="flex flex-wrap gap-4 py-4">
-                        {allSamples.map((s, i) => {
-                            const qScore = qualityScores[i];
-                            const risk = riskFlags[i];
-                            return (
-                                <div key={i} className="flex items-center gap-3 rounded-lg border border-[#E6E9EE] bg-[#FBFCFD] px-4 py-3">
-                                    <div className="text-xs font-semibold text-[#202124]">{s.sampleId || `Sample ${i + 1}`}</div>
-                                    {qScore != null && (
-                                        <div className="text-xs text-[#6C757D]">
-                                            Quality: <span className="font-bold text-[#DB2F28]">{qScore}%</span>
-                                        </div>
-                                    )}
-                                    {risk && (
-                                        <div className="text-xs font-semibold px-2 py-0.5 rounded-md" style={{ color: risk.color, backgroundColor: `${risk.color}18` }}>
-                                            {risk.label} Risk
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
+                    <div className="overflow-x-auto pb-1">
+                    <div
+                        className="grid items-center pb-4"
+                        style={{
+                            gridTemplateColumns: SCORECARD_REVIEW_GRID,
+                            gap: SCORECARD_REVIEW_GAP,
+                            minWidth: `${SCORECARD_REVIEW_MIN_WIDTH}px`,
+                        }}
+                    >
+                        <div />
+                        <div className="pr-1 text-right text-[13px] font-bold text-[#494949] tracking-wide">
+                            SAMPLE CODES :
+                        </div>
+                        {Array.from({ length: 4 }).map((_, i) => (
+                            <div
+                                key={i}
+                                className="flex h-10 items-center justify-center rounded-md border border-[#E0E4EA] bg-white px-3 text-[14px] font-medium text-[#494949]"
+                            >
+                                {allSamples[i]?.sampleId || ""}
+                            </div>
+                        ))}
                     </div>
 
                     {/* ScoreCard per section showing all samples */}
@@ -518,23 +512,31 @@ export default function CreateReport() {
                     </div>
 
                     {/* Product Quality Score row */}
-                    <div className="mt-6 grid items-center p-4 border border-transparent"
-                        style={{ gridTemplateColumns: "180px 280px repeat(4, 100px)", gap: "16px" }}>
+                    <div
+                        className="grid items-center py-8"
+                        style={{
+                            gridTemplateColumns: SCORECARD_REVIEW_GRID,
+                            gap: SCORECARD_REVIEW_GAP,
+                            minWidth: `${SCORECARD_REVIEW_MIN_WIDTH}px`,
+                        }}
+                    >
                         <div />
                         <div className="flex flex-col items-end pr-2">
-                            <div className="text-[13px] font-bold text-[#202124]">Product Quality Score</div>
-                            <div className="text-xs text-[#6C757D]">(Value furthest away from target)</div>
+                            <div className="text-[16px] font-bold text-[#202124]">Product Quality Score</div>
+                            <div className="text-[13px] text-[#8A929E]">(Value furthest away from target)</div>
                         </div>
                         {Array.from({ length: 4 }).map((_, si) => {
                             const qScore = qualityScores[si] ?? null;
                             return (
-                                <div key={si} className="flex justify-center items-center gap-1 h-[50px] rounded-xl border-2 border-[#202124] bg-white text-sm font-medium text-[#202124]">
+                                <div key={si} className="flex h-[52px] items-center justify-center gap-1 rounded-[8px] border-2 border-[#202124] bg-white text-[18px] font-bold text-[#202124]">
                                     {qScore != null ? (
                                         <>{qScore}&nbsp;<span className="font-bold">%</span></>
                                     ) : ""}
                                 </div>
                             );
                         })}
+                    </div>
+                    </div>
                     </div>
                 </div>
             ) : null}
