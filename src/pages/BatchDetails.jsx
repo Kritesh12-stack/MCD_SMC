@@ -577,35 +577,50 @@ export default function BatchDetails() {
                 </section>
 
                 {(() => {
-                    const media = batch?.scorecard?.media || [];
-                    if (!media.length) return null;
+                    const attachments = (batch?.scorecard?.media || []).map((item) => ({
+                        key: item.id,
+                        url: item.url,
+                        label: item.filename,
+                    }));
+                    const rawUrls = (batch?.media_urls || []).map((url, i) => ({
+                        key: `raw-${i}`,
+                        url,
+                        label: null,
+                    }));
+                    const allMedia = [...attachments, ...rawUrls];
                     return (
                         <section className="surface-panel mt-5 p-5">
                             <div className="mb-4 text-[18px] font-semibold text-[#202124]">
                                 Uploaded Images
-                                <span className="ml-2 text-sm font-normal text-[#6F7785]">({media.length})</span>
+                                {allMedia.length > 0 && (
+                                    <span className="ml-2 text-sm font-normal text-[#6F7785]">({allMedia.length})</span>
+                                )}
                             </div>
-                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                                {media.map((item) => (
-                                    <a
-                                        key={item.id}
-                                        href={item.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="group relative overflow-hidden rounded-lg border border-[#E6E9EE] bg-[#F8FAFC]"
-                                    >
-                                        <img
-                                            src={item.url}
-                                            alt={item.filename || "evidence"}
-                                            className="h-36 w-full object-cover transition-transform group-hover:scale-105"
-                                            onError={(e) => { e.currentTarget.style.display = "none"; }}
-                                        />
-                                        {item.filename ? (
-                                            <div className="truncate px-2 py-1.5 text-xs text-[#6F7785]">{item.filename}</div>
-                                        ) : null}
-                                    </a>
-                                ))}
-                            </div>
+                            {allMedia.length === 0 ? (
+                                <div className="text-sm text-[#6F7785]">No images uploaded for this batch.</div>
+                            ) : (
+                                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                                    {allMedia.map((item) => (
+                                        <a
+                                            key={item.key}
+                                            href={item.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="group overflow-hidden rounded-lg border border-[#E6E9EE] bg-[#F8FAFC]"
+                                        >
+                                            <img
+                                                src={item.url}
+                                                alt={item.label || "evidence"}
+                                                className="h-36 w-full object-cover transition-transform group-hover:scale-105"
+                                                onError={(e) => { e.currentTarget.style.display = "none"; }}
+                                            />
+                                            {item.label ? (
+                                                <div className="truncate px-2 py-1.5 text-xs text-[#6F7785]">{item.label}</div>
+                                            ) : null}
+                                        </a>
+                                    ))}
+                                </div>
+                            )}
                         </section>
                     );
                 })()}

@@ -19,7 +19,7 @@ function overallSectionScore(scores) {
 // Shared column template — all rows must use the same colStyle so 1fr is identical.
 // border border-transparent keeps the box model identical to bordered attribute rows.
 const colStyle = { gridTemplateColumns: "180px 1fr repeat(4, 100px)", gap: "16px" };
-const ROW_BASE = "grid items-start p-4 border";
+const ROW_BASE = "grid items-center p-4 border";
 
 export default function ScoreCard({ sectionTitle, items = [], allSamples = [] }) {
     const samples = allSamples.length > 0 ? allSamples : [{ sampleId: null, items }];
@@ -55,7 +55,7 @@ export default function ScoreCard({ sectionTitle, items = [], allSamples = [] })
                 {/* Attribute rows */}
                 {items.map((item, rowIdx) => (
                     <div key={rowIdx} className={`${ROW_BASE} border-[#F3D9D7] rounded-lg bg-[#FFF7F6] text-[#494949]`} style={colStyle}>
-                        <div className="text-[12px] font-medium text-[#202124] self-center">{item.question}</div>
+                        <div className="text-[12px] font-medium text-[#202124]">{item.question}</div>
                         <div className="flex flex-col gap-2">
                             <div className="flex justify-between items-center text-[11px] text-[#6F7785]">
                                 <span>Light</span>
@@ -76,7 +76,7 @@ export default function ScoreCard({ sectionTitle, items = [], allSamples = [] })
                             const s = samples[si];
                             const sc = s ? (s.items[rowIdx]?.score ?? (si === 0 ? item.score : null) ?? "") : "";
                             return (
-                                <div key={si} className="flex justify-center items-center text-xs bg-white h-[30px] w-full rounded border border-[#E6E9EE]">
+                                <div key={si} className="flex justify-center items-center text-xs bg-white h-[40px] w-full rounded border border-[#E6E9EE]">
                                     {sc !== "" && sc != null ? sc : ""}
                                 </div>
                             );
@@ -86,7 +86,7 @@ export default function ScoreCard({ sectionTitle, items = [], allSamples = [] })
 
                 {/* Overall section score row — border-transparent keeps box-model identical */}
                 {sectionTitle && (
-                    <div className={`${ROW_BASE} border-transparent border-t-[#E6E9EE] items-center`} style={colStyle}>
+                    <div className={`${ROW_BASE} border-transparent border-t-[#E6E9EE]`} style={colStyle}>
                         <div />
                         <div className="flex flex-col items-end pr-2">
                             <div className="text-[13px] font-semibold text-[#202124]">Overall {sectionTitle} Score</div>
