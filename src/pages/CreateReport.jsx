@@ -37,9 +37,9 @@ function normalizeMappings(mappings) {
 }
 
 const SCORE_PERCENT = { 1: 0, 2: 25, 3: 60, 4: 85, 5: 100, 6: 85, 7: 60, 8: 25, 9: 0 };
-const SCORECARD_REVIEW_GRID = "140px 382px repeat(4, 148px)";
-const SCORECARD_REVIEW_GAP = "18px";
-const SCORECARD_REVIEW_MIN_WIDTH = 1204;
+const SCORECARD_REVIEW_GRID = "140px 382px repeat(4, 166px)";
+const SCORECARD_REVIEW_GAP = "24px";
+const SCORECARD_REVIEW_MIN_WIDTH = 1350;
 
 function calcQualityScore(scores) {
     const vals = Object.values(scores).flatMap(s => Object.values(s)).filter(s => s != null && s !== "");

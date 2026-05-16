@@ -16,15 +16,18 @@ function overallSectionScore(scores) {
 
 const NAME_COL_W = 140;
 const SCALE_COL_W = 9 * 38 + 8 * 5; // 9 boxes x 38px + 8 gaps x 5px = 382px
-const SCORE_COL_W = 148;
+const SCORE_COL_W = 166;
 const COLS = `${NAME_COL_W}px ${SCALE_COL_W}px repeat(4, ${SCORE_COL_W}px)`;
-const GAP = "18px";
+const GAP = "24px";
 const MAX_COLS = 4;
-const TABLE_MIN_W = NAME_COL_W + SCALE_COL_W + (MAX_COLS * SCORE_COL_W) + (5 * 18);
+const GAP_SIZE = 24;
+const TABLE_MIN_W = NAME_COL_W + SCALE_COL_W + (MAX_COLS * SCORE_COL_W) + (5 * GAP_SIZE);
 
 const SCALE_BOX_SIZE = 38;
 const SCALE_GAP = 5;
-const SCORE_CELL_H = 40;
+const SAMPLE_CELL_H = 40;
+const SCORE_CELL_H = 48;
+const SCORE_CELL_TOP_OFFSET = 15;
 
 export default function ScoreCard({ sectionTitle, items = [], allSamples = [] }) {
     const samples = allSamples.length > 0 ? allSamples : [{ sampleId: null, items }];
@@ -56,7 +59,7 @@ export default function ScoreCard({ sectionTitle, items = [], allSamples = [] })
                         <div
                             key={i}
                             className="flex justify-center items-center text-[13px] font-medium text-[#202124] bg-white rounded-md border border-[#E0E4EA] w-full"
-                            style={{ height: `${SCORE_CELL_H}px` }}
+                            style={{ height: `${SAMPLE_CELL_H}px` }}
                         >
                             {samples[i]?.sampleId || ""}
                         </div>
@@ -145,7 +148,7 @@ export default function ScoreCard({ sectionTitle, items = [], allSamples = [] })
                                     <div
                                         key={si}
                                         className="flex justify-center items-center bg-white rounded-md border border-[#E0E4EA] text-[14px] font-normal text-[#202124] w-full"
-                                        style={{ height: `${SCORE_CELL_H}px` }}
+                                        style={{ height: `${SCORE_CELL_H}px`, marginTop: `${SCORE_CELL_TOP_OFFSET}px` }}
                                     >
                                         {sc !== "" && sc != null ? sc : ""}
                                     </div>
