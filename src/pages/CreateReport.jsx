@@ -142,7 +142,7 @@ export default function CreateReport() {
             return;
         }
         setSectionError("");
-        setAllSamples((prev) => [...prev, { sampleId, scores }]);
+        setAllSamples((prev) => [...prev, { sampleId, scores, evidenceItems }]);
         setIsSubmitted(true);
     }
 
@@ -165,6 +165,7 @@ export default function CreateReport() {
         const nextId = buildNextSampleId(firstSampleId, allSamples.length + 1);
         setSampleId(nextId);
         setScores({});
+        setEvidenceItems([]);
         setIsSubmitted(false);
     }
 
@@ -213,10 +214,11 @@ export default function CreateReport() {
             });
             const batch = res?.data?.data ?? null;
             const scorecardId = batch?.scorecard?.id;
-            if (scorecardId && evidenceItems.length) {
-                await Promise.all(evidenceItems.map((item) => uploadScorecardAttachment(scorecardId, item.file)));
-                setSuccessNote(`${evidenceItems.length} evidence file${evidenceItems.length === 1 ? "" : "s"} attached.`);
-            } else if (evidenceItems.length) {
+            const allEvidence = allSamples.flatMap((s) => s.evidenceItems || []);
+            if (scorecardId && allEvidence.length) {
+                await Promise.all(allEvidence.map((item) => uploadScorecardAttachment(scorecardId, item.file)));
+                setSuccessNote(`${allEvidence.length} evidence file${allEvidence.length === 1 ? "" : "s"} attached.`);
+            } else if (allEvidence.length) {
                 setSuccessNote("Report submitted, but no scorecard ID was returned for evidence upload.");
             }
             setCreatedBatch(batch);
