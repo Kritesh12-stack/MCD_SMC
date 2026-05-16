@@ -11,35 +11,37 @@ export default function HorizontalBarChartCard({ title = "Samples Score Graph", 
     const chartData = data.map((item) => ({ name: item.label, value: item.value }));
 
     return (
-        <div className="rounded-xl border border-[#E6E9EE] bg-white p-4">
-            <div className="mb-4 flex items-center justify-between">
-                <span className="text-sm font-semibold text-[#202124]">{title}</span>
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-400 text-xs font-bold text-white">
+        <div className="rounded-[16px] border border-[#DDE2EA] bg-white p-6 shadow-sm">
+            <div className="mb-5 flex items-center justify-between">
+                <span className="text-[20px] font-semibold leading-none text-[#202124]">{title}</span>
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FB8C2E] text-[16px] font-semibold text-white">
                     i
                 </div>
             </div>
-            <div style={{ width: "100%", height: 220 }}>
+            <div style={{ width: "100%", height: 280 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData} margin={{ top: 4, right: 8, left: -16, bottom: 4 }}>
-                        <CartesianGrid vertical={false} stroke="#E6E9EE" />
+                    <BarChart data={chartData} margin={{ top: 4, right: 12, left: -4, bottom: 8 }}>
+                        <CartesianGrid vertical={false} stroke="#DDE2EA" strokeWidth={1.5} />
                         <XAxis
                             dataKey="name"
-                            tick={{ fill: "#6F7785", fontSize: 11 }}
-                            axisLine={false}
+                            tick={{ fill: "#7A8392", fontSize: 15 }}
+                            axisLine={{ stroke: "#DDE2EA", strokeWidth: 1.5 }}
                             tickLine={false}
+                            dy={6}
                         />
                         <YAxis
                             domain={[0, 10]}
                             ticks={[0, 5, 10]}
-                            tick={{ fill: "#6F7785", fontSize: 11 }}
+                            tick={{ fill: "#7A8392", fontSize: 15 }}
                             axisLine={false}
                             tickLine={false}
+                            width={34}
                         />
                         <Bar
                             dataKey="value"
-                            fill="#E8534A"
-                            radius={[4, 4, 0, 0]}
-                            maxBarSize={52}
+                            fill="#D95B51"
+                            radius={[6, 6, 0, 0]}
+                            maxBarSize={66}
                         />
                     </BarChart>
                 </ResponsiveContainer>

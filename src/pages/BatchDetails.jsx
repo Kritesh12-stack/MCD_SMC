@@ -518,7 +518,7 @@ export default function BatchDetails() {
                             />
                             <SummaryCard
                                 label="Samples Evaluated"
-                                value={chartsData?.summary?.samples_evaluated ?? (scorecard.sample_ids || []).length || "-"}
+                                value={chartsData?.summary?.samples_evaluated ?? ((scorecard.sample_ids || []).length || "-")}
                                 detail={(scorecard.sample_ids || [])[0]}
                             />
                             <SummaryCard
@@ -614,7 +614,7 @@ export default function BatchDetails() {
                 <QualityMetricsComparison spiderCharts={chartsData?.spider_charts || []} />
 
                 {chartsData?.samples_graph?.length > 0 ? (
-                    <section className="mt-6 max-w-sm">
+                    <section className="mt-6 max-w-[560px]">
                         <HorizontalBarChartCard
                             title="Samples Score Graph"
                             data={chartsData.samples_graph.map((s, i) => ({

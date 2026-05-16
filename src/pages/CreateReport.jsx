@@ -37,9 +37,22 @@ function normalizeMappings(mappings) {
 }
 
 const SCORE_PERCENT = { 1: 0, 2: 25, 3: 60, 4: 85, 5: 100, 6: 85, 7: 60, 8: 25, 9: 0 };
-const SCORECARD_REVIEW_GRID = "140px 382px repeat(4, 166px)";
-const SCORECARD_REVIEW_GAP = "24px";
-const SCORECARD_REVIEW_MIN_WIDTH = 1350;
+const SCORECARD_REVIEW_GRID = "minmax(104px, 120px) 338px repeat(4, minmax(108px, 1fr))";
+const SCORECARD_REVIEW_GAP = "clamp(10px, 1.2vw, 18px)";
+const SCORE_LEGEND = [
+    { scale: "1", percentage: "0", remark: "NOT McD Quality", bgColor: "#EA3323", color: "#FFF" },
+    { scale: "2", percentage: "25", remark: "Significant Difference", bgColor: "#EA3323", color: "#FFF" },
+    { scale: "3", percentage: "60", remark: "Marginal", bgColor: "#FFFF54", color: "#000000" },
+    { scale: "4", percentage: "85", remark: "Slight Difference", bgColor: "#FFFF54", color: "#000000" },
+    { scale: "5", percentage: "100", remark: "Equal to TARGET", bgColor: "#52976A", color: "#FFFFFF" },
+    { scale: "6", percentage: "85", remark: "Slight Difference", bgColor: "#FFFF54", color: "#000000" },
+    { scale: "7", percentage: "60", remark: "Marginal", bgColor: "#FFFF54", color: "#000000" },
+    { scale: "8", percentage: "25", remark: "Significant Difference", bgColor: "#EA3323", color: "#FFF" },
+    { scale: "9", percentage: "0", remark: "NOT McD Quality", bgColor: "#EA3323", color: "#FFF" },
+];
+
+const APPEARANCE_GUIDANCE = `Fully baked soft roll that has a uniform deep medium brown color with a slight sheen (same target crown color as BB Big Mac). Bun is uniformly round and symmetrically straight wallels. Crowns are uniformly covered with white opaque sesame seeds of uniform size and black poppy seeds of uniform size. Heel is 19 mm in thickness, the internal texture is an open, slightly irregular grain and uniformly smooth across the surface. The integrity of toasted bun is maintained after toasting.
+Internal appearance of both crown and heel are caramelized to a medium brown color with the heel having the potential to be darker toast than the crown. Minimal defects such as dents, wrinkles, crow feet are acceptable before and after toasting.`;
 
 function calcQualityScore(scores) {
     const vals = Object.values(scores).flatMap(s => Object.values(s)).filter(s => s != null && s !== "");
@@ -241,18 +254,6 @@ export default function CreateReport() {
     }));
 
     const qualityScores = allSamples.map((s) => calcQualityScore(s.scores));
-    const paramData = [
-        { scale: "1", percentage: "0",   remark: "NOT McD Quality",        bgColor: "#EA3323", color: "#FFF" },
-        { scale: "2", percentage: "25",  remark: "Significant Difference",  bgColor: "#EA3323", color: "#FFF" },
-        { scale: "3", percentage: "60",  remark: "Marginal",                bgColor: "#FFFF54", color: "#000000" },
-        { scale: "4", percentage: "85",  remark: "Slight Difference",       bgColor: "#FFFF54", color: "#000000" },
-        { scale: "5", percentage: "100", remark: "Equal to TARGET",         bgColor: "#52976A", color: "#FFFFFF" },
-        { scale: "6", percentage: "85",  remark: "Slight Difference",       bgColor: "#FFFF54", color: "#000000" },
-        { scale: "7", percentage: "60",  remark: "Marginal",                bgColor: "#FFFF54", color: "#000000" },
-        { scale: "8", percentage: "25",  remark: "Significant Difference",  bgColor: "#EA3323", color: "#FFF" },
-        { scale: "9", percentage: "0",   remark: "NOT McD Quality",         bgColor: "#EA3323", color: "#FFF" },
-    ];
-
     if (createdBatch) {
         return (
             <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4 py-10">
@@ -283,39 +284,49 @@ export default function CreateReport() {
         <div>
             <PageHeading title={"Create a Report"} />
 
-            <div className="text-[14px] text-[#494949] leading-6 flex flex-col gap-4 p-4">
-                <div className="flex items-center">
-                    <div className="w-[125px]">Instruction :</div>
-                    <div>Please evaluate the sample. For each attribute, indicate whether it exhibits more than, less than, or equal to the target.</div>
-                </div>
-                <div className="flex items-start">
-                    <div className="w-[125px] shrink-0 pt-1">Sensory Score :</div>
-                    <div className="flex items-end gap-6">
-                        {paramData.map((data, index) => (
-                            <div key={index} className="flex flex-col gap-2 items-center">
-                                <div className="text-center text-xs leading-tight w-[70px]">{data.remark}</div>
-                                <div
-                                    className="w-[64px] h-[35px] rounded-lg border flex justify-center items-center text-sm font-semibold"
-                                    style={{ backgroundColor: data.bgColor, color: data.color }}
-                                >
-                                    {data.scale}
-                                </div>
-                                <div className="text-xs">{data.percentage}%</div>
+            {!isSubmitted ? (
+                <div className="px-7 pb-2 pt-5">
+                    <div className="max-w-[1040px] space-y-5 text-[12px] leading-5 text-[#494949]">
+                        <div className="flex items-start gap-8">
+                            <div className="w-[92px] shrink-0">Instruction :</div>
+                            <div>Please evaluate the sample. For each attribute, indicate whether it exhibits more than, less than, or equal to the target.</div>
+                        </div>
+
+                        <div className="flex items-start gap-8">
+                            <div className="w-[92px] shrink-0 pt-7">Sensory Score :<br />%QI</div>
+                            <div className="flex flex-wrap items-end gap-1.5">
+                                {SCORE_LEGEND.map((data) => (
+                                    <div key={data.scale} className="flex w-[76px] flex-col items-center gap-1">
+                                        <div className="h-8 text-center text-[10px] leading-[11px] text-[#27272E]">{data.remark}</div>
+                                        <div
+                                            className="flex h-[28px] w-[62px] items-center justify-center rounded-[3px] border border-black text-[12px] font-semibold"
+                                            style={{ backgroundColor: data.bgColor, color: data.color }}
+                                        >
+                                            {data.scale}
+                                        </div>
+                                        <div className="text-[10px] text-[#494949]">{data.percentage}%</div>
+                                    </div>
+                                ))}
                             </div>
-                        ))}
+                        </div>
+
+                        <div className="flex items-start gap-8">
+                            <div className="w-[92px] shrink-0 pt-6 uppercase">Appearance</div>
+                            <div className="max-w-[760px] whitespace-pre-line">{APPEARANCE_GUIDANCE}</div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            ) : null}
 
-            <div className="p-4">
+            <div className="px-7 pb-10 pt-5">
                 {/* ── Page 1: scoring form ── */}
                 {!isSubmitted ? (
-                    <div className="py-8 flex flex-wrap gap-6">
-                        <div className="flex flex-col gap-1">
-                            <label className="text-xl font-semibold pb-2 text-[#27272E]">Select Product</label>
+                    <div className="grid max-w-[1140px] grid-cols-1 gap-7 pb-6 sm:grid-cols-2 lg:grid-cols-4">
+                        <div className="flex flex-col gap-2">
+                            <label className="text-[15px] font-semibold text-[#494949]">Select Product</label>
                             <div className="relative">
                                 <select
-                                    className="appearance-none border border-[#D1D5DC] rounded-md px-3 py-2 pr-8 bg-white text-sm text-[#27272E] min-w-[200px] cursor-pointer"
+                                    className="h-9 w-full appearance-none rounded-md border border-[#DDE2EA] bg-white px-3 pr-8 text-[13px] text-[#27272E] cursor-pointer"
                                     value={selectedProduct?.id ?? ""}
                                     onChange={handleProductSelect}
                                     disabled={productsLoading}
@@ -329,25 +340,29 @@ export default function CreateReport() {
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-1">
-                            <label className="text-xl font-semibold pb-2 text-[#27272E]">Batch</label>
-                            <input readOnly value={batchId} className="border border-[#D1D5DC] rounded-md px-3 py-2 bg-[#F9FAFB] text-sm text-[#27272E] min-w-[180px]" placeholder="Generating…" />
+                        <div className="flex flex-col gap-2">
+                            <label className="text-[15px] font-semibold text-[#494949]">Select Batch</label>
+                            <div className="relative">
+                                <input readOnly value={batchId} className="h-9 w-full rounded-md border border-[#DDE2EA] bg-white px-3 pr-8 text-[13px] text-[#27272E]" placeholder="Generating…" />
+                                <img src={DownIcon} alt="" className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2" />
+                            </div>
                         </div>
 
-                        <div className="flex flex-col gap-1">
-                            <label className="text-xl font-semibold pb-2 text-[#27272E]">
-                                {allSamples.length > 0 ? `Sample ${allSamples.length + 1}` : "Sample"}
-                            </label>
-                            <input readOnly value={sampleId} className="border border-[#D1D5DC] rounded-md px-3 py-2 bg-[#F9FAFB] text-sm text-[#27272E] min-w-[180px]" placeholder="Generating…" />
+                        <div className="flex flex-col gap-2">
+                            <label className="text-[15px] font-semibold text-[#494949]">Select Sample</label>
+                            <div className="relative">
+                                <input readOnly value={sampleId} className="h-9 w-full rounded-md border border-[#DDE2EA] bg-white px-3 pr-8 text-[13px] text-[#27272E]" placeholder="Generating…" />
+                                <img src={DownIcon} alt="" className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2" />
+                            </div>
                         </div>
 
-                        <div className="flex flex-col gap-1">
-                            <label className="text-xl font-semibold pb-2 text-[#27272E]">Production Date</label>
+                        <div className="flex flex-col gap-2">
+                            <label className="text-[15px] font-semibold text-[#494949]">Production Date</label>
                             <input
                                 type="date"
                                 value={productionDate}
                                 onChange={(e) => setProductionDate(e.target.value)}
-                                className="border border-[#D1D5DC] rounded-md px-3 py-2 bg-white text-sm text-[#27272E] min-w-[180px]"
+                                className="h-9 w-full rounded-md border border-[#DDE2EA] bg-white px-3 text-[13px] text-[#27272E]"
                             />
                         </div>
                     </div>
@@ -370,75 +385,73 @@ export default function CreateReport() {
                 ) : null}
 
                 {!isSubmitted && selectedSection ? (
-                    <div className="relative p-4">
-                        <div className="flex gap-4 items-center cursor-pointer" onClick={() => setIsDropdownOpen((prev) => !prev)}>
-                            <img src={DownIcon} alt="toggle" className={`transition-transform ${isDropdownOpen ? "rotate-180" : ""}`} />
-                            <div className="flex flex-col">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-lg font-semibold">{selectedSection}</span>
-                                    {incompleteSections.includes(selectedSection)
-                                        ? <span className="text-[11px] text-red-500 font-medium">Incomplete</span>
-                                        : <span className="text-[11px] text-emerald-600 font-medium">✓ Done</span>
-                                    }
+                    <div className="max-w-[970px] rounded-lg border border-[#E6E9EE] bg-white shadow-sm">
+                        <div className="relative border-b border-[#E6E9EE]">
+                            <div className="flex cursor-pointer items-center gap-4 px-5 py-5" onClick={() => setIsDropdownOpen((prev) => !prev)}>
+                                <img src={DownIcon} alt="toggle" className={`h-4 w-4 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`} />
+                                <div className="flex flex-col">
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-[16px] font-semibold text-[#27272E]">{selectedSection}</span>
+                                        {incompleteSections.includes(selectedSection)
+                                            ? <span className="text-[13px] font-medium text-[#FF5858]">Incomplete</span>
+                                            : <span className="text-[13px] font-medium text-emerald-600">Done</span>
+                                        }
+                                    </div>
+                                    <div className="text-[12px] font-normal text-[#6F7785]">{questions[selectedSection]?.subTitle}</div>
                                 </div>
-                                <div className="text-sm font-normal">{questions[selectedSection]?.subTitle}</div>
                             </div>
-                        </div>
-                        {isDropdownOpen ? (
-                            <div className="absolute left-4 top-full z-10 mt-2 min-w-[420px] bg-white border border-[#D1D5DC] rounded-md shadow-md">
-                                {sectionKeys.map((section) => {
-                                    const incomplete = incompleteSections.includes(section);
-                                    return (
-                                        <div
-                                            key={section}
-                                            className="px-4 py-3 hover:bg-[#F9FAFB] cursor-pointer border-b border-[#E5E7EB] last:border-b-0"
-                                            onClick={() => { setSelectedSection(section); setIsDropdownOpen(false); setSectionError(""); }}
-                                        >
-                                            <div className="flex items-center justify-between">
-                                                <div className="text-base font-semibold">{section}</div>
-                                                {incomplete
-                                                    ? <span className="text-[11px] text-red-500 font-medium">Incomplete</span>
-                                                    : <span className="text-[11px] text-emerald-600 font-medium">✓ Done</span>
-                                                }
+                            {isDropdownOpen ? (
+                                <div className="absolute left-5 top-full z-10 mt-2 min-w-[420px] rounded-md border border-[#D1D5DC] bg-white shadow-md">
+                                    {sectionKeys.map((section) => {
+                                        const incomplete = incompleteSections.includes(section);
+                                        return (
+                                            <div
+                                                key={section}
+                                                className="cursor-pointer border-b border-[#E5E7EB] px-4 py-3 last:border-b-0 hover:bg-[#F9FAFB]"
+                                                onClick={() => { setSelectedSection(section); setIsDropdownOpen(false); setSectionError(""); }}
+                                            >
+                                                <div className="flex items-center justify-between">
+                                                    <div className="text-base font-semibold">{section}</div>
+                                                    {incomplete
+                                                        ? <span className="text-[11px] font-medium text-red-500">Incomplete</span>
+                                                        : <span className="text-[11px] font-medium text-emerald-600">Done</span>
+                                                    }
+                                                </div>
+                                                <div className="text-sm text-[#6C757D]">{questions[section].subTitle}</div>
                                             </div>
-                                            <div className="text-sm text-[#6C757D]">{questions[section].subTitle}</div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        ) : null}
-                    </div>
-                ) : null}
-
-                {!isSubmitted && selectedSection ? (
-                    <div className="flex items-center gap-2">
-                        <div className="relative w-6 h-6">
-                            <div className="absolute inset-0 border-2 rounded-full"></div>
-                            <div className="absolute inset-1 border-2 rounded-full"></div>
-                            <div className="absolute inset-2 border-2 rounded-full"></div>
+                                        );
+                                    })}
+                                </div>
+                            ) : null}
                         </div>
-                        <div className="font-semibold text-base">Sensory Attributes</div>
+
+                        <div className="flex items-center gap-2 px-5 pb-5 pt-10">
+                            <div className="relative h-4 w-4">
+                                <div className="absolute inset-0 rounded-full border border-[#27272E]"></div>
+                                <div className="absolute inset-1 rounded-full border border-[#27272E]"></div>
+                                <div className="absolute inset-2 rounded-full border border-[#27272E]"></div>
+                            </div>
+                            <div className="text-[14px] font-semibold text-[#27272E]">Sensory Attributes</div>
+                        </div>
+
+                        <div key={selectedSection} className="flex flex-col gap-5 px-5 pb-5">
+                            {questions[selectedSection]?.list.map((q) => (
+                                <ScoreMarker
+                                    key={q.id}
+                                    question={q.question}
+                                    subtitle={q.subtitle}
+                                    score={scores[selectedSection]?.[q.id] ?? ""}
+                                    onScoreChange={(score) => handleScoreChange(selectedSection, q.id, score)}
+                                />
+                            ))}
+                        </div>
+
+                        <EvidenceDocumentation onChange={setEvidenceItems} />
                     </div>
                 ) : null}
-
-                {!isSubmitted && selectedSection ? (
-                    <div key={selectedSection} className="flex flex-col gap-4 p-4">
-                        {questions[selectedSection]?.list.map((q) => (
-                            <ScoreMarker
-                                key={q.id}
-                                question={q.question}
-                                subtitle={q.subtitle}
-                                score={scores[selectedSection]?.[q.id] ?? ""}
-                                onScoreChange={(score) => handleScoreChange(selectedSection, q.id, score)}
-                            />
-                        ))}
-                    </div>
-                ) : null}
-
-                {!isSubmitted ? <EvidenceDocumentation onChange={setEvidenceItems} /> : null}
 
                 {!isSubmitted ? (
-                    <div className="w-full flex flex-col items-end px-4 gap-2">
+                    <div className="flex w-full max-w-[970px] flex-col items-end gap-2 pt-9">
                         {sectionError && (
                             <p className="text-sm text-red-600">{sectionError}</p>
                         )}
@@ -476,13 +489,12 @@ export default function CreateReport() {
                         />
                     </div>
 
-                    <div className="overflow-x-auto pb-1">
+                    <div className="pb-1">
                     <div
                         className="grid items-center pb-4"
                         style={{
                             gridTemplateColumns: SCORECARD_REVIEW_GRID,
                             gap: SCORECARD_REVIEW_GAP,
-                            minWidth: `${SCORECARD_REVIEW_MIN_WIDTH}px`,
                         }}
                     >
                         <div />
@@ -517,7 +529,6 @@ export default function CreateReport() {
                         style={{
                             gridTemplateColumns: SCORECARD_REVIEW_GRID,
                             gap: SCORECARD_REVIEW_GAP,
-                            minWidth: `${SCORECARD_REVIEW_MIN_WIDTH}px`,
                         }}
                     >
                         <div />

@@ -13,18 +13,20 @@ export default function ScoreMarker({ question, subtitle, score, onScoreChange }
     const selectedColour = score ? colours[score - 1] : null;
 
     return (
-        <div className="w-full border-l-3 border-[#DB2F28] bg-[#FBFCFD] p-4">
-            <div className="flex justify-between items-center">
-                <div className="text-[#202124] text-[14px] font-semibold">{question}</div>
-                <div className="flex items-center text-sm text-[#6C757D] gap-2">
+        <div className="w-full border-l-3 border-[#FF5858] bg-[#FBFCFD] px-4 py-5">
+            <div className="flex items-start justify-between gap-4">
+                <div>
+                    <div className="text-[#202124] text-[15px] font-medium">{question}</div>
+                    {subtitle ? <div className="mt-1 text-[12px] text-[#6F7785]">{subtitle}</div> : null}
+                </div>
+                <div className="flex shrink-0 items-center text-[13px] text-[#6C757D] gap-2">
                     <div>Score : </div>
-                    <div className="flex items-center"><span className="text-[#DB2F28] text-xl font-semibold">{score}</span> / 9</div>
+                    <div className="flex items-center"><span className="text-[#DB2F28] text-[18px] font-semibold leading-none">{score}</span> / 9</div>
                 </div>
             </div>
-            <div className="flex justify-between items-center">
-                <div className="text-[12px] text-[#6F7785]">{subtitle}</div>
+            <div className="flex justify-end">
                 <div
-                    className="text-[11px] font-medium px-2 py-1 rounded-md"
+                    className="text-[11px] font-medium px-2 py-0.5 rounded-md"
                     style={{
                         color: selectedColour ? selectedColour[1] : "#FFC72C",
                         backgroundColor: selectedColour ? selectedColour[0] : "#FFF3CD",
@@ -33,7 +35,7 @@ export default function ScoreMarker({ question, subtitle, score, onScoreChange }
                     {selectedColour ? selectedColour[2] : "-"}
                 </div>
             </div>
-            <div className="flex flex-wrap items-center gap-5 py-5">
+            <div className="flex flex-wrap items-center gap-5 pt-3">
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => (
                     <button
                         type="button"

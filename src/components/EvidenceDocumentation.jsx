@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const MAX_SLOTS = 1;
+const MAX_SLOTS = 2;
 const MAX_BYTES = 500 * 1024;
 
 const DEFAULT_SLOTS = () =>
@@ -93,13 +93,13 @@ export default function EvidenceDocumentation({ onChange }) {
   }, []);
 
   return (
-    <div className="p-4">
-      <div className="flex items-center gap-2 mb-4">
+    <div className="px-5 pb-5 pt-1">
+      <div className="flex items-center gap-2 mb-3">
         <div
-          className="w-9 h-9 rounded-md bg-[#7C3AED] flex items-center justify-center shrink-0"
+          className="flex h-4 w-4 items-center justify-center shrink-0 text-[#7C3AED]"
           aria-hidden
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
             <path
               d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
               stroke="currentColor"
@@ -109,22 +109,22 @@ export default function EvidenceDocumentation({ onChange }) {
             />
           </svg>
         </div>
-        <h2 className="text-base font-semibold text-[#2C2C2C]">Evidence &amp; Documentation</h2>
+        <h2 className="text-[14px] font-semibold text-[#2C2C2C]">Evidence &amp; Documentation</h2>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
         {slots.map((slot, index) => (
           <div
             key={index}
-            className="rounded-lg border border-[#E8E8E8] bg-white overflow-hidden flex flex-col shadow-sm max-w-sm mx-auto sm:mx-0 w-full"
+            className="rounded-md border border-[#DDE2EA] bg-white overflow-hidden flex flex-col shadow-sm w-[260px] max-w-full"
           >
-            <div className="relative flex-1 min-h-[160px] max-h-[200px] bg-[#FAFAFA]">
+            <div className="relative h-[128px] bg-[#FAFAFA]">
               {slot.previewUrl ? (
                 <>
                   <img
                     src={slot.previewUrl}
                     alt={slot.subtext || `Evidence ${index + 1}`}
-                    className="w-full h-full object-cover max-h-[200px]"
+                    className="h-full w-full object-cover"
                   />
                   <button
                     type="button"
@@ -137,7 +137,7 @@ export default function EvidenceDocumentation({ onChange }) {
                 </>
               ) : (
                 <label
-                  className="flex flex-col items-center justify-center h-full min-h-[160px] cursor-pointer hover:bg-gray-100 border-b border-[#E8E8E8] px-2"
+                  className="flex h-full cursor-pointer flex-col items-center justify-center border-b border-[#E8E8E8] px-2 hover:bg-gray-100"
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={(e) => {
                     e.preventDefault();
@@ -175,7 +175,7 @@ export default function EvidenceDocumentation({ onChange }) {
                 </label>
               )}
             </div>
-            <div className="border-t border-[#E8E8E8] bg-[#F9FAFB] px-3 py-2.5">
+            <div className="border-t border-[#E8E8E8] bg-white px-3 py-2.5">
               <label className="sr-only" htmlFor={`evidence-caption-${index}`}>
                 Caption for image {index + 1}
               </label>
@@ -187,7 +187,7 @@ export default function EvidenceDocumentation({ onChange }) {
                   setSlot(index, () => ({ subtext: e.target.value }))
                 }
                 placeholder="Describe this image"
-                className="w-full bg-transparent text-sm text-[#494949] outline-none placeholder:text-[#9CA3AF]"
+                className="w-full bg-transparent text-[13px] text-[#494949] outline-none placeholder:text-[#9CA3AF]"
               />
             </div>
           </div>

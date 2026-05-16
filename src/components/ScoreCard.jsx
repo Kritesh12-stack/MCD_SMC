@@ -14,17 +14,15 @@ function overallSectionScore(scores) {
     );
 }
 
-const NAME_COL_W = 140;
-const SCALE_COL_W = 9 * 38 + 8 * 5; // 9 boxes x 38px + 8 gaps x 5px = 382px
-const SCORE_COL_W = 166;
-const COLS = `${NAME_COL_W}px ${SCALE_COL_W}px repeat(4, ${SCORE_COL_W}px)`;
-const GAP = "24px";
+const NAME_COL_W = 120;
+const SCALE_BOX_SIZE = 34;
+const SCALE_GAP = 4;
+const SCALE_COL_W = 9 * SCALE_BOX_SIZE + 8 * SCALE_GAP;
+const SCORE_COL_MIN_W = 108;
+const COLS = `minmax(104px, ${NAME_COL_W}px) ${SCALE_COL_W}px repeat(4, minmax(${SCORE_COL_MIN_W}px, 1fr))`;
+const GAP = "clamp(10px, 1.2vw, 18px)";
 const MAX_COLS = 4;
-const GAP_SIZE = 24;
-const TABLE_MIN_W = NAME_COL_W + SCALE_COL_W + (MAX_COLS * SCORE_COL_W) + (5 * GAP_SIZE);
 
-const SCALE_BOX_SIZE = 38;
-const SCALE_GAP = 5;
 const SAMPLE_CELL_H = 40;
 const SCORE_CELL_H = 48;
 const SCORE_CELL_TOP_OFFSET = 15;
@@ -49,7 +47,7 @@ export default function ScoreCard({ sectionTitle, items = [], allSamples = [] })
             {samples.length > 1 && (
                 <div
                     className="grid items-center pb-4"
-                    style={{ gridTemplateColumns: COLS, gap: GAP, minWidth: `${TABLE_MIN_W}px` }}
+                    style={{ gridTemplateColumns: COLS, gap: GAP }}
                 >
                     <div />
                     <div className="text-[12px] font-semibold text-right text-[#202124] pr-1 tracking-wide">
@@ -75,7 +73,6 @@ export default function ScoreCard({ sectionTitle, items = [], allSamples = [] })
                     <div
                         key={rowIdx}
                         className="mb-3 rounded-[6px] border border-[#F3D9D7] bg-[#FFF7F6] px-2 py-3"
-                        style={{ minWidth: `${TABLE_MIN_W + 16}px` }}
                     >
                         <div
                             className="grid items-center"
@@ -176,7 +173,7 @@ export default function ScoreCard({ sectionTitle, items = [], allSamples = [] })
             {sectionTitle && (
                 <div
                     className="grid items-center py-5"
-                    style={{ gridTemplateColumns: COLS, gap: GAP, minWidth: `${TABLE_MIN_W}px` }}
+                    style={{ gridTemplateColumns: COLS, gap: GAP }}
                 >
                     <div />
                     <div className="flex flex-col items-end pr-2">

@@ -18,16 +18,16 @@ function SampleRadarCard({ sample }) {
 
     return (
         <div
-            className="rounded-xl border border-[#E6E9EE] p-4 flex flex-col"
+            className="flex min-h-[460px] flex-col rounded-xl border border-[#DDE2EA] p-5"
             style={{ backgroundColor: "#FFFDF3" }}
         >
-            <div className="mb-2 text-base font-bold text-[#202124]">
+            <div className="mb-3 text-[20px] font-bold leading-none text-[#202124]">
                 {sample.sample_code}
             </div>
 
-            <div style={{ width: "100%", height: 300 }}>
+            <div className="flex-1" style={{ width: "100%", minHeight: 330 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart cx="50%" cy="50%" outerRadius="65%" data={data}>
+                    <RadarChart cx="50%" cy="52%" outerRadius="62%" data={data} margin={{ top: 24, right: 54, bottom: 16, left: 54 }}>
                         <PolarGrid
                             gridType="polygon"
                             stroke="#ccc"
@@ -35,14 +35,14 @@ function SampleRadarCard({ sample }) {
                         />
                         <PolarAngleAxis
                             dataKey="subject"
-                            tick={{ fill: "#1d4ed8", fontSize: 11, fontWeight: 500 }}
+                            tick={{ fill: "#3157FF", fontSize: 13, fontWeight: 500 }}
                             tickLine={{ stroke: "#9ca3af" }}
                         />
                         <PolarRadiusAxis
                             angle={90}
                             domain={[0, 9]}
                             ticks={[0, 9]}
-                            tick={{ fill: "#6b7280", fontSize: 10 }}
+                            tick={{ fill: "#7A8392", fontSize: 11 }}
                         />
                         {/* Target Score — green filled */}
                         <Radar
@@ -83,7 +83,7 @@ function SampleRadarCard({ sample }) {
             </div>
 
             {/* Per-card legend */}
-            <div className="mt-3 flex items-center justify-center gap-6 rounded-lg border border-[#E6E9EE] bg-white px-3 py-2 text-xs text-[#374151]">
+            <div className="mt-4 flex min-h-11 items-center justify-center gap-7 rounded-lg border border-[#DDE2EA] bg-white px-4 py-2 text-[14px] text-[#5F6877]">
                 <LegendItem color="#dc2626" dashed label="Group Score" />
                 <LegendItem color="#16a34a" label="Target Score" />
                 <LegendItem color="#2563eb" label="McDonald's Scores" />
@@ -95,13 +95,13 @@ function SampleRadarCard({ sample }) {
 function LegendItem({ color, dashed = false, label }) {
     return (
         <div className="flex items-center gap-1.5">
-            <svg width="28" height="6" className="shrink-0 overflow-visible">
+            <svg width="34" height="8" className="shrink-0 overflow-visible">
                 <line
-                    x1="0" y1="3" x2="28" y2="3"
+                    x1="0" y1="4" x2="34" y2="4"
                     stroke={color}
-                    strokeWidth="2.5"
+                    strokeWidth="3"
                     strokeLinecap="round"
-                    strokeDasharray={dashed ? "5 3" : undefined}
+                    strokeDasharray={dashed ? "6 4" : undefined}
                 />
             </svg>
             <span>{label}</span>
@@ -115,13 +115,13 @@ export default function RadarChartSection({ spiderCharts = [] }) {
     return (
         <section className="mt-6">
             <div className="mb-4 flex items-center justify-between">
-                <div className="text-[18px] font-bold text-[#202124]">Spiderplots data</div>
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-orange-400 text-xs font-bold text-white">
+                <div className="text-[20px] font-bold leading-none text-[#202124]">Spiderplots data</div>
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FB8C2E] text-[16px] font-semibold text-white">
                     i
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 {spiderCharts.map((sample, i) => (
                     <SampleRadarCard key={sample.sample_code || i} sample={sample} />
                 ))}
