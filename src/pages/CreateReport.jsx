@@ -295,19 +295,19 @@ export default function CreateReport() {
                     <div className="w-[125px]">Instruction :</div>
                     <div>Please evaluate the sample. For each attribute, indicate whether it exhibits more than, less than, or equal to the target.</div>
                 </div>
-                <div className="flex items-center">
-                    <div className="w-[125px]">Sensory Score :</div>
-                    <div className="flex-1 flex items-center justify-between">
+                <div className="flex items-start">
+                    <div className="w-[125px] shrink-0 pt-1">Sensory Score :</div>
+                    <div className="flex items-end gap-6">
                         {paramData.map((data, index) => (
-                            <div key={index} className="flex flex-col gap-4 justify-center items-center">
-                                <div className="text-center flex items-center h-10 text-xs">{data.remark}</div>
+                            <div key={index} className="flex flex-col gap-2 items-center">
+                                <div className="text-center text-xs leading-tight w-[70px]">{data.remark}</div>
                                 <div
-                                    className="w-[80px] h-[35px] rounded-md border px-6 py-2 flex justify-center items-center"
+                                    className="w-[64px] h-[35px] rounded-lg border flex justify-center items-center text-sm font-semibold"
                                     style={{ backgroundColor: data.bgColor, color: data.color }}
                                 >
                                     {data.scale}
                                 </div>
-                                <div>{data.percentage}%</div>
+                                <div className="text-xs">{data.percentage}%</div>
                             </div>
                         ))}
                     </div>
