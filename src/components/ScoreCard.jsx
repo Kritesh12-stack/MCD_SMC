@@ -14,18 +14,18 @@ function overallSectionScore(scores) {
     );
 }
 
-const NAME_COL_W = 120;
-const SCALE_BOX_SIZE = 34;
+const NAME_COL_W = 112;
+const SCALE_BOX_SIZE = 28;
 const SCALE_GAP = 4;
 const SCALE_COL_W = 9 * SCALE_BOX_SIZE + 8 * SCALE_GAP;
-const SCORE_COL_MIN_W = 108;
+const SCORE_COL_MIN_W = 96;
 const COLS = `minmax(104px, ${NAME_COL_W}px) ${SCALE_COL_W}px repeat(4, minmax(${SCORE_COL_MIN_W}px, 1fr))`;
 const GAP = "clamp(10px, 1.2vw, 18px)";
 const MAX_COLS = 4;
 
-const SAMPLE_CELL_H = 40;
-const SCORE_CELL_H = 48;
-const SCORE_CELL_TOP_OFFSET = 15;
+const SAMPLE_CELL_H = 34;
+const SCORE_CELL_H = 34;
+const SCORE_CELL_TOP_OFFSET = 12;
 
 export default function ScoreCard({ sectionTitle, items = [], allSamples = [] }) {
     const samples = allSamples.length > 0 ? allSamples : [{ sampleId: null, items }];
@@ -39,7 +39,7 @@ export default function ScoreCard({ sectionTitle, items = [], allSamples = [] })
     return (
         <div className="flex flex-col w-full min-w-fit">
             {sectionTitle && (
-                <div className="px-0 pb-5 pt-1 text-[18px] font-semibold text-[#202124]">
+                <div className="px-0 pb-4 pt-1 text-[18px] font-semibold text-[#202124]">
                     {sectionTitle}
                 </div>
             )}
@@ -56,7 +56,7 @@ export default function ScoreCard({ sectionTitle, items = [], allSamples = [] })
                     {Array.from({ length: MAX_COLS }).map((_, i) => (
                         <div
                             key={i}
-                            className="flex justify-center items-center text-[13px] font-medium text-[#202124] bg-white rounded-md border border-[#E0E4EA] w-full"
+                            className="flex justify-center items-center text-[12px] font-medium text-[#202124] bg-white rounded-md border border-[#E0E4EA] w-full"
                             style={{ height: `${SAMPLE_CELL_H}px` }}
                         >
                             {samples[i]?.sampleId || ""}
@@ -72,28 +72,28 @@ export default function ScoreCard({ sectionTitle, items = [], allSamples = [] })
                 return (
                     <div
                         key={rowIdx}
-                        className="mb-3 rounded-[6px] border border-[#F3D9D7] bg-[#FFF7F6] px-2 py-3"
+                        className="mb-3 rounded-[6px] border border-[#F3D9D7] bg-[#FFF7F6] px-2 py-2"
                     >
                         <div
                             className="grid items-center"
                             style={{ gridTemplateColumns: COLS, gap: GAP }}
                         >
-                            <div className="text-[14px] font-medium text-[#494949] leading-snug">
+                            <div className="text-[13px] font-medium text-[#494949] leading-snug">
                                 {item.question}
                             </div>
 
-                            <div className="relative mt-5" style={{ height: `${SCALE_BOX_SIZE}px` }}>
+                            <div className="relative mt-4" style={{ height: `${SCALE_BOX_SIZE}px` }}>
                                 {isDefect ? (
                                     <>
                                         <span
-                                            className="absolute text-[12px] italic font-semibold text-[#494949]"
-                                            style={{ top: "-24px", left: `${targetLeftPx}px`, transform: "translateX(-50%)" }}
+                                            className="absolute text-[11px] italic font-semibold text-[#494949]"
+                                            style={{ top: "-20px", left: `${targetLeftPx}px`, transform: "translateX(-50%)" }}
                                         >
                                             None
                                         </span>
                                         <span
-                                            className="absolute text-[12px] italic font-semibold text-[#494949]"
-                                            style={{ top: "-24px", right: 0 }}
+                                            className="absolute text-[11px] italic font-semibold text-[#494949]"
+                                            style={{ top: "-20px", right: 0 }}
                                         >
                                             More
                                         </span>
@@ -101,20 +101,20 @@ export default function ScoreCard({ sectionTitle, items = [], allSamples = [] })
                                 ) : (
                                     <>
                                         <span
-                                            className="absolute text-[12px] italic font-semibold text-[#494949]"
-                                            style={{ top: "-24px", left: 0 }}
+                                            className="absolute text-[11px] italic font-semibold text-[#494949]"
+                                            style={{ top: "-20px", left: 0 }}
                                         >
                                             Light
                                         </span>
                                         <span
-                                            className="absolute text-[12px] italic font-semibold text-[#494949]"
-                                            style={{ top: "-24px", left: `${targetLeftPx}px`, transform: "translateX(-50%)" }}
+                                            className="absolute text-[11px] italic font-semibold text-[#494949]"
+                                            style={{ top: "-20px", left: `${targetLeftPx}px`, transform: "translateX(-50%)" }}
                                         >
                                             Target
                                         </span>
                                         <span
-                                            className="absolute text-[12px] italic font-semibold text-[#494949]"
-                                            style={{ top: "-24px", right: 0 }}
+                                            className="absolute text-[11px] italic font-semibold text-[#494949]"
+                                            style={{ top: "-20px", right: 0 }}
                                         >
                                             Dark
                                         </span>
@@ -126,7 +126,7 @@ export default function ScoreCard({ sectionTitle, items = [], allSamples = [] })
                                         return (
                                             <div
                                                 key={n}
-                                                className="rounded-[4px] border border-black bg-white flex items-center justify-center text-[14px] font-normal text-black"
+                                                className="rounded-[4px] border border-black bg-white flex items-center justify-center text-[13px] font-normal text-black"
                                                 style={{ width: `${SCALE_BOX_SIZE}px`, height: `${SCALE_BOX_SIZE}px` }}
                                             >
                                                 {showNumber ? n : ""}
@@ -144,7 +144,7 @@ export default function ScoreCard({ sectionTitle, items = [], allSamples = [] })
                                 return (
                                     <div
                                         key={si}
-                                        className="flex justify-center items-center bg-white rounded-md border border-[#E0E4EA] text-[14px] font-normal text-[#202124] w-full"
+                                        className="flex justify-center items-center bg-white rounded-md border border-[#E0E4EA] text-[13px] font-normal text-[#202124] w-full"
                                         style={{ height: `${SCORE_CELL_H}px`, marginTop: `${SCORE_CELL_TOP_OFFSET}px` }}
                                     >
                                         {sc !== "" && sc != null ? sc : ""}
@@ -172,23 +172,23 @@ export default function ScoreCard({ sectionTitle, items = [], allSamples = [] })
 
             {sectionTitle && (
                 <div
-                    className="grid items-center py-5"
+                    className="grid items-center py-4"
                     style={{ gridTemplateColumns: COLS, gap: GAP }}
                 >
                     <div />
                     <div className="flex flex-col items-end pr-2">
-                        <span className="text-[14px] font-bold text-[#202124]">
+                        <span className="text-[13px] font-bold text-[#202124]">
                             Overall {sectionTitle} Score
                         </span>
-                        <span className="text-[12px] text-[#8A929E]">(Value furthest away from target)</span>
+                        <span className="text-[11px] text-[#8A929E]">(Value furthest away from target)</span>
                     </div>
                     {Array.from({ length: MAX_COLS }).map((_, si) => {
                         const pct = sectionOverallPercents[si] ?? null;
                         return (
                             <div
                                 key={si}
-                                className="flex justify-center items-center w-full rounded-[6px] border-2 border-[#202124] bg-white text-[16px] font-bold text-[#202124]"
-                                style={{ height: `${SCORE_CELL_H + 2}px` }}
+                                className="flex justify-center items-center w-full rounded-[6px] border-2 border-[#202124] bg-white text-[14px] font-bold text-[#202124]"
+                                style={{ height: `${SCORE_CELL_H + 4}px` }}
                             >
                                 {pct != null ? <>{pct}&thinsp;<span>%</span></> : ""}
                             </div>

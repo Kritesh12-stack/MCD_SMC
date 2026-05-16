@@ -37,7 +37,7 @@ function normalizeMappings(mappings) {
 }
 
 const SCORE_PERCENT = { 1: 0, 2: 25, 3: 60, 4: 85, 5: 100, 6: 85, 7: 60, 8: 25, 9: 0 };
-const SCORECARD_REVIEW_GRID = "minmax(104px, 120px) 338px repeat(4, minmax(108px, 1fr))";
+const SCORECARD_REVIEW_GRID = "minmax(104px, 112px) 284px repeat(4, minmax(96px, 1fr))";
 const SCORECARD_REVIEW_GAP = "clamp(10px, 1.2vw, 18px)";
 const SCORE_LEGEND = [
     { scale: "1", percentage: "0", remark: "NOT McD Quality", bgColor: "#EA3323", color: "#FFF" },
@@ -504,7 +504,7 @@ export default function CreateReport() {
                         {Array.from({ length: 4 }).map((_, i) => (
                             <div
                                 key={i}
-                                className="flex h-10 items-center justify-center rounded-md border border-[#E0E4EA] bg-white px-3 text-[14px] font-medium text-[#494949]"
+                                className="flex h-[34px] items-center justify-center rounded-md border border-[#E0E4EA] bg-white px-3 text-[12px] font-medium text-[#494949]"
                             >
                                 {allSamples[i]?.sampleId || ""}
                             </div>
@@ -533,13 +533,13 @@ export default function CreateReport() {
                     >
                         <div />
                         <div className="flex flex-col items-end pr-2">
-                            <div className="text-[16px] font-bold text-[#202124]">Product Quality Score</div>
-                            <div className="text-[13px] text-[#8A929E]">(Value furthest away from target)</div>
+                            <div className="text-[14px] font-bold text-[#202124]">Product Quality Score</div>
+                            <div className="text-[12px] text-[#8A929E]">(Value furthest away from target)</div>
                         </div>
                         {Array.from({ length: 4 }).map((_, si) => {
                             const qScore = qualityScores[si] ?? null;
                             return (
-                                <div key={si} className="flex h-[52px] items-center justify-center gap-1 rounded-[8px] border-2 border-[#202124] bg-white text-[18px] font-bold text-[#202124]">
+                                <div key={si} className="flex h-[42px] items-center justify-center gap-1 rounded-[8px] border-2 border-[#202124] bg-white text-[15px] font-bold text-[#202124]">
                                     {qScore != null ? (
                                         <>{qScore}&nbsp;<span className="font-bold">%</span></>
                                     ) : ""}
