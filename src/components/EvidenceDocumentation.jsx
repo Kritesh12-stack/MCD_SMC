@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const MAX_SLOTS = 2;
+const MAX_SLOTS = 1;
 const MAX_BYTES = 500 * 1024;
 
 const DEFAULT_SLOTS = () =>
@@ -59,29 +59,35 @@ export default function EvidenceDocumentation({ onChange }) {
   const handleFile = useCallback((index, fileList) => {
     const file = fileList?.[0];
     if (!file) return;
-    const nameOk = /\.jpe?g$/i.test(file.name || "");
-    const typeOk = !file.type || /^image\/(jpeg|pjpeg)$/i.test(file.type);
+  
+    const nameOk = /\.(jpe?g|png)$/i.test(file.name || "");
+    const typeOk =
+      !file.type || /^image\/(jpeg|pjpeg|png|jpg)$/i.test(file.type);
+  
     if (!typeOk && !nameOk) {
-      window.alert("Please upload a JPEG image only.");
+      window.alert("Please upload a JPG or PNG image only.");
       return;
     }
+  
     if (file.size > MAX_BYTES) {
       window.alert("Image must be 500 KB or smaller.");
       return;
     }
+  
     setSlots((prev) => {
       const next = [...prev];
       const old = next[index];
       revokeIfNeeded(old.previewUrl);
+  
       next[index] = {
         ...old,
         file,
         previewUrl: URL.createObjectURL(file),
       };
+  
       return next;
     });
   }, []);
-
   const clearSlot = useCallback((index) => {
     setSlots((prev) => {
       const next = [...prev];
@@ -162,10 +168,12 @@ export default function EvidenceDocumentation({ onChange }) {
                     Click to upload{" "}
                     <span className="text-[#888] font-normal">or drag &amp; drop</span>
                   </span>
-                  <span className="text-xs text-[#888] mt-0.5">JPEG (max. 500kb)</span>
+                  <span className="text-xs text-[#888] mt-0.5">
+  JPG, PNG (max. 500kb)
+</span>
                   <input
                     type="file"
-                    accept="image/jpeg,.jpg,.jpeg"
+                    accept="image/jpeg,image/png,.jpg,.jpeg,.png"
                     className="hidden"
                     onChange={(e) => {
                       handleFile(index, e.target.files);

@@ -5,7 +5,7 @@ import Docs from "../assets/Docs.svg";
 import TickCircle from "../assets/TickCircle.svg";
 import HorizontalBarChartCard from "../components/HorizontalBarChartCard";
 import QualityMetricsComparison from "../components/QualityMetricsComparison";
-import RadarChartSection from "../components/RadarChartSection";
+import SensoryRadarChart, { DEFAULT_SENSORY_AXES } from "../components/SensoryRadarChart";
 import {
     addBatchComment,
     addBatchSubmission,
@@ -409,207 +409,214 @@ export default function BatchDetails() {
     }
 
     return (
-        <div className="pb-10">
+        <div>
             <PageHeading title="Batch Details" />
-            <div className="px-6">
-                {error ? (
-                    <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                        {error} Showing sample detail layout.
+            <div className="flex gap-4 p-4">
+                <div className="border p-4 bg-[#FAFAFA] border-[#E8E8E8] rounded-2xl w-2/3">
+                    <div className="text-xl text-[#434343] font-semibold pb-6">Batch Details</div>
+                    <div className="flex text-sm items-center justify-between w-full text-[#494949] pb-1">
+                        <div className="font-bold">Batch</div>
+                        <div className="font-medium">{formatDate(batch?.created_at)}</div>
                     </div>
-                ) : null}
-
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
-                    <section className="surface-panel p-5">
-                        <div className="mb-5 text-[18px] font-semibold text-[#202124]">Batch Details</div>
-                        <div className="grid grid-cols-1 gap-x-8 gap-y-4 text-sm text-[#494949] sm:grid-cols-2">
-                            <div>
-                                <div className="font-semibold text-[#202124]">Batch</div>
-                                <div className="mt-1">{display(batch?.batch_number)}</div>
-                                <div className="mt-1 text-xs text-[#6F7785]">{formatDate(batch?.created_at)}</div>
-                            </div>
-                            <div>
-                                <div className="font-semibold text-[#202124]">Status</div>
-                                <span className={`mt-1 inline-flex rounded-md border px-2.5 py-1 text-xs font-semibold ${statusTone(batch?.status)}`}>
-                                    {batchStatusLabel(batch?.status)}
-                                </span>
-                            </div>
-                            <div>
-                                <div className="font-semibold text-[#202124]">Product Name</div>
-                                <div className="mt-1">{display(batch?.product_name)}</div>
-                            </div>
-                            <div>
-                                <div className="font-semibold text-[#202124]">Supplier Name</div>
-                                <div className="mt-1">{display(batch?.supplier_name)}</div>
-                            </div>
-                            <div>
-                                <div className="font-semibold text-[#202124]">SKU</div>
-                                <div className="mt-1">{display(batch?.sku)}</div>
-                            </div>
-                            <div>
-                                <div className="font-semibold text-[#202124]">Batch Quantity</div>
-                                <div className="mt-1">{display(batch?.quantity)}</div>
-                            </div>
-                            <div>
-                                <div className="font-semibold text-[#202124]">Production Date</div>
-                                <div className="mt-1">{formatDate(batch?.production_date)}</div>
-                            </div>
-                            <div>
-                                <div className="font-semibold text-[#202124]">Risk Flag</div>
-                                <div className="mt-1">{display(batch?.risk_level)}</div>
-                            </div>
-                        </div>
-                        {(() => {
-                            const attachments = (batch?.scorecard?.media || []).map((item) => ({ key: item.id, url: item.url, label: item.filename }));
-                            const rawUrls = (batch?.media_urls || []).map((url, i) => ({ key: `raw-${i}`, url, label: null }));
-                            const allMedia = [...attachments, ...rawUrls];
-                            return (
-                                <div className="mt-5 border-t border-[#E6E9EE] pt-4">
-                                    <div className="mb-3 text-sm font-semibold text-[#202124]">
-                                        Attached Pictures
-                                        {allMedia.length > 0 && <span className="ml-1 font-normal text-[#6F7785]">({allMedia.length})</span>}
-                                    </div>
-                                    {allMedia.length === 0 ? (
-                                        <p className="text-sm text-[#9AA3B2]">No images uploaded.</p>
-                                    ) : (
-                                        <div className="flex flex-wrap gap-2">
-                                            {allMedia.map((item) => (
-                                                <a
-                                                    key={item.key}
-                                                    href={item.url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="group overflow-hidden rounded-lg border border-[#E6E9EE] bg-[#F8FAFC]"
-                                                >
-                                                    <img
-                                                        src={item.url}
-                                                        alt={item.label || "evidence"}
-                                                        className="h-24 w-24 object-cover transition-transform group-hover:scale-105"
-                                                        onError={(e) => { e.currentTarget.style.display = "none"; }}
-                                                    />
-                                                </a>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })()}
-                        <div className="mt-5 border-t border-[#E6E9EE] pt-4">
-                            <div className="mb-2 text-sm font-semibold text-[#202124]">Reason</div>
-                            <p className="text-sm leading-6 text-[#494949]">{display(batch?.description || batch?.notes)}</p>
-                        </div>
-                    </section>
-
-                    <section className="surface-panel p-5">
-                        <div className="flex items-center gap-2">
-                            <img src={Docs} alt="" className="h-5 w-5" />
-                            <div className="text-base font-semibold text-[#202124]">Sensory Evaluation Summary</div>
-                        </div>
-                        <div className="mt-4 grid grid-cols-2 gap-3">
-                            <SummaryCard
-                                label="Product Quality Score"
-                                value={formatNumber(chartsData?.summary?.quality_score ?? scorecard.batch_overall_score ?? batch?.overall_score, 2)}
-                                detail="out of 9.0"
-                            />
-                            <SummaryCard
-                                label="Quality Index (%QI)"
-                                value={chartsData?.summary?.quality_index_percent != null
-                                    ? `${formatNumber(chartsData.summary.quality_index_percent, 1)}%`
-                                    : avgQualityIndex === null ? "-" : `${formatNumber(avgQualityIndex, 1)}%`}
-                            />
-                            <SummaryCard
-                                label="Samples Evaluated"
-                                value={chartsData?.summary?.samples_evaluated ?? ((scorecard.sample_ids || []).length || "-")}
-                                detail={(scorecard.sample_ids || [])[0]}
-                            />
-                            <SummaryCard
-                                label="Decision Status"
-                                value={scorecard.deviation_category || batch?.status}
-                                badge
-                            />
-                            <SummaryCard
-                                label="Evaluator"
-                                value={chartsData?.summary?.evaluator || scorecard.evaluator_email || batch?.created_by_email || "-"}
-                                small
-                            />
-                            <SummaryCard
-                                label="Complaint Raised"
-                                value={chartsData?.summary?.complaint_raised ? "Yes" : "No"}
-                                badge
-                            />
-                        </div>
-                    </section>
-                </div>
-
-                <section className="mt-5">
-                    <div className="mb-4 text-[18px] font-semibold text-[#202124]">Scorecard Details</div>
-
-                    <div className="relative mb-5 w-full">
-                        <button
-                            type="button"
-                            className="control-field flex w-full items-center justify-between gap-3 px-4 py-3 text-left shadow-sm"
-                            onClick={() => setScoreDropdownOpen((open) => !open)}
-                            disabled={!sectionNames.length}
-                        >
-                            <div>
-                                <div className="text-base font-semibold text-[#202124]">{display(activeSectionName, "No scorecard data")}</div>
-                                <div className="mt-0.5 text-sm text-[#6F7785]">{rows.length} sensory attribute{rows.length === 1 ? "" : "s"}</div>
-                            </div>
-                            <span className={`text-xl text-[#6F7785] transition-transform ${scoreDropdownOpen ? "rotate-180" : ""}`}>v</span>
-                        </button>
-                        {scoreDropdownOpen ? (
-                            <div className="absolute left-0 right-0 top-full z-20 mt-1 overflow-hidden rounded-lg border border-[#E6E9EE] bg-white shadow-md">
-                                {sectionNames.map((section) => (
-                                    <button
-                                        key={section}
-                                        type="button"
-                                        className="w-full border-b border-[#E6E9EE] px-4 py-3 text-left last:border-b-0 hover:bg-[#F8FAFC]"
-                                        onClick={() => {
-                                            setSelectedSection(section);
-                                            setScoreDropdownOpen(false);
-                                        }}
-                                    >
-                                        <div className="text-base font-semibold text-[#202124]">{section}</div>
-                                    </button>
+                    <div className="flex text-sm items-center justify-between w-full text-[#494949] pb-4">
+                        <div className="font-medium">{display(batch?.batch_number)}</div>
+                    </div>
+                    <div className="flex text-sm items-center justify-between w-full text-[#494949] pb-1">
+                        <div className="font-bold">Product Name</div>
+                        <div className="font-bold">Supplier Name</div>
+                    </div>
+                    <div className="flex text-sm items-center justify-between w-full text-[#494949] pb-4">
+                        <div className="font-medium">{display(batch?.product_name)}</div>
+                        <div className="font-medium">{display(batch?.supplier_name)}</div>
+                    </div>
+                    <div className="flex text-sm items-center justify-between w-full text-[#494949] pb-1">
+                        <div className="font-bold">SKU</div>
+                        <div className="font-bold">Status</div>
+                    </div>
+                    <div className="flex text-sm items-center justify-between w-full text-[#494949] pb-4">
+                        <div className="font-medium">{display(batch?.sku)}</div>
+                        <span className={`inline-flex rounded-md border px-2.5 py-1 text-xs font-semibold ${statusTone(batch?.status)}`}>
+                            {batchStatusLabel(batch?.status)}
+                        </span>
+                    </div>
+                    <div className="flex text-sm items-center justify-between w-full text-[#494949] pb-1">
+                        <div className="font-bold">Batch Quantity</div>
+                        <div className="font-bold">Risk Flag</div>
+                    </div>
+                    <div className="flex text-sm items-center justify-between w-full text-[#494949] pb-4">
+                        <div className="font-medium">{display(batch?.quantity)}</div>
+                        <div className="font-medium">{display(batch?.risk_level)}</div>
+                    </div>
+                    <div className="flex text-sm items-center justify-between w-full text-[#494949] pb-1">
+                        <div className="font-bold">Attached Pictures</div>
+                    </div>
+                    {(() => {
+                        const attachments = (batch?.scorecard?.media || []).map((item) => ({ key: item.id, url: item.url, label: item.filename }));
+                        const rawUrls = (batch?.media_urls || []).map((url, i) => ({ key: `raw-${i}`, url, label: null }));
+                        const allMedia = [...attachments, ...rawUrls];
+                        return allMedia.length === 0 ? (
+                            <p className="text-sm text-[#9AA3B2] pb-4">No images uploaded.</p>
+                        ) : (
+                            <div className="flex flex-wrap gap-2 pb-4">
+                                {allMedia.map((item) => (
+                                    <a key={item.key} href={item.url} target="_blank" rel="noopener noreferrer"
+                                        className="group overflow-hidden rounded-lg border border-[#E6E9EE] bg-[#F8FAFC]">
+                                        <img src={item.url} alt={item.label || "evidence"}
+                                            className="h-24 w-24 object-cover transition-transform group-hover:scale-105"
+                                            onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                                    </a>
                                 ))}
                             </div>
-                        ) : null}
+                        );
+                    })()}
+                    <div className="border-t border-[#E8E8E8] text-xl font-bold text-[#434343] py-2">Reason</div>
+                    <div className="text-sm font-medium">{display(batch?.description || batch?.notes)}</div>
+                </div>
+
+                <div className="border p-4 bg-[#FAFAFA] border-[#E8E8E8] rounded-2xl w-1/3">
+                    <div className="flex items-center gap-1">
+                        <img src={Docs} alt="" />
+                        <div className="text-base font-semibold text-[#2C2C2C]">Sensory Evaluation Summary</div>
+                    </div>
+                    <div className="mt-4 grid grid-cols-2 gap-4">
+                        <div className="flex text-xs flex-col gap-2 items-start bg-white border border-[#E8E8E8] rounded-xl p-4 min-h-0">
+                            <div>Product Quality Score</div>
+                            <div className="text-[#FF5858] font-bold text-3xl">{formatNumber(chartsData?.summary?.quality_score ?? scorecard.batch_overall_score ?? batch?.overall_score, 2)}</div>
+                            <div>out of 9.0</div>
+                        </div>
+                        <div className="flex text-xs flex-col gap-2 items-start bg-white border border-[#E8E8E8] rounded-xl p-4 min-h-0">
+                            <div>Quality Index (%QI)</div>
+                            <div className="text-[#FF5858] font-bold text-3xl">
+                                {chartsData?.summary?.quality_index_percent != null
+                                    ? `${formatNumber(chartsData.summary.quality_index_percent, 1)}%`
+                                    : avgQualityIndex === null ? "-" : `${formatNumber(avgQualityIndex, 1)}%`}
+                            </div>
+                        </div>
+                        <div className="flex text-xs flex-col gap-2 items-start bg-white border border-[#E8E8E8] rounded-xl p-4 min-h-0">
+                            <div>Samples Evaluated</div>
+                            <div className="text-[#FF5858] font-bold text-3xl">{chartsData?.summary?.samples_evaluated ?? ((scorecard.sample_ids || []).length || "-")}</div>
+                            <div>{(scorecard.sample_ids || [])[0]}</div>
+                        </div>
+                        <div className="flex text-xs flex-col gap-2 items-start bg-white border border-[#E8E8E8] rounded-xl p-4 min-h-0">
+                            <div>Decision Status</div>
+                            <div className="flex gap-1 items-center bg-[#FF585833] rounded-md p-1 text-[#FF5858]">
+                                <img src={TickCircle} alt="" />
+                                <div className="text-xs">{display(scorecard.deviation_category || batch?.status)}</div>
+                            </div>
+                            <div>{(scorecard.sample_ids || [])[1]}</div>
+                        </div>
+                        <div className="flex text-xs flex-col gap-2 items-start bg-white border border-[#E8E8E8] rounded-xl p-4 min-h-0">
+                            <div>Evaluator</div>
+                            <div>{chartsData?.summary?.evaluator || scorecard.evaluator_email || batch?.created_by_email || "-"}</div>
+                        </div>
+                        <div className="flex text-xs flex-col gap-2 items-start bg-white border border-[#E8E8E8] rounded-xl p-4 min-h-0">
+                            <div>Complaint Raised</div>
+                            <div className="flex gap-1 items-center bg-[#FFC72C] rounded-md p-1 text-[#2C2C2C]">
+                                <div className="text-xs font-medium">{chartsData?.summary?.complaint_raised ? "Yes" : "No"}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="px-4 pt-4">
+                <div className="font-bold text-xl text-[#434343] mb-4">Select Scorecards Details</div>
+                <div className="relative w-full mb-6">
+                    <button
+                        type="button"
+                        className="w-full flex items-center justify-between gap-3 rounded-lg border border-[#E5E7EB] bg-white px-4 py-3 text-left shadow-sm hover:bg-[#FAFAFA]"
+                        onClick={() => setScoreDropdownOpen((open) => !open)}
+                        disabled={!sectionNames.length}
+                    >
+                        <div>
+                            <div className="text-base font-semibold text-[#1A1A2E]">{display(activeSectionName, "No scorecard data")}</div>
+                            <div className="text-sm text-[#6C757D] mt-0.5">{rows.length} sensory attribute{rows.length === 1 ? "" : "s"}</div>
+                        </div>
+                        <span className={`text-[#6C757D] text-xl shrink-0 transition-transform ${scoreDropdownOpen ? "rotate-180" : ""}`} aria-hidden>v</span>
+                    </button>
+                    {scoreDropdownOpen ? (
+                        <div className="absolute left-0 right-0 top-full z-20 mt-1 rounded-lg border border-[#E5E7EB] bg-white shadow-md overflow-hidden">
+                            {sectionNames.map((section) => (
+                                <button
+                                    key={section}
+                                    type="button"
+                                    className="w-full px-4 py-3 text-left border-b border-[#E5E7EB] last:border-b-0 hover:bg-[#F9FAFB]"
+                                    onClick={() => { setSelectedSection(section); setScoreDropdownOpen(false); }}
+                                >
+                                    <div className="text-base font-semibold text-[#1A1A2E]">{section}</div>
+                                </button>
+                            ))}
+                        </div>
+                    ) : null}
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 pb-4">
+                    <div className="rounded-xl border border-[#E8E8E8] bg-white p-4 flex flex-col min-h-0">
+                        <div className="text-base font-semibold text-[#2C2C2C] mb-3">{display(activeSectionName, "Attributes")}</div>
+                        <div className="rounded-lg overflow-hidden border border-[#E8E8E8] text-sm">
+                            <div className="grid grid-cols-[1fr_52px_1fr] gap-0 bg-[#F3F4F6] text-[#494949] font-medium">
+                                <div className="px-3 py-2 border-r border-[#E8E8E8]">Parameter</div>
+                                <div className="px-2 py-2 text-center border-r border-[#E8E8E8]">Score</div>
+                                <div className="px-3 py-2">Remark</div>
+                            </div>
+                            {rows.length ? rows.map((row, i) => (
+                                <div key={i} className="grid grid-cols-[1fr_52px_1fr] gap-0 border-t border-[#E8E8E8] text-[#494949]">
+                                    <div className="px-3 py-2.5 border-r border-[#E8E8E8]">{row.name}</div>
+                                    <div className="px-2 py-2.5 text-center border-r border-[#E8E8E8]">{formatNumber(row.score, 1)}</div>
+                                    <div className="px-3 py-2.5">{row.pqi === null ? "-" : `${formatNumber(row.pqi, 1)}% QI`}</div>
+                                </div>
+                            )) : (
+                                <div className="border-t border-[#E8E8E8] px-3 py-6 text-center text-[#6F7785]">No score rows available.</div>
+                            )}
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                        <ScoreTable
-                            title={display(activeSectionName, "Attributes")}
-                            columns={["Parameter", "Score", "Remark"]}
-                            rows={rows.map((row) => [
-                                row.name,
-                                formatNumber(row.score, 1),
-                                row.pqi === null ? "-" : `${formatNumber(row.pqi, 1)}% QI`,
-                            ])}
-                        />
-                        <ScoreTable
-                            title="Average"
-                            columns={["PQI %", "Avg Score", "Target"]}
-                            rows={rows.map((row) => [
-                                row.pqi === null ? "-" : `${formatNumber(row.pqi, 1)}%`,
-                                formatNumber(row.score, 1),
-                                formatNumber(row.diff, 1),
-                            ])}
-                            footer={[
-                                "Total",
-                                formatNumber(average(rows.map((row) => row.score)), 1),
-                                formatNumber(scorecard.target_score ?? batch?.scorecard?.target_score ?? 5, 1),
-                            ]}
-                        />
-                        <ScoreTable
-                            title="Range"
-                            columns={["High", "Low", "Range"]}
-                            rows={rows.map((row) => [
-                                formatNumber(row.high, 1),
-                                formatNumber(row.low, 1),
-                                formatNumber(row.range, 1),
-                            ])}
-                        />
+                    <div className="rounded-xl border border-[#E8E8E8] bg-white p-4 flex flex-col min-h-0">
+                        <div className="text-base font-semibold text-[#2C2C2C] mb-3">Average</div>
+                        <div className="rounded-lg overflow-hidden border border-[#E8E8E8] text-sm">
+                            <div className="grid grid-cols-[1fr_56px_72px] gap-0 bg-[#F3F4F6] text-[#494949] font-medium">
+                                <div className="px-3 py-2 border-r border-[#E8E8E8]">PQ I%</div>
+                                <div className="px-2 py-2 text-center border-r border-[#E8E8E8]">Score</div>
+                                <div className="px-2 py-2 text-center">Deg of Diff</div>
+                            </div>
+                            {rows.length ? rows.map((row, i) => (
+                                <div key={i} className="grid grid-cols-[1fr_56px_72px] gap-0 border-t border-[#E8E8E8] text-[#494949]">
+                                    <div className="px-3 py-2.5 border-r border-[#E8E8E8]">{row.pqi === null ? "-" : `${formatNumber(row.pqi, 1)}%`}</div>
+                                    <div className="px-2 py-2.5 text-center border-r border-[#E8E8E8]">{formatNumber(row.score, 1)}</div>
+                                    <div className="px-2 py-2.5 text-center">{formatNumber(row.diff, 1)}</div>
+                                </div>
+                            )) : (
+                                <div className="border-t border-[#E8E8E8] px-3 py-6 text-center text-[#6F7785]">No score rows available.</div>
+                            )}
+                            <div className="grid grid-cols-[1fr_56px_72px] gap-0 border-t-2 border-[#E8E8E8] bg-[#FAFAFA] font-semibold text-[#2C2C2C]">
+                                <div className="px-3 py-2.5 border-r border-[#E8E8E8]">Total</div>
+                                <div className="px-2 py-2.5 text-center border-r border-[#E8E8E8]">{formatNumber(average(rows.map((row) => row.score)), 1)}</div>
+                                <div className="px-2 py-2.5 text-center">{formatNumber(scorecard.target_score ?? batch?.scorecard?.target_score ?? 5, 1)}</div>
+                            </div>
+                        </div>
                     </div>
-                </section>
+
+                    <div className="rounded-xl border border-[#E8E8E8] bg-white p-4 flex flex-col min-h-0">
+                        <div className="text-base font-semibold text-[#2C2C2C] mb-3">Range</div>
+                        <div className="rounded-lg overflow-hidden border border-[#E8E8E8] text-sm">
+                            <div className="grid grid-cols-3 gap-0 bg-[#F3F4F6] text-[#494949] font-medium">
+                                <div className="px-3 py-2 border-r border-[#E8E8E8]">High</div>
+                                <div className="px-3 py-2 text-center border-r border-[#E8E8E8]">Low</div>
+                                <div className="px-3 py-2 text-center">Range</div>
+                            </div>
+                            {rows.length ? rows.map((row, i) => (
+                                <div key={i} className="grid grid-cols-3 gap-0 border-t border-[#E8E8E8] text-[#494949]">
+                                    <div className="px-3 py-2.5 border-r border-[#E8E8E8]">{formatNumber(row.high, 1)}</div>
+                                    <div className="px-3 py-2.5 text-center border-r border-[#E8E8E8]">{formatNumber(row.low, 1)}</div>
+                                    <div className="px-3 py-2.5 text-center">{formatNumber(row.range, 1)}</div>
+                                </div>
+                            )) : (
+                                <div className="border-t border-[#E8E8E8] px-3 py-6 text-center text-[#6F7785]">No score rows available.</div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
                 <QualityMetricsComparison spiderCharts={chartsData?.spider_charts || []} />
 
@@ -625,10 +632,47 @@ export default function BatchDetails() {
                     </section>
                 ) : null}
 
-                <RadarChartSection spiderCharts={chartsData?.spider_charts || []} />
+                <div className="font-bold text-xl p-4 text-[#434343]">Spiderplots data</div>
+                <div className="p-4 flex flex-wrap justify-between space-y-4 w-full">
+                    {(chartsData?.spider_charts || []).map((sample, i) => {
+                        const attrs = sample.attributes || [];
+                        return (
+                            <SensoryRadarChart
+                                key={sample.sample_code || i}
+                                title={sample.sample_code || `Sample ${i + 1}`}
+                                axes={attrs.map((a) => a.name)}
+                                domain={[0, 9]}
+                                series={[
+                                    {
+                                        dataKey: "target",
+                                        name: "Target Score",
+                                        values: attrs.map((a) => Number(a.target) || 5),
+                                        color: "#16a34a",
+                                        strokeWidth: 3,
+                                    },
+                                    {
+                                        dataKey: "mcd",
+                                        name: "McDonald's Scores",
+                                        values: attrs.map((a) => Number(a.mcd_score ?? a.target) || 5),
+                                        color: "#2563eb",
+                                        strokeWidth: 3,
+                                    },
+                                    {
+                                        dataKey: "group",
+                                        name: "Group Score",
+                                        values: attrs.map((a) => Number(a.score) || 0),
+                                        color: "#dc2626",
+                                        strokeWidth: 2,
+                                        strokeDasharray: "6 4",
+                                    },
+                                ]}
+                            />
+                        );
+                    })}
+                </div>
 
                 {isMarketReviewer ? (
-                    <section className="surface-panel mt-5 p-5">
+                    <section className="border p-4 bg-[#FAFAFA] border-[#E8E8E8] rounded-2xl mt-4">
                         <div className="flex flex-wrap items-start justify-between gap-4">
                             <div>
                                 <div className="text-[18px] font-semibold text-[#202124]">Market QA Decision</div>
@@ -684,7 +728,7 @@ export default function BatchDetails() {
                 ) : null}
 
                 {isRegionalReviewer ? (
-                    <section className="surface-panel mt-5 p-5">
+                    <section className="border p-4 bg-[#FAFAFA] border-[#E8E8E8] rounded-2xl mt-4">
                         <div className="flex flex-wrap items-start justify-between gap-4">
                             <div>
                                 <div className="text-[18px] font-semibold text-[#202124]">Regional QA Review</div>
@@ -741,7 +785,7 @@ export default function BatchDetails() {
 
 
                 {isMarketReviewer && ["Approved", "Rejected"].includes(batch?.status) ? (
-                    <section className="surface-panel mt-5 p-5">
+                    <section className="border p-4 bg-[#FAFAFA] border-[#E8E8E8] rounded-2xl mt-4">
                         <div className="flex flex-wrap items-start justify-between gap-4">
                             <div>
                                 <div className="text-[18px] font-semibold text-[#202124]">Supplier Feedback</div>
@@ -779,7 +823,7 @@ export default function BatchDetails() {
 
 
                 {id ? (
-                    <section className="surface-panel mt-5 p-5">
+                    <section className="border p-4 bg-[#FAFAFA] border-[#E8E8E8] rounded-2xl mt-4">
                         <div className="mb-4 text-lg font-bold text-[#202124]">Add a comment</div>
                         <select
                             value={noteScope}
@@ -810,63 +854,6 @@ export default function BatchDetails() {
                         </div>
                     </section>
                 ) : null}
-            </div>
-        </div>
-    );
-}
-
-function SummaryCard({ label, value, detail, badge = false, small = false }) {
-    return (
-        <div className="min-h-[104px] rounded-lg border border-[#E6E9EE] bg-[#FBFCFD] p-4 text-xs text-[#494949]">
-            <div>{label}</div>
-            {badge ? (
-                <div className="mt-3 inline-flex items-center gap-1 rounded-md border border-[#FFD7D5] bg-[#FFF4EA] px-2 py-1 text-[#DB2F28]">
-                    <img src={TickCircle} alt="" className="h-4 w-4" />
-                    <span className="text-xs font-semibold">{display(value)}</span>
-                </div>
-            ) : (
-                <div className={`mt-2 break-all font-bold text-[#DB2F28] ${small ? "text-xs leading-5" : "text-2xl"}`}>{display(value)}</div>
-            )}
-            {detail ? <div className="mt-2 break-words text-[#6F7785]">{detail}</div> : null}
-        </div>
-    );
-}
-
-function ScoreTable({ title, columns, rows, footer }) {
-    return (
-        <div className="surface-panel flex min-h-0 flex-col p-4">
-            <div className="mb-3 text-base font-semibold text-[#202124]">{title}</div>
-            <div className="overflow-hidden rounded-lg border border-[#E6E9EE] text-sm">
-                <div className="grid grid-cols-3 bg-[#F8FAFC] text-[#667085]">
-                    {columns.map((column) => (
-                        <div key={column} className="border-r border-[#E6E9EE] px-3 py-2 font-semibold last:border-r-0">
-                            {column}
-                        </div>
-                    ))}
-                </div>
-                {rows.length ? rows.map((row, index) => (
-                    <div key={index} className="grid grid-cols-3 border-t border-[#E6E9EE] text-[#494949]">
-                        {row.map((cell, cellIndex) => (
-                            <div key={cellIndex} className="border-r border-[#E6E9EE] px-3 py-2.5 last:border-r-0">
-                                {cell}
-                            </div>
-                        ))}
-                    </div>
-                )) : (
-                    <div className="border-t border-[#E6E9EE] px-3 py-6 text-center text-[#6F7785]">
-                        No score rows available.
-                    </div>
-                )}
-                {footer ? (
-                    <div className="grid grid-cols-3 border-t-2 border-[#E6E9EE] bg-[#FBFCFD] font-semibold text-[#202124]">
-                        {footer.map((cell, index) => (
-                            <div key={index} className="border-r border-[#E6E9EE] px-3 py-2.5 last:border-r-0">
-                                {cell}
-                            </div>
-                        ))}
-                    </div>
-                ) : null}
-            </div>
         </div>
     );
 }

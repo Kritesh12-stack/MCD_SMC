@@ -284,7 +284,6 @@ export default function CreateReport() {
         <div>
             <PageHeading title={"Create a Report"} />
 
-            {/* {!isSubmitted ? ( */}
                 <div className="px-7 pb-2 pt-5">
                     <div className="max-w-[1040px] space-y-5 text-[12px] leading-5 text-[#494949]">
                         <div className="flex items-start gap-8">
@@ -316,7 +315,6 @@ export default function CreateReport() {
                         </div>
                     </div>
                 </div>
-            {/* ) : null} */}
 
             <div className="px-7 pb-10 pt-5">
                 {/* ── Page 1: scoring form ── */}
@@ -344,7 +342,7 @@ export default function CreateReport() {
                             <label className="text-[15px] font-semibold text-[#494949]">Select Batch</label>
                             <div className="relative">
                                 <input readOnly value={batchId} className="h-9 w-full rounded-md border border-[#DDE2EA] bg-white px-3 pr-8 text-[13px] text-[#27272E]" placeholder="Generating…" />
-                                <img src={DownIcon} alt="" className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2" />
+                                {/* <img src={DownIcon} alt="" className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2" /> */}
                             </div>
                         </div>
 
@@ -352,7 +350,7 @@ export default function CreateReport() {
                             <label className="text-[15px] font-semibold text-[#494949]">Select Sample</label>
                             <div className="relative">
                                 <input readOnly value={sampleId} className="h-9 w-full rounded-md border border-[#DDE2EA] bg-white px-3 pr-8 text-[13px] text-[#27272E]" placeholder="Generating…" />
-                                <img src={DownIcon} alt="" className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2" />
+                                {/* <img src={DownIcon} alt="" className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2" /> */}
                             </div>
                         </div>
 
@@ -461,14 +459,14 @@ export default function CreateReport() {
                                 {incompleteSections.length > 0 && ` Remaining: ${incompleteSections.join(", ")}.`}
                             </p>
                         )}
-                        <CustomButton
+                        {selectedProduct?.id ? <CustomButton
                             handleSubmit={handleSubmit}
                             title="Process the Report"
                             rounded={true}
                             type="filled"
                             length="large"
                             disabled={!isSampleComplete}
-                        />
+                        /> : null}
                     </div>
                 ) : null}
             </div>
