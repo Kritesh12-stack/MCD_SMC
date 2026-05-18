@@ -284,7 +284,7 @@ export default function CreateReport() {
         <div>
             <PageHeading title={"Create a Report"} />
 
-            {!isSubmitted ? (
+            {/* {!isSubmitted ? ( */}
                 <div className="px-7 pb-2 pt-5">
                     <div className="max-w-[1040px] space-y-5 text-[12px] leading-5 text-[#494949]">
                         <div className="flex items-start gap-8">
@@ -316,7 +316,7 @@ export default function CreateReport() {
                         </div>
                     </div>
                 </div>
-            ) : null}
+            {/* ) : null} */}
 
             <div className="px-7 pb-10 pt-5">
                 {/* ── Page 1: scoring form ── */}
@@ -473,9 +473,8 @@ export default function CreateReport() {
                 ) : null}
             </div>
 
-            {/* ── Page 2: review scorecard ── */}
             {isSubmitted ? (
-                <div className="px-4 pb-4 pt-2">
+                <div className="p-4">
                     <div className="mx-auto max-w-[1220px]">
                     <div className="flex flex-wrap items-center justify-between gap-4 pb-5">
                         <div className="font-bold text-[26px] leading-tight text-[#494949]">Select the score to fill in the scorecard</div>

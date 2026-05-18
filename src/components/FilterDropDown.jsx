@@ -22,8 +22,8 @@ export default function FilterDropDown({ primarySelected = false, label, dropDow
     
     return (
         <div className="flex items-center gap-2">
-            <div onClick={() => setDropDownOpen(prev => !prev)} className={`relative flex h-[38px] items-center rounded-lg px-3 ${primarySelected ? "bg-transparent" : "bg-white border border-[#E6E9EE]"} gap-2 cursor-pointer transition-colors hover:bg-[#F6F7F9]`}>
-            <div className={!primarySelected ? `text-[#556070] text-[13px] font-medium`: "text-[#202124] text-[13px] font-medium"}>{primarySelected ? (dropDownList.find(i => i.id === selected)?.name ?? dropDownList[0]?.name) : label ? label : "Filter"}</div>
+            <div onClick={() => setDropDownOpen(prev => !prev)} className={`relative flex items-center rounded-full px-4 py-1 ${primarySelected ? "" : `bg-[#FAFAFA] border border-[#E8E8E8]`} gap-2 cursor-pointer`}>
+            <div className={!primarySelected ? `text-[#666666]`: "text-black"}>{primarySelected ? (dropDownList.find(i => i.id === selected)?.name ?? dropDownList[0]?.name) : label ? label : "Filter"}</div>
             <div className="mt-1">
                 <img
                     src={DownIcon}
@@ -32,8 +32,8 @@ export default function FilterDropDown({ primarySelected = false, label, dropDow
                     alt="down"
                 />
             </div>
-            {dropDownOpen && dropDownList.length && <div className="w-48 z-50 absolute top-full left-0 bg-white mt-2 shadow-lg rounded-lg border border-[#E6E9EE] overflow-hidden">
-                {dropDownList.map((i) => (<div className={`px-3 py-2.5 text-[13px] ${i.id === selected ? "font-semibold text-[#DB2F28] bg-[#FFF8F1]" : "text-[#344054]"} hover:bg-[#F6F7F9]`} key={i.id} onClick={(event) => { event.stopPropagation(); handleSelect(i.id); }}>{i.name}</div>))}
+            {dropDownOpen && dropDownList.length && <div className="w-45 z-50 absolute top-full left-0 bg-white mt-2 shadow rounded-md ">
+                {dropDownList.map((i) => (<div className={`px-4 py-3 text-base ${i.id === selected ? "font-semibold" : ""} hover:bg-gray-50`} key={i.id} onClick={(event) => { event.stopPropagation(); handleSelect(i.id); }}>{i.name}</div>))}
             </div>}
         </div>
         </div>

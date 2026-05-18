@@ -203,10 +203,10 @@ export default function BatchMonitoringPage() {
     ];
 
     return (
-        <div className="pb-10">
+        <div>
             <PageHeading title={"Batch Monitoring Table"} />
-            <div className="px-6 pb-6">
-                <div className="surface-panel w-full p-5">
+            <div className="px-4 pb-6">
+                <div className="w-full rounded-md">
                     {successMessage ? (
                         <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
                             {successMessage}
@@ -215,7 +215,7 @@ export default function BatchMonitoringPage() {
                     {error ? (
                         <p className="text-sm text-red-600 mb-3 px-1">{error}</p>
                     ) : null}
-                    <div className="flex flex-wrap items-center gap-3 mb-5 justify-between border-b border-[#EEF1F5] pb-4">
+                    <div className="flex flex-wrap items-center gap-3 mb-4 justify-between">
                         <div className="flex flex-wrap items-center gap-3">
                             <FilterDropDown
                                 primarySelected={true}
