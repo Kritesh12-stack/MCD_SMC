@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const MAX_SLOTS = 1;
-const MAX_BYTES = 500 * 1024;
+// const MAX_BYTES = 500 * 1024;
 
 const DEFAULT_SLOTS = () =>
   Array.from({ length: MAX_SLOTS }, (_, i) => ({
@@ -69,10 +69,10 @@ export default function EvidenceDocumentation({ onChange }) {
       return;
     }
   
-    if (file.size > MAX_BYTES) {
-      window.alert("Image must be 500 KB or smaller.");
-      return;
-    }
+    // if (file.size > MAX_BYTES) {
+    //   window.alert("Image must be 500 KB or smaller.");
+    //   return;
+    // }
   
     setSlots((prev) => {
       const next = [...prev];
@@ -169,7 +169,7 @@ export default function EvidenceDocumentation({ onChange }) {
                     <span className="text-[#888] font-normal">or drag &amp; drop</span>
                   </span>
                   <span className="text-xs text-[#888] mt-0.5">
-  JPG, PNG (max. 500kb)
+  JPG, PNG
 </span>
                   <input
                     type="file"

@@ -6,17 +6,18 @@ import {
     CartesianGrid,
     ResponsiveContainer,
 } from "recharts";
+import Tooltip from "./Tooltip";
 
 export default function HorizontalBarChartCard({ title = "Samples Score Graph", data = [] }) {
     const chartData = data.map((item) => ({ name: item.label, value: item.value }));
 
     return (
-        <div className="rounded-[16px] border border-[#DDE2EA] bg-white p-6 shadow-sm">
+        <div className="rounded-[16px] border border-[#DDE2EA] bg-white p-6 shadow-sm m-4">
             <div className="mb-5 flex items-center justify-between">
                 <span className="text-[20px] font-semibold leading-none text-[#202124]">{title}</span>
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FB8C2E] text-[16px] font-semibold text-white">
-                    i
-                </div>
+                <Tooltip 
+                    text={"A Samples Comparison graph visually compares different product samples based on selected evaluation criteria or scores. It helps identify which sample performed better across defined quality parameters."}
+                />
             </div>
             <div style={{ width: "100%", height: 280 }}>
                 <ResponsiveContainer width="100%" height="100%">

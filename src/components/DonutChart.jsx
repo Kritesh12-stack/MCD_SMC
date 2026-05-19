@@ -24,8 +24,18 @@ const DonutChart = ({
                 <h2 className="text-sm font-medium text-gray-700">
                     {label3 ? `${label1} / ${label2} / ${label3}` : `${label1} vs ${label2}`}
                 </h2>
-                <div className="w-5 h-5 bg-orange-400 text-white text-xs flex items-center justify-center rounded-full">
-                    i
+                <div className="relative group inline-block">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-orange-400 text-xs font-bold text-white cursor-pointer">
+                        i
+                    </div>
+
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 
+                hidden group-hover:block 
+                w-72 text-center
+                whitespace-normal break-words
+                rounded bg-white px-3 py-2 text-xs text-black shadow-lg leading-5">
+  Supplier Submitted Batch refers to the total number of product batches that a supplier has submitted for inspection, approval, or quality evaluation within a selected time period.
+</div>
                 </div>
             </div>
 

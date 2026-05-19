@@ -6,6 +6,7 @@ import {
     PolarRadiusAxis,
     ResponsiveContainer,
 } from "recharts";
+import Tooltip from "./Tooltip";
 
 function SampleCard({ sample }) {
     const attrs = sample.attributes || [];
@@ -105,15 +106,13 @@ export default function QualityMetricsComparison({ spiderCharts = [] }) {
     if (!spiderCharts.length) return null;
 
     return (
-        <section className="mt-6 rounded-xl border border-[#E6E9EE] bg-white p-4">
+        <section className="mt-6 rounded-xl border border-[#E6E9EE] bg-white p-4 m-4">
             <div className="mb-1 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <span className="text-amber-400 text-lg leading-none">★</span>
                     <span className="text-base font-bold text-[#202124]">Quality Metrics Comparison</span>
                 </div>
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-orange-400 text-xs font-bold text-white">
-                    i
-                </div>
+                <Tooltip text={"A Quality Metrics Comparison graph compares multiple quality parameters side by side to evaluate overall product or supplier performance. It helps identify strengths and weaknesses across different quality indicators"} />
             </div>
             <div className="mb-4 text-xs text-[#6F7785]">Target scores vs group scores across all samples</div>
 

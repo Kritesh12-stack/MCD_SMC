@@ -6,6 +6,7 @@ import {
     PolarRadiusAxis,
     ResponsiveContainer,
 } from "recharts";
+import Tooltip from "./Tooltip";
 
 function SampleRadarCard({ sample }) {
     const attrs = sample.attributes || [];
@@ -116,9 +117,7 @@ export default function RadarChartSection({ spiderCharts = [] }) {
         <section className="mt-6">
             <div className="mb-4 flex items-center justify-between">
                 <div className="text-[20px] font-bold leading-none text-[#202124]">Spiderplots data</div>
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FB8C2E] text-[16px] font-semibold text-white">
-                    i
-                </div>
+                <Tooltip text={"A Spider Plot (Radar Chart) displays multiple performance parameters for one or more samples on a circular grid. Each axis represents a quality metric, and the connected points form a “web” shape that shows overall performance visually."}/>
             </div>
 
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">

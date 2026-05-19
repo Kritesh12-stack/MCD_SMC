@@ -10,6 +10,7 @@ import CustomButton from "../components/CustomButton";
 import CustomTable from "../components/CustomTable";
 import DonutChart from "../components/DonutChart";
 import LineChartCard from "../components/LineChartCard";
+import Tooltip from "../components/Tooltip";
 import TotalTicket from "../assets/TotalTicket.svg";
 import ticketInProgress from "../assets/ticketInProgress.svg";
 import totalOpenTicket from "../assets/totalOpenTicket.svg";
@@ -29,16 +30,16 @@ const TABLE_FILTER_SORT = [
 ];
 
 const STATUS_BADGE = {
-    pending:    "bg-amber-100 text-amber-800 border border-amber-200",
-    rejected:   "bg-red-100 text-red-800 border border-red-300",
-    approved:   "bg-blue-100 text-blue-800 border border-blue-200",
+    pending: "bg-amber-100 text-amber-800 border border-amber-200",
+    rejected: "bg-red-100 text-red-800 border border-red-300",
+    approved: "bg-blue-100 text-blue-800 border border-blue-200",
     inprogress: "bg-amber-100 text-amber-800 border border-amber-200",
 };
 
 const STATUS_LABEL = {
-    pending:    "Pending",
-    rejected:   "Rejected",
-    approved:   "Approved",
+    pending: "Pending",
+    rejected: "Rejected",
+    approved: "Approved",
     inprogress: "Pending",
 };
 
@@ -60,15 +61,15 @@ const DECISION_RATE_LINES = [
 ];
 
 const DECISION_RATE_DATA = [
-    { name: "1",  approvalRate: 71, rejectionRate: 29, pendingRate: 0 },
-    { name: "2",  approvalRate: 73, rejectionRate: 27, pendingRate: 0 },
-    { name: "3",  approvalRate: 76, rejectionRate: 24, pendingRate: 0 },
-    { name: "4",  approvalRate: 74, rejectionRate: 26, pendingRate: 0 },
-    { name: "5",  approvalRate: 78, rejectionRate: 22, pendingRate: 0 },
-    { name: "6",  approvalRate: 80, rejectionRate: 20, pendingRate: 0 },
-    { name: "7",  approvalRate: 79, rejectionRate: 21, pendingRate: 0 },
-    { name: "8",  approvalRate: 81, rejectionRate: 19, pendingRate: 0 },
-    { name: "9",  approvalRate: 77, rejectionRate: 23, pendingRate: 0 },
+    { name: "1", approvalRate: 71, rejectionRate: 29, pendingRate: 0 },
+    { name: "2", approvalRate: 73, rejectionRate: 27, pendingRate: 0 },
+    { name: "3", approvalRate: 76, rejectionRate: 24, pendingRate: 0 },
+    { name: "4", approvalRate: 74, rejectionRate: 26, pendingRate: 0 },
+    { name: "5", approvalRate: 78, rejectionRate: 22, pendingRate: 0 },
+    { name: "6", approvalRate: 80, rejectionRate: 20, pendingRate: 0 },
+    { name: "7", approvalRate: 79, rejectionRate: 21, pendingRate: 0 },
+    { name: "8", approvalRate: 81, rejectionRate: 19, pendingRate: 0 },
+    { name: "9", approvalRate: 77, rejectionRate: 23, pendingRate: 0 },
     { name: "10", approvalRate: 82, rejectionRate: 18, pendingRate: 0 },
     { name: "11", approvalRate: 84, rejectionRate: 16, pendingRate: 0 },
     { name: "12", approvalRate: 83, rejectionRate: 17, pendingRate: 0 },
@@ -248,12 +249,9 @@ export default function ScoreDashboard() {
                 length="med"
                 handleSubmit={exportDecisionLineCSV}
             />
-            <div
-                className="w-5 h-5 bg-orange-400 text-white text-xs flex items-center justify-center rounded-full cursor-default"
-                title="Info"
-            >
-                i
-            </div>
+            <Tooltip
+                text={"Supplier Submitted Batch refers to the total number of product batches that a supplier has submitted for inspection, approval, or quality evaluation within a selected time period."}
+            />
         </div>
     );
 
@@ -264,7 +262,7 @@ export default function ScoreDashboard() {
             <div className="flex justify-between items-center px-6 mb-4">
                 <div className="text-[#202124] text-[18px] font-semibold">Overview</div>
                 <div className="flex items-center gap-4">
-                    <FilterDropDown primarySelected={true} dropDownList={DATE_FILTERS} onChange={() => {}} />
+                    <FilterDropDown primarySelected={true} dropDownList={DATE_FILTERS} onChange={() => { }} />
                     <CustomButton type="unfilled-red" title={"Export"} handleSubmit={exportOverviewCSV} />
                 </div>
             </div>
@@ -289,7 +287,7 @@ export default function ScoreDashboard() {
                                 primarySelected={false}
                                 label={"Filter"}
                                 dropDownList={TABLE_FILTER_SORT}
-                                onChange={() => {}}
+                                onChange={() => { }}
                             />
                         </div>
                         <div className="flex flex-wrap items-center gap-3">
