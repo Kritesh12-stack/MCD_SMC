@@ -13,7 +13,6 @@ import {
     getBatchCharts,
     marketReviewBatch,
     regionalReviewBatch,
-    sendBatchFeedback,
     submitBatch,
 } from "../api/batchesApi";
 import {
@@ -171,15 +170,11 @@ export default function BatchDetails() {
     const [correctionLoading, setCorrectionLoading] = useState(false);
     const [correctionMessage, setCorrectionMessage] = useState("");
     const [correctionError, setCorrectionError] = useState("");
-    const [feedbackComment, setFeedbackComment] = useState("");
     const [noteText, setNoteText] = useState("");
     const [noteScope, setNoteScope] = useState("all");
     const [noteLoading, setNoteLoading] = useState(false);
     const [noteMessage, setNoteMessage] = useState("");
     const [noteError, setNoteError] = useState("");
-    const [feedbackLoading, setFeedbackLoading] = useState(false);
-    const [feedbackMessage, setFeedbackMessage] = useState("");
-    const [feedbackError, setFeedbackError] = useState("");
     const [reportLoading, setReportLoading] = useState("");
     const [reportMessage, setReportMessage] = useState("");
     const [reportError, setReportError] = useState("");
@@ -238,7 +233,6 @@ export default function BatchDetails() {
     const canSubmitCorrection = ["Vendor", "DC", "MarketQA", "Admin"].includes(user?.role) && canSubmitCorrectionStatus(batch?.status);
     const canMarketReview = Boolean(id && isMarketReviewer && canMarketReviewStatus(batch?.status));
     const canRegionalReview = Boolean(id && isRegionalReviewer && canRegionalReviewStatus(batch?.status));
-    const canSendFeedback = Boolean(id && isMarketReviewer && ["Approved", "Rejected"].includes(batch?.status) && !batch?.feedback_sent_at);
     const scorecardId = scorecard?.id;
 
     async function handleMarketReview(action) {
@@ -313,27 +307,6 @@ export default function BatchDetails() {
             setCorrectionError(err?.message || "Failed to submit correction response.");
         } finally {
             setCorrectionLoading(false);
-        }
-    }
-
-    async function handleSendFeedback() {
-        if (!id || feedbackLoading) return;
-        setFeedbackError("");
-        setFeedbackMessage("");
-        setFeedbackLoading(true);
-        try {
-            const res = await sendBatchFeedback(id, {
-                comment: feedbackComment.trim(),
-            });
-            const updatedBatch = res?.data?.data;
-            if (updatedBatch) setBatch(updatedBatch);
-            setFeedbackComment("");
-            setFeedbackMessage("Final feedback sent to supplier.");
-            await loadBatch({ silent: true });
-        } catch (err) {
-            setFeedbackError(err?.message || "Failed to send final feedback.");
-        } finally {
-            setFeedbackLoading(false);
         }
     }
 
@@ -776,44 +749,6 @@ export default function BatchDetails() {
                                         className="h-10 rounded-full border border-red-200 bg-red-50 px-5 text-sm font-semibold text-red-700 disabled:cursor-not-allowed disabled:opacity-60"
                                     >
                                         {regionalLoading === "reject" ? "Rejecting..." : "Reject"}
-                                    </button>
-                                </div>
-                            </>
-                        ) : null}
-                    </section>
-                ) : null}
-
-
-                {isMarketReviewer && ["Approved", "Rejected"].includes(batch?.status) ? (
-                    <section className="border p-4 bg-[#FAFAFA] border-[#E8E8E8] rounded-2xl mt-4">
-                        <div className="flex flex-wrap items-start justify-between gap-4">
-                            <div>
-                                <div className="text-[18px] font-semibold text-[#202124]">Supplier Feedback</div>
-                                <div className="mt-1 text-sm text-[#6F7785]">
-                                    {batch?.feedback_sent_at
-                                        ? `Feedback sent ${formatDate(batch.feedback_sent_at)}.`
-                                        : "Send the final decision to supplier users."}
-                                </div>
-                            </div>
-                        </div>
-                        {!batch?.feedback_sent_at ? (
-                            <>
-                                <textarea
-                                    value={feedbackComment}
-                                    onChange={(event) => setFeedbackComment(event.target.value)}
-                                    placeholder="Add final feedback note"
-                                    className="mt-4 min-h-20 w-full resize-y rounded-lg border border-[#E6E9EE] bg-white px-3 py-3 text-sm text-[#202124] outline-none placeholder:text-[#9AA3B2]"
-                                />
-                                {feedbackError ? <div className="mt-3 text-sm text-red-700">{feedbackError}</div> : null}
-                                {feedbackMessage ? <div className="mt-3 text-sm text-emerald-700">{feedbackMessage}</div> : null}
-                                <div className="mt-4 flex justify-end">
-                                    <button
-                                        type="button"
-                                        disabled={!canSendFeedback || feedbackLoading}
-                                        onClick={handleSendFeedback}
-                                        className="h-10 rounded-full bg-[#F11518] px-6 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
-                                    >
-                                        {feedbackLoading ? "Sending..." : "Send Feedback"}
                                     </button>
                                 </div>
                             </>
